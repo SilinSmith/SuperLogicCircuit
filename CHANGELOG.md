@@ -17,6 +17,7 @@
 - **web**：React Flow 12 + dagre 数据流、时钟树、统计、plugin 视图（流水线/Cache）、详情抽屉、`rvgen://` 跳转、布局 localStorage + 服务端合并、失效徽标与手动重载。
 - **rvopen/gitw**：`rvgen://open` URI、三平台注册脚本、`post-commit`/`post-checkout` hook。
 - **migrate**：`1.0.0 → 1.1.0`（去 `profiles`、`stage → x-cpu-stage`、`axi → handshake`），写前快照、`--dry-run` JSON Patch。
+- **CLI**：`init`（minimal/uart/rv32i）、`import`、`gen cdc`、`gen fuse-soc` 接线；`.core` 含 fileset/参数/target。
 - **CI**：Python 覆盖率门禁、lint-imports、前端 typecheck/unit/build/e2e、pre-commit；nightly 变异测试（门槛 80%）。
 - **examples/uart**：uart + fifo + baud_gen，零 CPU，iverilog 编译通过。
 - **docs**：README、ARCHITECTURE、YAML/NODE_GRAPH/TRACE 参考、EXTENDING、TESTING、HANDOVER、NOT_IN_SCOPE、PERF、ACCEPTANCE、12 篇 ADR、决策与偏差记录。

@@ -193,6 +193,20 @@
 - 影响：`py/rvgen/checker.py`、`tests/checker/test_check_lint.py`、`tests/fixtures/schema/valid/node_graph.json`（改为真实生成的期望图）。
 - 状态：已收口；验收 AC06 = ✅。
 
+### D37 AC02/AC09/AC11 收口：四个 CLI 接线
+
+- 决策：`init` 用内置 preset（minimal/uart/rv32i）写 YAML 后直接 `load → graph → emit → write`；`import` 调 `importer.import_verilog` 并输出 YAML；`gen cdc` 生成 `CDC_MODULES` 五个模块（WIDTH=1）；`gen fuse-soc` 生成 CAPI=2 `.core`（fileset/参数/default target）。
+- 理由：用户本轮明确要求“接线到库内已有能力”；`.core` 只做文件列表与参数，不自研构建系统。
+- 影响：`py/rvgen/cli.py`、`py/rvgen/init_presets.py`、`py/rvgen/fusesoc.py`、`tests/unit/test_cli_init_import_gen.py`。
+- 状态：已收口；AC02/AC09/AC11 = ✅。
+
+### D38 `import` 保留参数化位宽
+
+- 决策：`_width_of` 对 `[WIDTH-1:0]` 返回 `"WIDTH"`，对纯数字仍返回整数；`[A-1:0]` 之外的非常量范围原样返回 `"msb:lsb"`。
+- 理由：AC09 明确要求“参数化位宽也正确”；原实现直接丢弃 → `rvgen.yaml` 缺 `width`，与声明不符。
+- 影响：`py/rvgen/importer.py`、`tests/unit/test_importer.py`。
+- 状态：已收口；已知边界：复杂表达式（如 `2*W-1:0`）原样输出，是否可被 loader 解析由 schema 决定，不在 import 阶段展开。
+
 ### D28 迁移首例：`axi → handshake`
 
 - 决策：`1.0.0 → 1.1.0` 迁移中，模块 `x-cpu-*` 外的 `axi` 接口/端口统一映射为 `handshake`，同时删除 `profiles`、`stage/stage_index → x-cpu-stage/x-cpu-stage_index`。

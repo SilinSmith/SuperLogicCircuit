@@ -28,10 +28,6 @@
 
 | 项 | 状态 |
 |---|---|
-| `rvgen init` CLI | 未接线 |
-| `rvgen import` CLI（`importer.py` 已有） | 未接线 |
-| `rvgen gen cdc` / `gen fuse-soc` CLI | 未接线；`render_cdc` 已在 `sync` 内使用 |
-| `check --fix` 与逐字段语义 diff | 未实现 |
 | `examples/rv32i` 参考设计 | 未落地 |
 | elkjs / Web Worker 精细布局 | 未实现 |
 | macOS `rvgen://` 实机验证 | 未验证 |

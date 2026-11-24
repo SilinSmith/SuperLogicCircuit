@@ -33,7 +33,7 @@ def test_ansi_module_with_params_and_ports() -> None:
     ]
     ports = {port["name"]: port for port in module["ports"]}
     assert ports["clk"]["dir"] == "input"
-    assert ports["din"].get("width") is None  # [WIDTH-1:0] 不是纯数字，留给人工
+    assert ports["din"].get("width") == "WIDTH"  # [WIDTH-1:0] 归一为参数表达式
     assert ports["dout"]["width"] == 8
     assert ports["valid"]["dir"] == "output"
     assert "W14" in codes(diagnostics)

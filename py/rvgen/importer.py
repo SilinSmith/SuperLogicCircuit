@@ -86,15 +86,20 @@ def _split_top(text: str) -> list[str]:
     return parts
 
 
-def _width_of(segment: str) -> int | None:
+def _width_of(segment: str) -> int | str | None:
     match = _RANGE_RE.search(segment)
     if match is None:
         return None
+    msb_raw = match.group(1).strip()
+    lsb_raw = match.group(2).strip()
     try:
-        msb = int(match.group(1), 0)
-        lsb = int(match.group(2), 0)
+        msb = int(msb_raw, 0)
+        lsb = int(lsb_raw, 0)
     except ValueError:
-        return None
+        param = re.fullmatch(r"([A-Za-z_][A-Za-z0-9_$]*)\s*-\s*1", msb_raw)
+        if param is not None and lsb_raw == "0":
+            return param.group(1)
+        return f"{msb_raw}:{lsb_raw}"
     return abs(msb - lsb) + 1
 
 

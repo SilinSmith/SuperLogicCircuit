@@ -91,13 +91,12 @@ npm run test:e2e
 
 ## 7. 已知缺口（接手第一优先级）
 
-1. `rvgen init` / `rvgen import` / `rvgen gen cdc` / `rvgen gen fuse-soc` 的 CLI 未接线；`importer.py` 与 `render_cdc` 能力已存在。
-3. `examples/rv32i` 参考设计未落地；当前验收样例是 `examples/uart`。
-4. elkjs 精细布局与 Web Worker 未实现；当前只有 dagre 与径向。
-5. macOS `rvgen://` 注册脚本未实机验证；Windows 脚本已验证。
-6. mutmut 在 Windows 不可用，变异分数只在 nightly Linux 产出。
-7. `trace_summary` 无 plugin 专属聚合；CPU 字段原样保留。
-8. `stats_node` 仅为契约保留，核心构图不产出。
+1. `examples/rv32i` 参考设计未落地；当前验收样例是 `examples/uart`。
+2. elkjs 精细布局与 Web Worker 未实现；当前只有 dagre 与径向。
+3. macOS `rvgen://` 注册脚本未实机验证；Windows 脚本已验证。
+4. mutmut 在 Windows 不可用，变异分数只在 nightly Linux 产出。
+5. `trace_summary` 无 plugin 专属聚合；CPU 字段原样保留。
+6. `stats_node` 仅为契约保留，核心构图不产出。
 
 ## 8. 修改前自检
 

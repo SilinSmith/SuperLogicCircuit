@@ -222,6 +222,131 @@ def _command_label(args: argparse.Namespace) -> str:
     return label
 
 
+def _cmd_init(args: argparse.Namespace) -> int:
+    from .atomic import AtomicWriteError, atomic_write
+    from .emitter import emit
+    from .graph import build, write
+    from .init_presets import PRESETS
+    from .loader import load
+
+    sink = DiagnosticSink()
+    root = Path(args.path).expanduser()
+    rvgen_path = root / "rvgen.yaml"
+    if rvgen_path.exists():
+        sink.error("E00", f"{rvgen_path} 已存在", hint="换一个空目录，或先备份现有声明")
+        _render(sink, "text")
+        return sink.exit_code()
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+        atomic_write(rvgen_path, PRESETS[args.preset])
+    except (OSError, AtomicWriteError) as exc:
+        sink.io_failure = True
+        sink.error("E12", f"初始化失败：{exc}", hint="检查目录权限后重试")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    plugins = discover(sink)
+    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    sink.extend(diagnostics)
+    if model is not None and not sink.has_errors():
+        graph = build(model, sink)
+        if not sink.has_errors():
+            emit(model, graph, root / "rtl", sink)
+        if not sink.has_errors():
+            try:
+                write(graph, root / "node_graph.json", sink=sink)
+            except AtomicWriteError as exc:
+                sink.io_failure = True
+                sink.error("E12", str(exc), hint="检查目录权限后重试")
+    if not sink.has_errors():
+        sys.stdout.write(f"initialized {root} (preset={args.preset})\n")
+    _render(sink, "text")
+    return sink.exit_code()
+
+
+def _cmd_import(args: argparse.Namespace) -> int:
+    import yaml
+
+    from .atomic import AtomicWriteError, atomic_write
+    from .importer import import_verilog
+
+    sink = DiagnosticSink()
+    source = Path(args.file)
+    if not source.exists():
+        sink.io_failure = True
+        sink.error("E00", f"未找到 {source}", hint="传入一个 .v/.sv 文件")
+        _render(sink, "text")
+        return sink.exit_code()
+    try:
+        text = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        sink.io_failure = True
+        sink.error("E12", f"读取失败：{exc}", hint="检查文件权限")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    document, diagnostics = import_verilog(text, source_name=str(source))
+    sink.extend(diagnostics)
+    if document is not None and not sink.has_errors():
+        payload = yaml.safe_dump(document, sort_keys=False, allow_unicode=True)
+        if args.output == "-":
+            sys.stdout.write(payload)
+        else:
+            try:
+                atomic_write(Path(args.output), payload)
+            except AtomicWriteError as exc:
+                sink.io_failure = True
+                sink.error("E12", str(exc), hint="检查输出路径权限")
+            else:
+                sys.stdout.write(f"wrote {args.output}\n")
+    _render(sink, "text")
+    return sink.exit_code()
+
+
+def _cmd_gen(args: argparse.Namespace) -> int:
+    from .atomic import AtomicWriteError, atomic_write
+    from .emitter import CDC_MODULES, render_cdc
+
+    sink = DiagnosticSink()
+    if args.gen_command == "cdc":
+        out = Path(args.out)
+        for kind, module_name in CDC_MODULES.items():
+            try:
+                atomic_write(out / f"{module_name}.v", render_cdc(kind, module_name, 1))
+            except AtomicWriteError as exc:
+                sink.io_failure = True
+                sink.error("E12", str(exc), hint="检查输出目录权限")
+                break
+            sys.stdout.write(f"wrote {out / (module_name + '.v')}\n")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    if args.gen_command == "fuse-soc":
+        from .fusesoc import render_core
+        from .loader import load
+
+        rvgen_path = Path.cwd() / "rvgen.yaml"
+        if not rvgen_path.exists():
+            sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen gen fuse-soc")
+            _render(sink, "text")
+            return sink.exit_code()
+        model, diagnostics = load(rvgen_path, discover(sink), sink=sink)
+        sink.extend(diagnostics)
+        if model is not None and not sink.has_errors():
+            target = Path(args.out) / f"{model.project.name}.core"
+            try:
+                atomic_write(target, render_core(model))
+            except AtomicWriteError as exc:
+                sink.io_failure = True
+                sink.error("E12", str(exc), hint="检查输出目录权限")
+            else:
+                sys.stdout.write(f"wrote {target}\n")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    return _cmd_unimplemented(args)
+
+
 def _cmd_unimplemented(args: argparse.Namespace) -> int:
     sink = DiagnosticSink()
     sink.error(
@@ -471,4 +596,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _cmd_serve(args)
     if args.command == "migrate":
         return _cmd_migrate(args)
+    if args.command == "init":
+        return _cmd_init(args)
+    if args.command == "import":
+        return _cmd_import(args)
+    if args.command == "gen":
+        return _cmd_gen(args)
     return _cmd_unimplemented(args)
