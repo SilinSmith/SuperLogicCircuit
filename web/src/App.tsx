@@ -190,7 +190,7 @@ export function App() {
             onClick={handleReload}
             data-testid="reload-banner"
           >
-            有更新（{staleCount}）· 重新加载
+            源已变更（{staleCount}）· 重新加载
           </button>
         ) : null}
         <button type="button" onClick={handleReload} data-testid="reload-button">

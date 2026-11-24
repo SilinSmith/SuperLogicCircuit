@@ -25,6 +25,8 @@ from .model import DesignModel, ModuleDecl, Port, PortKind, WidthError, param_va
 BEGIN_RE = re.compile(r"^\s*//\s*rvgen:user-begin\s+(\S+)\s*$")
 END_RE = re.compile(r"^\s*//\s*rvgen:user-end\s+(\S+)\s*$")
 FINGERPRINT_RE = re.compile(r"^//\s*rvgen:fingerprint\s+(\S+)\s*$", re.MULTILINE)
+# W01 是给用户看的临时提示，不参与“生成物是否落后”的判定，否则 sync 后立刻 --check 会误报。
+W01_NOTICE_RE = re.compile(r"^//\s*\[W01\].*\n?", re.MULTILINE)
 REF_RE = re.compile(r"^([a-z][a-z0-9_]*)\.([a-z][a-z0-9_]*)$")
 CDC_MODULES = {
     "2ff": "two_ff",
@@ -49,7 +51,7 @@ class EmittedFile:
 
     @property
     def stale(self) -> bool:
-        return self.content != self.existing
+        return _strip_notice(self.content) != _strip_notice(self.existing)
 
     @property
     def existed(self) -> bool:
@@ -392,6 +394,10 @@ def _read(path: Path) -> str:
         return path.read_text(encoding="utf-8")
     except OSError:
         return ""
+
+
+def _strip_notice(text: str) -> str:
+    return W01_NOTICE_RE.sub("", text)
 
 
 def _notice(existing: str, new_fp: str) -> str | None:

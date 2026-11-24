@@ -17,6 +17,6 @@ def cpu_plugin() -> Plugin:
         rules=(validate,),
         views=VIEWS,
         trace_flavors=TRACE_FLAVORS,
-        node_types=("p_cpu:pipeline_slot_node", "p_cpu:cache_state_node"),
+        node_types=("p_cpu:pipeline_slot_node", "p_cpu:cache_node"),
         kinds=("cache", "pipeline_slot"),
     )

@@ -6,6 +6,6 @@ P0 只提供地基：契约、诊断、原子写、plugin 发现与 CLI 骨架�
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 __all__ = ["__version__"]

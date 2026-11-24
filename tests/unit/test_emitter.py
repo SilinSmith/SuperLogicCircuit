@@ -187,6 +187,23 @@ def test_contract_fingerprint_change_warns_w01(tmp_path: Path) -> None:
     assert "W01" in _codes(sink)
 
 
+def test_sync_converges_after_contract_notice(tmp_path: Path) -> None:
+    """W01 提示是一次性的：emit 后立刻 sync --check 不应把提示当成落后。"""
+    model, sink = _load()
+    graph = build(model, sink)
+    emit(model, graph, tmp_path, sink)
+    uart = tmp_path / "uart.v"
+    lines = uart.read_text(encoding="utf-8").splitlines(keepends=True)
+    lines[1] = "// rvgen:fingerprint stale\n"
+    uart.write_text("".join(lines), encoding="utf-8")
+
+    emit(model, graph, tmp_path, sink)
+    check_sink = DiagnosticSink()
+    stale = check_outputs(model, graph, tmp_path, check_sink)
+    assert stale == []
+    assert "E15" not in _codes(check_sink)
+
+
 def test_render_cdc_creates_bridge() -> None:
     text = render_cdc("2ff", "two_ff", 8)
     assert "module two_ff #(" in text

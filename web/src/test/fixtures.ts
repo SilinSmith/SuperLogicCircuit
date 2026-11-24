@@ -61,7 +61,7 @@ export const clockEdge: GraphEdge = {
 
 export const sampleGraph: NodeGraph = {
   schema_version: "1.0.0",
-  generated_by: "rvgen 0.1.0",
+  generated_by: "rvgen 1.0.0",
   source_digest: "sha256:0123456789abcdef",
   nodes: [clockNode, fifoNode, uartNode],
   edges: [clockEdge, dataEdge],

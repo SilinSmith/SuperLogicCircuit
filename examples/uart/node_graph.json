@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "rvgen 1.0.0",
+  "source_digest": "sha256:25db8c57aeb7a4de",
+  "nodes": [
+    {
+      "id": "clk:clk",
+      "type": "clock_node",
+      "label": "clk",
+      "clock": "clk",
+      "domain": "sys",
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 8,
+        "end_line": 8
+      }
+    },
+    {
+      "id": "mod:baud_gen",
+      "type": "module_node",
+      "label": "baud_gen",
+      "module": "baud_gen",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "tick",
+          "dir": "output",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 27,
+        "end_line": 33
+      }
+    },
+    {
+      "id": "mod:fifo",
+      "type": "module_node",
+      "label": "fifo",
+      "module": "fifo",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "push",
+          "dir": "input",
+          "width_expr": 8,
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "pop",
+          "dir": "output",
+          "width_expr": 8,
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 20,
+        "end_line": 27
+      }
+    },
+    {
+      "id": "mod:uart",
+      "type": "module_node",
+      "label": "uart",
+      "module": "uart",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "cfg",
+          "dir": "input",
+          "width_expr": "WIDTH",
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rxd",
+          "dir": "input",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "tx",
+          "dir": "output",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 10,
+        "end_line": 20
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "clk:clk->mod:baud_gen",
+      "source": "clk:clk",
+      "target": "mod:baud_gen",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:fifo",
+      "source": "clk:clk",
+      "target": "mod:fifo",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:uart",
+      "source": "clk:clk",
+      "target": "mod:uart",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    }
+  ]
+}

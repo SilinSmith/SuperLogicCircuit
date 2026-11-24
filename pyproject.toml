@@ -50,6 +50,12 @@ minversion = "8.0"
 testpaths = ["tests"]
 addopts = "-ra"
 
+[tool.mutmut]
+# nightly 只变异核心判定逻辑；score 门槛由 scripts/mutation_score.py 执行。
+source_paths = ["py/rvgen"]
+pytest_add_cli_args_test_selection = ["tests/unit"]
+do_not_mutate = ["*/__init__.py"]
+
 [tool.importlinter]
 root_package = "rvgen"
 

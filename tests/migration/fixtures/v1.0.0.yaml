@@ -1,0 +1,28 @@
+schema_version: '1.0.0'
+profiles:
+  - default
+project:
+  name: legacy_fixture
+  top: top
+  default_clock: clk
+  reset: {name: rst_n, polarity: active_low, sync: true, levels: 2}
+clocks:
+  - name: clk
+    freq_hz: 50000000
+    domain_id: sys
+    source: pad
+modules:
+  - name: cpu_core
+    kind: module
+    clock: clk
+    stage: EX
+    stage_index: 2
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: axi_in, dir: input, kind: axi, width: 32}
+      - {name: result, dir: output, width: 32}
+top:
+  ports:
+    - {name: clk, dir: input, role: clock}
+    - {name: axi_in, dir: input, to: [cpu_core.axi_in]}
+    - {name: result, dir: output, from: cpu_core.result}

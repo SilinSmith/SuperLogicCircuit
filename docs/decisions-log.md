@@ -137,6 +137,7 @@
 - 理由：统计图表是方案明确的核心视图；按需注册已把体积压到可接受范围，暂不做路由级 code-split（单页应用，切换视图不重复下载）。
 - 状态：已收口；若 P5/P6 加入更多视图导致体积失控，再按视图动态 import。
   P5 实测构建 **JS 983.58 kB（gzip 325.31 kB）**、CSS 22.13 kB（gzip 4.16 kB），增量来自 SSE/布局模块。
+  P6 收尾实测 **JS 983.87 kB（gzip 325.43 kB）**、CSS 22.13 kB（gzip 4.16 kB），与 P5 基本持平；未做 code-split，理由见 [PERF.md](PERF.md)。
 
 ## P5
 
@@ -174,3 +175,68 @@
 - 理由：浏览器无法可靠检测自定义协议是否被处理，静默失败不可接受；Windows 脚本本机可验证，macOS/Linux 脚本按平台标准做法编写但**未实机验证**。
 - 影响：`web/src/lib/rvopen.ts`、`web/src/panels/DetailDrawer.tsx`、`scripts/*`、`docs/WEBUI.md`。
 - 状态：Windows 已收口；macOS/Linux 脚本待实机验证。
+
+## P6
+
+### D27 `check` 语义 diff 与 `--fix` 未实现
+
+- 决策：P6 不补 `check --fix`，也不补“手改图逐字段 diff → 退出 1”。`check` 维持 schema lint + 语义规则重算 + `generated_by` 的 `W10`；`sync --check` 负责生成物落后（E15）。
+- 理由：逐字段 diff 与 `--fix` 的修图语义（哪些字段可由 YAML 覆盖、哪些是人工意图）文档没有定论；P2 已记为 D10 待收口。P6 范围是硬化与交付，补实现会越过“范围之外不写”的约束。
+- 影响：AC06 ❌、AC12 的 grep 口径、HANDOVER 第 7 节。
+- 状态：**未收口**，列入 v1.1 首项。
+
+### D28 迁移首例：`axi → handshake`
+
+- 决策：`1.0.0 → 1.1.0` 迁移中，模块 `x-cpu-*` 外的 `axi` 接口/端口统一映射为 `handshake`，同时删除 `profiles`、`stage/stage_index → x-cpu-stage/x-cpu-stage_index`。
+- 理由：`axi` 在 1.0.0 样例中只表示“握手通道”，不是完整 AXI 协议；映射到内置 `handshake` 是语义最小改动。完整 AXI 仍走接口库 `axi4lite`。
+- 影响：`py/rvgen/migrate.py`、`tests/migration/fixtures/v1.0.0.yaml`、AC 表未涉及。
+- 状态：已收口；如后续出现真实 AXI 字段，另加 step 而不是改本步。
+
+### D29 变异测试只在 Linux nightly 跑
+
+- 决策：`mutmut` 依赖 `fork`，Windows 不可用；本机只验证 `scripts/mutation_score.py` 的解析/门槛（3 个单测），真实变异交给 `.github/workflows/nightly.yml`。
+- 理由：不为 Windows 改测试架构；变异是夜间质量信号，不阻塞本地提交。
+- 影响：`pyproject.toml [tool.mutmut]`、nightly、TESTING。
+- 状态：已收口（Linux 首跑数据待 CI 产出）。
+
+### D30 离线 npm 缓存为空
+
+- 决策：仓库只保留 `vendor/npm/.gitkeep`，不提交 tgz；AC01 的“全新 clone 离线 npm ci”降级为 ⚠️。
+- 理由：把 node_modules 依赖打进 git 体积不可接受；`scripts/npm-offline.*` 的用途是从已装环境回填缓存，首次仍需联网。
+- 影响：AC01、README 安装说明。
+- 状态：**未收口**；若需真正离线，另开 vendor tgz 提交策略。
+
+### D31 plugin 节点类型统一为 `p_cpu:cache_node`
+
+- 决策：`plugins/cpu/plugin.py` 的 `node_types` 从 `p_cpu:cache_state_node` 改为 `p_cpu:cache_node`，与 `schema/node_graph.schema.json`、前端样例、`test_plugins` 一致。
+- 理由：P5 前端按 `p_cpu:cache_node` 渲染；注册名不一致会让 `plugin list` 与图契约脱节，且 AC19 无法成立。
+- 影响：`plugins/cpu/plugin.py`。
+- 状态：已收口。
+
+### D32 AC12 的 grep 命中 CLI 预设名
+
+- 决策：保留 `rvgen init --preset rv32i`（方案 §7.1 明确列出），接受 AC12 的 `grep -rnE "is_cpu|rv32i|..." py/rvgen/` 命中 1 处；AC12 记为 ⚠️。
+- 理由：该字符串是 CLI 样例域名称，不是核心逻辑分支；删掉会与方案 §7.1 冲突。schema 白名单测试（`test_core_whitelist.py`）全绿，核心边界仍成立。
+- 影响：AC12、NOT_IN_SCOPE。
+- 状态：**口径已记录**；若用户要求 grep 零命中，需把 preset 改名并同步方案。
+
+### D33 工具版本升到 1.0.0
+
+- 决策：`py/rvgen/__init__.py` 从 `0.1.0` 升到 `1.0.0`，同步 golden/fixtures/示例生成物与 `test_cli_skeleton`；tag 打 `v1.0.0`。
+- 理由：P6 退出标准要求工具版本 `v1.0.0`；tag 与 `--version` 不一致会让 `generated_by` 与 `W10` 失真。
+- 影响：`__init__.py`、`tests/golden/node_graph.json`、`tests/fixtures/schema/valid/node_graph.json`、`web/public/sample/*.json`、`web/src/test/fixtures.ts`、`web/e2e/perf-500.spec.ts`、`examples/uart/*`。
+- 状态：已收口（重新生成后 `graph --write`、`sync`、`sync --check`、`check --strict` 均 0，iverilog 0）。
+
+### D34 文档与 AC 的诚实标注
+
+- 决策：30 条验收逐条标注 ✅/⚠️/❌，不为“全绿”改测试或删条目；未实现的能力同时写入 HANDOVER 第 7 节与 NOT_IN_SCOPE 第 2 节。
+- 理由：交付物必须让接手者一眼看到真实边界；把缺口藏在通过率里是更坏的交付。
+- 影响：`docs/ACCEPTANCE.md`、`docs/HANDOVER.md`、`docs/NOT_IN_SCOPE.md`。
+- 状态：已收口。
+
+### D35 性能数字与复现口径
+
+- 决策：PERF 只记录本机可复现命令与同机数字：1M 行归一化 6.50 s、500 节点 p95 60.2 FPS、构建 983.87 kB / gzip 325.43 kB；不把数字写成 SLA。
+- 理由：换机器即变；门槛（25 s / 30 FPS / 80% 变异）才是契约。
+- 影响：`docs/PERF.md`、ADR-06、D21。
+- 状态：已收口。

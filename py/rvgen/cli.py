@@ -413,6 +413,36 @@ def _cmd_trace(args: argparse.Namespace) -> int:
     return _cmd_unimplemented(args)
 
 
+def _cmd_migrate(args: argparse.Namespace) -> int:
+    from .migrate import MigrationError, migrate_file
+
+    sink = DiagnosticSink()
+    path = Path.cwd() / "rvgen.yaml"
+    try:
+        result = migrate_file(path, dry_run=args.dry_run, from_version=args.from_version)
+    except MigrationError as exc:
+        if not path.exists():
+            sink.io_failure = True
+        sink.error("E00", str(exc), hint="迁移前请先备份；rvgen 会自动写 .rvgen/snapshots/")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    if not result.steps:
+        sys.stdout.write(f"rvgen.yaml 已是 {result.to_version}，无需迁移\n")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    if args.dry_run:
+        sys.stdout.write(json.dumps(result.patch, ensure_ascii=False, indent=2) + "\n")
+    else:
+        chain = " → ".join([result.from_version, *(step.target for step in result.steps)])
+        sys.stdout.write(f"migrated rvgen.yaml: {chain}\n")
+        if result.snapshot:
+            sys.stdout.write(f"snapshot: {result.snapshot}\n")
+    _render(sink, "text")
+    return sink.exit_code()
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     try:
@@ -439,4 +469,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _cmd_trace(args)
     if args.command == "serve":
         return _cmd_serve(args)
+    if args.command == "migrate":
+        return _cmd_migrate(args)
     return _cmd_unimplemented(args)
