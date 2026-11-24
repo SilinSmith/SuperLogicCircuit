@@ -7,6 +7,7 @@ export interface ModuleNodeData extends Record<string, unknown> {
 
 export interface BandwidthEdgeData extends Record<string, unknown> {
   graph: GraphEdge;
+  utilization?: number | null;
 }
 
 export type FlowNode = Node<ModuleNodeData, "module">;

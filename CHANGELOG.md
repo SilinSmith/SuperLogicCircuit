@@ -29,6 +29,7 @@
 - `node_graph.json` 的 node id / node_port 契约**不变**。
 - `sync` 不写 `node_graph.json`；`sync --update-graph` 才写。
 - `serve` 的 `rvgen_protocol` doctor 检查改为 `manual`（注册脚本需用户执行）。
+- 数据流边标签用 `E`/`D`/`T` 区分 explicit/derived/trace_summary，trace 边显示实测利用率。
 
 ### Fixed
 

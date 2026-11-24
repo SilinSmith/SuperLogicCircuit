@@ -218,6 +218,7 @@ export function App() {
               <DataflowView
                 graph={graph}
                 layout={layout}
+                summary={summary}
                 onSelectNode={handleSelect}
                 onNodeDragStop={handleNodeDragStop}
               />

@@ -5,7 +5,7 @@
 ## 1. 一句话现状
 
 `rvgen` v1.0.0 已实现 **YAML 声明 → 校验/建图 → RTL 骨架生成 → 静态看板 → 本地服务 + 失效提示 → trace 指标 → 迁移首例** 的主链路；核心零领域知识，CPU 只是 `plugins/cpu` 示例。
-**未实现**：`rvgen init`、`rvgen import` 的 CLI、`rvgen gen cdc/fuse-soc` 的 CLI、`check --fix`、逐字段语义 diff、`examples/rv32i`、elkjs Worker。详见第 7 节与 AC 表。
+**未实现**：elkjs/Worker 精细布局、视图切换内存增长实测、离线 npm 缓存回填、macOS/Linux 协议实机验证。详见第 7 节与 AC 表。
 
 ## 2. 上手五分钟
 
@@ -92,6 +92,7 @@ npm run test:e2e
 ## 7. 已知缺口（接手第一优先级）
 
 1. elkjs 精细布局与 Web Worker 未实现；当前只有 dagre 与径向。
+2. 视图切换 20 次内存增长 <20% 未测量；无稳定跨浏览器 heap API。
 3. macOS `rvgen://` 注册脚本未实机验证；Windows 脚本已验证。
 4. mutmut 在 Windows 不可用，变异分数只在 nightly Linux 产出。
 5. `trace_summary` 无 plugin 专属聚合；CPU 字段原样保留。

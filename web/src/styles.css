@@ -285,6 +285,38 @@ body {
   font-size: 10px;
   font-family: ui-monospace, Consolas, monospace;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bandwidth-edge__source {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--muted);
+}
+
+.bandwidth-edge__source[data-source="explicit"] {
+  background: #b45309;
+}
+
+.bandwidth-edge__source[data-source="derived"] {
+  background: #1d4ed8;
+}
+
+.bandwidth-edge__source[data-source="trace"] {
+  background: #047857;
+}
+
+.bandwidth-edge__util {
+  color: #047857;
 }
 
 .detail-drawer {

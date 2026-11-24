@@ -270,3 +270,26 @@
 - 理由：换机器即变；门槛（25 s / 30 FPS / 80% 变异）才是契约。
 - 影响：`docs/PERF.md`、ADR-06、D21。
 - 状态：已收口。
+
+### D40 AC20 边标签用 E/D/T 区分带宽来源
+
+- 决策：边标签统一显示来源徽标——`E`=explicit（人工标注）、`D`=derived（宽度 × 时钟）、`T`=trace_summary（实测利用率）；trace 边同时显示 `NN%`。来源判定优先级：有 trace 利用率 → `T`，否则取 `graph.bandwidth.source`。
+- 理由：三种来源混在同一个数字里会让读者误把推导值当实测值；方案 §6/AC20 要求可区分。
+- 影响：`web/src/flow/edges/BandwidthEdge.tsx`、`web/src/flow/types.ts`、`web/src/views/DataflowView.tsx`、`web/src/App.tsx`、`web/src/styles.css`、两个单测文件。
+- 状态：已收口（typecheck 0、web 单测 39 passed、e2e 9 passed/1 skipped、build 0）。
+
+### D41 AC21 内存增长与 AC29 elkjs 暂不实现
+
+- 决策：
+  - AC21：不测“视图切换 20 次内存增长 <20%”。浏览器没有稳定的跨浏览器 heap API，视图切换 remount 属既有设计；只保留 e2e 覆盖切换正确性。
+  - AC29：不引入 elkjs/Worker。新增依赖与异步布局改造超出本轮“收尾”范围；现有 dagre 布局已在 500 节点达到 p95 60.2 FPS，满足性能门槛。
+- 理由：两项都需要新的测量/依赖投入，收益低于风险；按用户“按性价比处理，做不了写明原因和影响”执行。
+- 影响：AC21/AC29 保持 ⚠️；`docs/ACCEPTANCE.md` 已写明未测/未实现的原因与影响。
+- 状态：**口径已记录**；若后续要求内存 SLA 或精细布局，另开任务。
+
+### D42 AC01 离线 npm 缓存本轮跳过
+
+- 决策：不回填 `vendor/npm/`。回填必须联网执行 npm 安装并打包 tgz，按用户“需要联网下载就先跳过并记录”处理；AC01 保持 ⚠️。
+- 理由：不把联网依赖伪装成离线可复现；仓库已有 `scripts/npm-offline.{sh,ps1}`，缺的只是首次回填。
+- 影响：AC01、README 安装说明。
+- 状态：**未收口**；需联网一次回填 tgz 后复测全新 clone。

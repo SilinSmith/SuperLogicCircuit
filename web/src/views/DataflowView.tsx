@@ -4,6 +4,7 @@ import { FlowCanvas } from "../flow/FlowCanvas";
 import { layoutNodes } from "../flow/layout";
 import { NODE_WIDTH, nodeHeight, type FlowEdge, type FlowNode } from "../flow/types";
 import { applyLayout, type LayoutFile } from "../lib/layout";
+import type { TraceSummary } from "../lib/stats";
 
 const DATAFLOW_EDGE_KINDS: GraphEdge["kind"][] = ["data", "handshake", "bundle", "param"];
 
@@ -25,8 +26,10 @@ export function dataflowSubset(graph: NodeGraph): { nodes: GraphNode[]; edges: G
 export function buildFlowElements(
   graph: NodeGraph,
   layout?: LayoutFile,
+  summary?: TraceSummary | null,
 ): { nodes: FlowNode[]; edges: FlowEdge[] } {
   const { nodes, edges } = dataflowSubset(graph);
+  const metrics = new Map((summary?.edges ?? []).map((edge) => [edge.id, edge]));
   const positions = layoutNodes(nodes, edges, "LR");
   const flowNodes: FlowNode[] = nodes.map((node) => {
     const point = positions.get(node.id) ?? { x: 0, y: 0 };
@@ -46,7 +49,7 @@ export function buildFlowElements(
     source: edge.source,
     target: edge.target,
     type: "bandwidth",
-    data: { graph: edge },
+    data: { graph: edge, utilization: metrics.get(edge.id)?.utilization ?? null },
     animated: false,
   }));
   return { nodes: positioned, edges: flowEdges };
@@ -56,11 +59,12 @@ export interface DataflowViewProps {
   graph: NodeGraph;
   onSelectNode?: (node: GraphNode) => void;
   layout?: LayoutFile;
+  summary?: TraceSummary | null;
   onNodeDragStop?: (id: string, position: { x: number; y: number }) => void;
 }
 
-export function DataflowView({ graph, onSelectNode, layout, onNodeDragStop }: DataflowViewProps) {
-  const elements = useMemo(() => buildFlowElements(graph, layout), [graph, layout]);
+export function DataflowView({ graph, onSelectNode, layout, summary, onNodeDragStop }: DataflowViewProps) {
+  const elements = useMemo(() => buildFlowElements(graph, layout, summary), [graph, layout, summary]);
   return (
     <FlowCanvas
       nodes={elements.nodes}
