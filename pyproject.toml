@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rvgen"
+dynamic = ["version"]
+description = "声明式 Verilog/IP 工程脚手架、图形化看板与 Git 一致性闭环"
+requires-python = "==3.11.*"
+dependencies = [
+  "pyyaml==6.0.4",
+  "jsonschema==4.26.0",
+  "jinja2==3.1.6",
+  "watchdog==7.1.1",
+  "fastapi==0.165.0",
+  "uvicorn[standard]==0.54.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.2.0",
+  "pytest-cov==7.1.0",
+  "hypothesis==6.170.17",
+  "pytest-benchmark==5.3.1",
+  "mutmut==3.8.1",
+  "import-linter==2.17",
+  "pip-tools==7.7.0",
+  "pre-commit==4.7.0",
+]
+
+[project.scripts]
+rvgen = "rvgen.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "py"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["py"]
+
+[tool.setuptools.dynamic]
+version = {attr = "rvgen.__version__"}
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.importlinter]
+root_package = "rvgen"
+
+[[tool.importlinter.contracts]]
+name = "core 不得依赖 server/infra"
+type = "forbidden"
+source_modules = ["rvgen.loader", "rvgen.model", "rvgen.graph", "rvgen.checker", "rvgen.digest"]
+forbidden_modules = ["rvgen.server", "rvgen.gitw", "rvgen.rvopen", "rvgen.layout"]
