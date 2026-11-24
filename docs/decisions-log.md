@@ -66,3 +66,41 @@
 - 决策：P2 本轮不实现；`gen` 子命令仍返回 E00。
 - 理由：用户本轮 P2 范围明确为 emitter、生成物保护、`sync --check` 比对、E10。
 - 状态：待后续阶段（P3/P5/按需）收口。
+
+## P3
+
+### D11 P3 数据源与样例
+
+- 决策：前端默认读 `/sample/node_graph.json`（`tests/golden/node_graph.json` 的只读拷贝），`?graph=<url>` 可覆盖；P5 接入 `rvgen serve` 后默认改为 `/api/graph`。
+- 理由：P3 尚无服务端，但 e2e 必须能加载真实契约；静态样例与 golden 同源，避免前端自造 JSON。
+- 状态：P5 收口为默认 `/api/graph`，样例保留用于离线演示。
+
+### D12 `rvgen://` 按钮在 P3 的行为
+
+- 决策：P3 只生成 URI 并复制到剪贴板，附“协议注册后可直接打开”提示；不尝试 `window.location` 跳转，不做全局 URI Scheme 注册。
+- 理由：未注册的协议浏览器会静默失败；方案把协议注册放在 P5，P3 提前拉起会产生误导。
+- 状态：待 P5 收口为直接拉起。
+
+### D13 拖拽与布局持久化
+
+- 决策：P3 拖拽只更新 React Flow 本地状态，不写 `node_graph.json`、不写 `layout.json`/localStorage。
+- 理由：方案 A5 要求布局旁路持久化，但 `layout.json` 的合并与折叠语义属于 P4/P5；P3 只验证画布交互。
+- 状态：P4/P5 接入 `layout.json`（不进 git）。
+
+### D14 `vendor/npm` 未生成 tgz
+
+- 决策：P3 不把前端传递依赖的 tgz 提交进 `vendor/npm`；本机以预热缓存验证 `npm ci --offline`，CI 在 vendor 为空时回退 `npm ci`。
+- 理由：完整前端依赖树约数百个包（数十 MB），提交二进制 tgz 会显著膨胀仓库；功能门禁不依赖离线安装。
+- 状态：待 P6 或发布前按需补齐；CI 已按“有 tgz 用离线、否则联网”自适应。
+
+### D15 前端依赖版本对齐
+
+- 决策：按实际可安装版本锁定 Vitest 3.2.7、Playwright 1.65.1、`dagre` 0.8.5（配 `@types/dagre`），替换文档表格中的 Vitest 2 / Playwright 1.49 / `@dagrejs/dagre`；React 19.3.1、Vite 7.3.8、`@xyflow/react` 12.12.1 与方案一致。
+- 理由：主版本口径不变（React 19 / Vite 7 / xyflow 12 / TS 5）；React Flow 官方示例即用 `dagre`，避免再引入维护分支。
+- 状态：已收口，`docs/DEPENDENCIES.md` 已同步实测版本与体积。
+
+### D16 500 节点性能门禁的执行方式
+
+- 决策：`e2e/perf-500.spec.ts` 默认跳过，`PERF=1` 时运行并断言拖拽帧 p95 ≥ 30 FPS；CI 只跑 `load-json`/`drag-node` 功能 e2e。
+- 理由：无头环境帧率受宿主影响，作为常驻门禁会抖动；性能门槛按方案要求实测并记录数值。
+- 状态：本机实测 **60.2 FPS**（59 帧样本），已写入 `docs/ADR/ADR-06-frontend.md`。

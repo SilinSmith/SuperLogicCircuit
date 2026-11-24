@@ -31,29 +31,31 @@
 
 完整传递依赖锁在根目录 `requirements.lock`（由 `pip-compile --extra=dev pyproject.toml` 生成）。
 
-## 前端依赖（P3 起安装；版本按第 15 章锁定）
+## 前端依赖（P3 实际安装面，`web/package-lock.json` 锁定）
 
-| 包 | 锁定版本 | 许可证 | 实测安装体积 | 实测依据 |
+> 体积为 `web/node_modules/<pkg>` 目录文件字节求和（P3 实测，2026-11-25）；含包内数据，不含其传递依赖。
+
+| 包 | 锁定版本 | 许可证 | 实测安装体积 | 用途 |
 |---|---|---|---|---|
-| react | 19.3.1 | MIT | 174.5 KiB | `npm view react@19.3.1 license dist.unpackedSize` |
-| react-dom | 19.3.1 | MIT | 7878.5 KiB | `npm view react-dom@19.3.1 license dist.unpackedSize` |
-| @xyflow/react | 12.12.1 | MIT | 1187.9 KiB | `npm view @xyflow/react@12.12.1 license dist.unpackedSize` |
-| vite | 7.3.8 | MIT | 2191.9 KiB | `npm view vite@7.3.8 license dist.unpackedSize` |
-| typescript | 5.9.3 | Apache-2.0 | 23071.4 KiB | `npm view typescript@5.9.3 license dist.unpackedSize` |
-| zustand | 5.1.0 | MIT | 109.1 KiB | `npm view zustand@5.1.0 license dist.unpackedSize` |
-| elkjs | 0.12.1 | EPL-2.0 OR GPL-3.0-or-later | 8037.6 KiB | `npm view elkjs@0.12.1 license dist.unpackedSize` |
-| @dagrejs/dagre | 3.1.3 | MIT | 1390.1 KiB | `npm view @dagrejs/dagre@3.1.3 license dist.unpackedSize` |
-| echarts | 5.5.1 | Apache-2.0 | 51571.2 KiB | `npm view echarts@5.5.1 license dist.unpackedSize` |
-| @tanstack/react-query | 5.108.4 | MIT | 1761.7 KiB | `npm view @tanstack/react-query@5.108.4 license dist.unpackedSize` |
-| vitest | 2.1.9 | MIT | 1602.1 KiB | `npm view vitest@2.1.9 license dist.unpackedSize` |
-| @testing-library/react | 16.3.3 | MIT | 331.6 KiB | `npm view @testing-library/react@16.3.3 license dist.unpackedSize` |
-| @playwright/test | 1.49.1 | Apache-2.0 | 24.8 KiB（另有 playwright-core 7779.9 KiB） | `npm view @playwright/test@1.49.1 license dist.unpackedSize` |
-| json-schema-to-typescript | 16.0.0 | MIT | 287.5 KiB | `npm view json-schema-to-typescript@16.0.0 license dist.unpackedSize` |
-| eslint | 10.15.0 | MIT | 2889.5 KiB | `npm view eslint@10.15.0 license dist.unpackedSize` |
-| prettier | 3.10.1 | MIT | 11174.0 KiB | `npm view prettier@3.10.1 license dist.unpackedSize` |
+| react | 19.3.1 | MIT | 174.5 KiB | UI 运行时 |
+| react-dom | 19.3.1 | MIT | 7878.5 KiB | UI 渲染 |
+| @xyflow/react | 12.12.1 | MIT | 1187.9 KiB | 节点编辑器（画布/拖拽/小地图） |
+| dagre | 0.8.5 | MIT | 824.8 KiB | 数据流视图分层布局（同步） |
+| zustand | 4.5.7 | MIT | 319.4 KiB | `@xyflow/react` 的传递依赖，非直接依赖 |
+| vite | 7.3.8 | MIT | 2191.9 KiB | dev server / 构建 |
+| typescript | 5.9.3 | Apache-2.0 | 23071.4 KiB | 类型检查 |
+| vitest | 3.2.7 | MIT | 1349.0 KiB | 单元测试与快照 |
+| jsdom | 26.1.0 | MIT | 3105.2 KiB | 单测 DOM 环境 |
+| @testing-library/react | 16.3.3 | MIT | 331.6 KiB | 组件测试 |
+| @testing-library/jest-dom | 6.9.1 | MIT | 562.0 KiB | DOM 断言 |
+| @vitejs/plugin-react | 5.2.0 | MIT | 45.2 KiB | React 插件 |
+| @playwright/test | 1.65.1 | Apache-2.0 | 27.9 KiB | e2e |
+| playwright-core | 1.65.1 | Apache-2.0 | 13644.0 KiB | `@playwright/test` 的传递依赖 |
+| esbuild | 0.28.2 | MIT | 143.9 KiB | Vite 的传递依赖 |
 
-> 版本选择说明：文档锁定 React 19 / Vite 7 / `@xyflow/react` 12 / TypeScript 5 / Vitest 2 / Testing Library 16 / Playwright 1.4x；表中取各主版本当前可用的最高次版本。Playwright 取 1.49.1（1.4x 线），而非 registry 当前最新的 1.65.1。
-> `elkjs` 为 EPL-2.0 / GPL-3.0 双许可；按文档作为布局候选保留，未进入 P0 安装面。
+> 版本选择：方案第 15 章锁定 React 19 / Vite 7 / `@xyflow/react` 12 / TypeScript 5 / Vitest 2 / Playwright 1.4x。
+> P3 实际取各主版本当前可用的最高次版本；Vitest 3.2.7、Playwright 1.65.1、`dagre` 0.8.5（React Flow 官方示例同款，`@types/dagre` 提供类型）与表格原计划的 Vitest 2 / Playwright 1.49 / `@dagrejs/dagre` 有差异，记录见 `docs/decisions-log.md` D15。
+> `elkjs` 为 EPL-2.0 / GPL-3.0 双许可，P3 未安装；P4 若引入时钟树精细布局再评估。
 
 ## 工具链与前置条件
 
@@ -62,6 +64,7 @@
 | Python 3.11.6 | 已装 | `python --version` → `Python 3.11.6` | 必需；否则不满足 `requires-python` |
 | Node v24.22.1 | 已装 | `node --version` | P3 起必需 |
 | npm 11.19.1 | 已装 | `npm --version` | P3 起必需 |
+| Chromium（Playwright） | 已装 | `npx playwright install chromium` | 仅 e2e/性能校准需要 |
 | Icarus Verilog 14.0 | 已装 | `iverilog -V` | 必需；`rvgen doctor` 报缺失 |
 | Yosys 0.56 | 已装 | `yosys -V` | 可选；缺失时用 `iverilog -g2005` |
 | Verilator | 未装 | `verilator --version` 命令不存在 | 可选；`doctor` 只提示，不自动安装 |
@@ -74,5 +77,7 @@
 - Python：`vendor/wheels/` 存 `pip download -r requirements.lock` 的产物；离线安装命令
   `pip install --no-index --find-links vendor/wheels -r requirements.lock`。
 - npm：`scripts/npm-offline.sh` 与 `scripts/npm-offline.ps1` 只做 `npm cache add vendor/npm/*.tgz`，不联网。
-- 当前仓库没有 `web/package.json`（前端骨架属 P3），因此 `vendor/npm/` 在 P0 为空，脚本会打印说明并以 0 退出；P3 引入 `web/package.json` 后必须补齐 tgz 并让 `npm ci --offline` 通过。
+- P3 已引入 `web/package.json` 与 `web/package-lock.json`，但 `vendor/npm/` 仍为空：未把数百个传递依赖的 tgz（数十 MB）提交进 git。
+  - 本机验证路径：先 `npm install` 预热 npm cache，再在 `web/` 执行 `npm ci --offline` 可通过。
+  - CI 路径：`vendor/npm` 有 tgz 时走 `npm ci --offline`，否则回退为 `npm ci`（联网），见 `.github/workflows/ci.yml` 与 D14。
 - P0 的 Python 离线包按当前 Windows / CPython 3.11 平台生成；CI 的 Linux job 若要走离线安装，需要另行提供对应平台的 wheel。
