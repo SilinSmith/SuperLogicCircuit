@@ -696,6 +696,7 @@ atomic_write(dst, text, bak_dir):
 | E12 | error | 原子写失败（权限/占用/跨盘 EXDEV） | 关闭占用进程，检查磁盘与同盘 tmp 目录 |
 | E13 | error | `top.ports` 冲突：同一输出多驱动、端口不存在、重复声明 | 修正 `top.ports`，避免同名歧义 |
 | E14 | error | 模块必填输入未被 `top.ports`/default/tieoff 覆盖 | 补映射或默认值；工具会一次性列全 |
+| E15 | error | `sync --check` 发现生成物落后于 `rvgen.yaml`（非 frozen） | 运行 `rvgen sync` 重生成；frozen 情况改用 E10 |
 | E00 | error | CLI 用法/参数错误 | 看 `--help`；退出码仍为 1 |
 | W01 | warning | USER 块契约已变更（fp 不同） | 核对端口表，手动适配块内逻辑 |
 | W02 | warning | 数据输入浮空被接 0 | 确认这是有意行为，否则补连线 |

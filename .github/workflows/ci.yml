@@ -31,10 +31,10 @@ jobs:
         run: rvgen check --strict
       - name: rvgen sync --check（P0 只做 lint，生成物比对在 P2）
         run: rvgen sync --check
-      - name: P1 tests（含覆盖率门禁）
+      - name: P1/P2 tests（含覆盖率门禁）
         run: |
           pytest -q tests/unit tests/checker tests/property tests/golden \
-            --cov=rvgen.loader --cov=rvgen.model --cov=rvgen.graph --cov=rvgen.digest \
+            --cov=rvgen.loader --cov=rvgen.model --cov=rvgen.graph --cov=rvgen.digest --cov=rvgen.emitter \
             --cov-report=term-missing --cov-fail-under=90
           pytest -q tests/checker tests/unit/test_digest.py \
             --cov=rvgen.checker --cov=rvgen.digest \
