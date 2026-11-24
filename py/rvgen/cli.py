@@ -78,6 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
     trace_summary = trace_sub.add_parser("summary")
     trace_summary.add_argument("run")
     trace_summary.add_argument("-o", "--output", default="trace_summary.json")
+    trace_summary.add_argument("--graph", default="node_graph.json")
     trace_summary.add_argument("--flavor", choices=["core", "cpu", "bus", "auto"], default="auto")
     trace_stats = trace_sub.add_parser("stats")
     trace_stats.add_argument("file")
@@ -352,6 +353,47 @@ def _cmd_sync(args: argparse.Namespace) -> int:
     return sink.exit_code(strict=args.strict)
 
 
+def _cmd_trace(args: argparse.Namespace) -> int:
+    from .trace import normalize, stats, summary
+
+    sink = DiagnosticSink()
+    if args.trace_command == "normalize":
+        src = Path(args.src)
+        if not src.exists():
+            sink.io_failure = True
+            sink.error("E00", f"未找到 trace 文件 {src}", hint="确认 --trace 路径后重试")
+            _render(sink, "text")
+            return sink.exit_code()
+        result = normalize(src, Path(args.output), args.flavor, sink=sink)
+        if not sink.has_errors():
+            sys.stderr.write(f"normalized {result.rows} rows → {args.output}\n")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    if args.trace_command == "summary":
+        payload = summary(Path(args.run), Path(args.graph), args.flavor, sink=sink)
+        if payload and not sink.has_errors():
+            from .atomic import AtomicWriteError, atomic_write
+
+            try:
+                atomic_write(Path(args.output), json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+            except AtomicWriteError as exc:
+                sink.error("E12", str(exc), hint="检查输出路径权限后重试")
+            else:
+                sys.stdout.write(f"wrote {args.output}\n")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    if args.trace_command == "stats":
+        payload = stats(Path(args.file), sink=sink)
+        if payload and not sink.has_errors():
+            sys.stdout.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    return _cmd_unimplemented(args)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     try:
@@ -374,4 +416,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _cmd_sync(args)
     if args.command == "graph":
         return _cmd_graph(args)
+    if args.command == "trace":
+        return _cmd_trace(args)
     return _cmd_unimplemented(args)
