@@ -31,12 +31,13 @@ dev = [
 [project.scripts]
 rvgen = "rvgen.cli:main"
 
-[tool.setuptools]
-package-dir = {"" = "py"}
-include-package-data = true
+[project.entry-points."rvgen.plugins"]
+cpu = "plugins.cpu.plugin:cpu_plugin"
 
-[tool.setuptools.packages.find]
-where = ["py"]
+[tool.setuptools]
+package-dir = {"" = "py", "plugins" = "plugins"}
+packages = ["rvgen", "plugins", "plugins.cpu"]
+include-package-data = true
 
 [tool.setuptools.dynamic]
 version = {attr = "rvgen.__version__"}
@@ -49,8 +50,10 @@ addopts = "-ra"
 [tool.importlinter]
 root_package = "rvgen"
 
+# import-linter 会拒绝引用尚不存在的模块；server/gitw/rvopen/layout 属 P3/P5，
+# 对应的 core 反依赖契约随模块落地时再加回。
 [[tool.importlinter.contracts]]
-name = "core 不得依赖 server/infra"
+name = "loader 不得依赖 graph/emitter"
 type = "forbidden"
-source_modules = ["rvgen.loader", "rvgen.model", "rvgen.graph", "rvgen.checker", "rvgen.digest"]
-forbidden_modules = ["rvgen.server", "rvgen.gitw", "rvgen.rvopen", "rvgen.layout"]
+source_modules = ["rvgen.loader"]
+forbidden_modules = ["rvgen.graph"]
