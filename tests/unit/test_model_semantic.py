@@ -210,3 +210,42 @@ def test_checker_plugin_rule_finds_unknown_stage_and_duplicate_slot() -> None:
     found = codes(diagnostics)
     assert "PCPU-01" in found
     assert "PCPU-02" in found
+
+
+def test_uppercase_identifiers_rejected_at_load_stage() -> None:
+    document = doc(
+        modules=[
+            module(
+                "UART",
+                ports=[
+                    {"name": "clk", "dir": "input", "kind": "clock"},
+                    {"name": "Tx_Data", "dir": "output"},
+                ],
+            )
+        ],
+        top={"ports": [{"name": "clk", "dir": "input", "role": "clock"}]},
+    )
+    model, diagnostics = load_data(document)
+    assert model is not None
+    errors = [item for item in diagnostics if item.code == "E09"]
+    assert len(errors) == 2
+    assert all("小写" in item.message for item in errors)
+
+
+def test_lowercase_identifiers_and_uppercase_params_are_allowed() -> None:
+    document = doc(
+        modules=[
+            module(
+                "alpha",
+                params=[{"name": "WIDTH", "default": 8}],
+                ports=[
+                    {"name": "clk", "dir": "input", "kind": "clock"},
+                    {"name": "data_in", "dir": "input", "width": "WIDTH"},
+                ],
+            )
+        ],
+        top={"ports": [{"name": "clk", "dir": "input", "role": "clock"}]},
+    )
+    model, diagnostics = load_data(document)
+    assert model is not None
+    assert "E09" not in codes(diagnostics)

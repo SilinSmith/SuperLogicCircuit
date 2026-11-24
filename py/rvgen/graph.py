@@ -101,7 +101,7 @@ class _Build:
                     f"module 名 {module.name!r} 不能生成 node id（要求 {NODE_ID_RE.pattern}）",
                     module.line,
                     f"modules.{module.name}.name",
-                    hint="rvgen.schema 的 identifier 允许大写，但 node_graph 的 mod:<name> 只接受小写",
+                    hint="命名口径已收紧：rvgen 标识符必须小写；node_graph 的 mod:<name> 只接受小写",
                 )
             for port in module.ports:
                 if not NODE_ID_RE.fullmatch(port.name):

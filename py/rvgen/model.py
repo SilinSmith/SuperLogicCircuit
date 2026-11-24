@@ -19,6 +19,7 @@ YAML_FILE = "rvgen.yaml"
 CORE_KINDS: tuple[str, ...] = ("module", "bridge", "memory", "clock_gen")
 BUILTIN_INTERFACE_TYPES: tuple[str, ...] = ("ready_valid", "axi4lite", "axi4stream", "apb", "uart")
 _IMPLICIT_WIDTH_KINDS = ("valid", "ready", "clock", "reset")
+LOWER_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 # 与附录 C 一致：只放行整数常量、参数名、+ - * // % << >> 与一元正负
 _OK_BIN_OPS = (ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod, ast.LShift, ast.RShift)
@@ -363,10 +364,54 @@ class DesignModel:
             return False
         return bool(config.get("enabled", True))
 
+    def _check_lower_identifiers(self) -> list[Diagnostic]:
+        """命名口径：模块/端口/实例等标识符一律小写；参数名按 Verilog 惯例不强制。"""
+
+        out: list[Diagnostic] = []
+        hint = f"标识符必须匹配 {LOWER_NAME_RE.pattern}；node_graph 的 node id/node_port 契约不变"
+
+        def check(value: str | None, line: int | None, json_path: str) -> None:
+            if value is None or LOWER_NAME_RE.fullmatch(value):
+                return
+            out.append(self._error("E09", f"标识符 {value!r} 必须为小写蛇形", line, json_path, hint=hint))
+
+        check(self.project.top, None, "project.top")
+        check(self.project.reset.name, None, "project.reset.name")
+        for clock in self.clocks:
+            check(clock.name, clock.line, f"clocks.{clock.name}.name")
+            check(clock.domain_id, clock.line, f"clocks.{clock.name}.domain_id")
+            check(clock.parent, clock.line, f"clocks.{clock.name}.parent")
+        for cdc in self.cdc:
+            check(cdc.id, cdc.line, f"cdc.{cdc.id}.id")
+        for interface in self.interfaces:
+            check(interface.name, None, f"interfaces.{interface.name}.name")
+            for signal in interface.signals:
+                check(signal.name, None, f"interfaces.{interface.name}.signals.{signal.name}.name")
+        for module in self.modules:
+            check(module.name, module.line, f"modules.{module.name}.name")
+            for port in module.ports:
+                check(port.name, port.line or module.line, f"modules.{module.name}.ports.{port.name}.name")
+            for interface in module.interfaces:
+                check(
+                    interface.name,
+                    module.line,
+                    f"modules.{module.name}.interfaces.{interface.name}.name",
+                )
+                for signal in interface.signals:
+                    check(
+                        signal.name,
+                        module.line,
+                        f"modules.{module.name}.interfaces.{interface.name}.signals.{signal.name}.name",
+                    )
+        for port in self.top.ports:
+            check(port.name, port.line, f"top.ports.{port.name}.name")
+        return out
+
     def validate_semantic(self, plugins: Sequence[Plugin] = ()) -> list[Diagnostic]:
         """§4.1 的引用存在性与插件规则；不解析任何 x- 取值。"""
 
         out: list[Diagnostic] = []
+        out.extend(self._check_lower_identifiers())
         plugin_map = {plugin.id: plugin for plugin in plugins}
         plugin_kinds = {kind for plugin in plugins for kind in plugin.kinds}
         plugin_interface_types = {name for plugin in plugins for name in plugin.interface_types}

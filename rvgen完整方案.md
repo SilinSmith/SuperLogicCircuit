@@ -371,6 +371,8 @@ plugins:                      # 领域扩展，核心不解释
 
 **校验附加规则（非纯 schema 能表达，放 `loader.validate_semantic`）**：时钟引用存在性、CDC 两端域不同（`from == to` → W09）、端口名不重复、参数默认值可综合（禁止 `#(` 里出现函数调用）、`interfaces.type` 已注册、`x-` 字段的 plugin 是否存在（不存在 → I07）。**核心不校验任何 `x-` 字段的取值**；`x-cpu-stage` 的取值集合由 `plugins.cpu.lanes` 校验，规则码为 `PCPU-01`。
 
+**命名口径（v1.2 收紧）**：`project.top`、`project.reset.name`、`clocks[].name/domain_id/parent`、`cdc[].id`、`interfaces[].name` 及其 `signals[].name`、`modules[].name`、`ports[].name`、`modules[].interfaces[].name` 及其 `signals[].name`、`top.ports[].name` 一律必须匹配 `^[a-z][a-z0-9_]*$`，在 **loader/`validate_semantic` 阶段**即报 E09，而不是等到建图；`node_graph` 的 node id / node_port 契约保持不变。参数名 `params[].name` 保留 Verilog 惯例，允许大写（如 `WIDTH`），不纳入本规则。
+
 ### 4.2 `node_graph.schema.json`（v1）逐字段
 
 | 路径 | 类型 | 必填 | 语义 |
