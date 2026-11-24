@@ -40,6 +40,13 @@
 
 体积不设硬门槛（方案 P3 口径），数值随报告提交。
 
+## P4 追加：三视图与图表库
+
+- **时钟树**：采用确定性 BFS 径向布局（`web/src/lib/radial.ts`），不引入 elkjs。理由：时钟树节点规模小；elkjs 为 EPL-2.0/GPL-3.0 双许可、约 8 MB，且要求异步 Worker 生命周期。数据仍完全来自 `node_graph.json` 的 clock/cdc 边，后续替换布局算法不影响契约。详见 D17。
+- **统计**：`echarts` 5.6.0（Apache-2.0），仅经 `echarts/core` 注册 BarChart/Grid/Tooltip/CanvasRenderer；`EChart` 组件在卸载时 `dispose()` 并断开 ResizeObserver（单测覆盖）。
+- **插件视图**：`plugins/cpu` 注册流水线时空图与 Cache 视图；仅当图出现 `x-cpu-stage` 或 `p_cpu:*` 节点时显示，通用图（如 UART golden）不出现（e2e 覆盖）。
+- **构建体积（P4）**：JS 980.16 kB（gzip 323.94 kB，map 5.03 MB），CSS 21.88 kB（gzip 4.10 kB）。ECharts 使体积翻倍，仍在单页应用可接受范围；若后续视图继续增长，按视图动态 import。
+
 ## 被否方案
 
 - 自研 Canvas/SVG 看板：重复实现拖拽/缩放/吸附/无障碍，维护成本高（方案 2.3）。

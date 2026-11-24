@@ -1,6 +1,6 @@
-# rvgen Web 看板（P3）
+# rvgen Web 看板（P3–P4）
 
-> P3 只交付数据流视图骨架；时钟树、统计视图、SSE 与多视图切换分别在 P4/P5 补齐。
+> P4 起提供核心三视图（数据流/时钟树/统计）与 plugin 注册视图；SSE 与 `rvgen://` 拉起在 P5 补齐。
 
 ## 运行
 
@@ -13,6 +13,7 @@ npm run dev          # http://127.0.0.1:5174
 - dev 固定 5174（`strictPort`），避开旧工程 5173。
 - `/api/*` 代理到 `http://127.0.0.1:8123`（`rvgen serve`，P5 提供）。
 - 数据源默认 `/sample/node_graph.json`（golden 样例的只读拷贝）；用 `?graph=/api/graph` 或任意 JSON URL 覆盖。
+- 动态指标默认 `/sample/trace_summary.json`，可用 `?summary=` 覆盖；404 时统计视图降级为静态分布，不阻断图加载。
 
 ```powershell
 npm run typecheck
@@ -33,6 +34,9 @@ npm run build        # 产物在 web/dist
 | 能力 | 行为 |
 |---|---|
 | 数据流视图 | dagre LR 布局；只显示模块/统计/plugin 节点与 data/handshake/bundle/param 边；时钟树与 CDC 不在本视图 |
+| 时钟树视图 | 确定性 BFS 径向布局（不引入 elkjs）；根为无入边时钟节点，CDC 与模块挂环上 |
+| 统计视图 | ECharts 柱状图：边带宽 bit/cycle、节点利用率（有 `trace_summary.json` 时）或节点类型分布、边类型分布 |
+| plugin 视图 | `plugins/cpu` 注册流水线时空图与 Cache；仅当图含 `x-cpu-stage` 或 `p_cpu:*` 节点时出现 |
 | 节点 | `ModuleNode` 展示模块名、类型、时钟域、前 8 个端口与位宽，超出折叠为 `+N` |
 | 边 | `BandwidthEdge` 显示 derived/explicit 带宽；critical 边标红；时钟/复位/CDC 用虚线区分（P4 生效） |
 | 拖拽 | 只修改前端坐标，不回写 `node_graph.json`；`layout.json` 持久化在 P4/P5 接入 |

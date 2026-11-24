@@ -41,6 +41,7 @@
 | react-dom | 19.3.1 | MIT | 7878.5 KiB | UI 渲染 |
 | @xyflow/react | 12.12.1 | MIT | 1187.9 KiB | 节点编辑器（画布/拖拽/小地图） |
 | dagre | 0.8.5 | MIT | 824.8 KiB | 数据流视图分层布局（同步） |
+| echarts | 5.6.0 | Apache-2.0 | 38384.0 KiB（另 zrender 5.6.1） | 统计视图柱状图（`echarts/core` 按需注册） |
 | zustand | 4.5.7 | MIT | 319.4 KiB | `@xyflow/react` 的传递依赖，非直接依赖 |
 | vite | 7.3.8 | MIT | 2191.9 KiB | dev server / 构建 |
 | typescript | 5.9.3 | Apache-2.0 | 23071.4 KiB | 类型检查 |

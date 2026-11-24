@@ -104,3 +104,35 @@
 - 决策：`e2e/perf-500.spec.ts` 默认跳过，`PERF=1` 时运行并断言拖拽帧 p95 ≥ 30 FPS；CI 只跑 `load-json`/`drag-node` 功能 e2e。
 - 理由：无头环境帧率受宿主影响，作为常驻门禁会抖动；性能门槛按方案要求实测并记录数值。
 - 状态：本机实测 **60.2 FPS**（59 帧样本），已写入 `docs/ADR/ADR-06-frontend.md`。
+
+## P4
+
+### D17 时钟树径向布局不引入 elkjs
+
+- 决策：用确定性 BFS 分层 + 同心环均分角度实现径向布局（`web/src/lib/radial.ts`），不安装 elkjs。
+- 理由：时钟树规模小（时钟 + CDC + 模块，通常 <50 节点），elkjs 带来 EPL-2.0/GPL 双许可、~8 MB 安装体积与异步 Worker 生命周期；自研布局可同步、可单测、无泄漏面。视图契约仍从 `node_graph.json` 的 clock/cdc 边推导，未来换 elkjs 不影响数据契约。
+- 状态：已收口；ADR-06 追加记录。
+
+### D18 plugin 视图按 x-cpu-* / p_cpu 节点激活
+
+- 决策：核心只维护视图注册表；`plugins/cpu` 的视图在图中出现 `p_cpu:*` 节点或模块带 `x-cpu-stage` 时出现。流水线格子读取 `x-cpu-cycle` + `x-cpu-stage_index`，Cache 表读取 `p_cpu:cache_node` 与 `x-cpu-ways/x-cpu-sets`。
+- 理由：核心不得认识 CPU 概念；视图显隐必须由图数据（plugin 扩展字段）驱动，而不是全局开关。
+- 状态：已收口；`x-cpu-cycle` 等只是视图读取约定，校验归 plugin（P1 起 core 不解析 x-*）。
+
+### D19 trace_summary 为可选旁路
+
+- 决策：统计视图默认请求 `/sample/trace_summary.json`，`?summary=` 可覆盖；404/读取失败只降级为静态统计并显示提示，不影响图加载。
+- 理由：方案要求 trace 指标与静态图分离且不进 git；缺失 summary 是常态而非错误。
+- 状态：已收口；P5 由 serve 提供 `/api/summary` 时沿用。
+
+### D20 trace 归一化细节（Python 侧）
+
+- 决策：`arc` 值同时接受 `src.port>dst.port:t` 与 `src.port->dst.port:t`，统一规范化为 node_graph 的 `->` 边 id；`arc`/`cdc` 值允许 `:`、`>` 字符，其它 Ext 值仍限制 `[A-Za-z0-9_.+-]`；未声明键进 JSONL 顶层 `ext`，cpu/bus 已声明键进 `p_<flavor>`；`summary` 无 `--graph` 时只报 I08 并把 utilization 留空。
+- 理由：边 id 本身含 `:`，若严格按文档字符集无法表达；未声明键必须保留（W15）而不是丢弃。
+- 状态：已收口；如文档后续给出更严格文法再收紧。
+
+### D21 ECharts 引入与打包体积
+
+- 决策：统计视图使用 `echarts/core` 按需注册（BarChart/Grid/Tooltip/CanvasRenderer），不引入全量 `echarts`。P4 构建 JS 体积增至 980.16 kB（gzip 323.94 kB）。
+- 理由：统计图表是方案明确的核心视图；按需注册已把体积压到可接受范围，暂不做路由级 code-split（单页应用，切换视图不重复下载）。
+- 状态：已收口；若 P5/P6 加入更多视图导致体积失控，再按视图动态 import。

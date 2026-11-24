@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "rvgen 0.1.0",
+  "source_digest": "sha256:cpu0demo00000000",
+  "nodes": [
+    {
+      "id": "clk:clk",
+      "type": "clock_node",
+      "label": "clk",
+      "clock": "clk",
+      "domain": "sys",
+      "loc": { "file": "rvgen.yaml", "line": 8 }
+    },
+    {
+      "id": "mod:cpu_fetch",
+      "type": "module_node",
+      "label": "cpu_fetch",
+      "module": "cpu_fetch",
+      "clock": "clk",
+      "domain": "sys",
+      "x-cpu-stage": "IF",
+      "x-cpu-stage_index": 0,
+      "x-cpu-cache": "icache",
+      "ports": [
+        { "name": "clk", "dir": "input", "width_bits": 1, "kind": "clock" },
+        { "name": "instr", "dir": "output", "width_bits": 32, "kind": "data" }
+      ],
+      "loc": { "file": "rvgen.yaml", "line": 20, "end_line": 30 }
+    },
+    {
+      "id": "mod:cpu_alu",
+      "type": "module_node",
+      "label": "cpu_alu",
+      "module": "cpu_alu",
+      "clock": "clk",
+      "domain": "sys",
+      "x-cpu-stage": "EX",
+      "x-cpu-stage_index": 2,
+      "ports": [
+        { "name": "clk", "dir": "input", "width_bits": 1, "kind": "clock" },
+        { "name": "instr", "dir": "input", "width_bits": 32, "kind": "data" }
+      ],
+      "loc": { "file": "rvgen.yaml", "line": 30, "end_line": 40 }
+    },
+    {
+      "id": "p_cpu:slot_if_addi",
+      "type": "p_cpu:pipeline_slot_node",
+      "label": "addi",
+      "x-cpu-cycle": 0,
+      "x-cpu-stage_index": 0,
+      "loc": { "file": "trace/pipe.tsv", "line": 2 }
+    },
+    {
+      "id": "p_cpu:slot_id_addi",
+      "type": "p_cpu:pipeline_slot_node",
+      "label": "addi",
+      "x-cpu-cycle": 1,
+      "x-cpu-stage_index": 1,
+      "loc": { "file": "trace/pipe.tsv", "line": 3 }
+    },
+    {
+      "id": "p_cpu:slot_ex_addi",
+      "type": "p_cpu:pipeline_slot_node",
+      "label": "addi",
+      "x-cpu-cycle": 2,
+      "x-cpu-stage_index": 2,
+      "loc": { "file": "trace/pipe.tsv", "line": 4 }
+    },
+    {
+      "id": "p_cpu:icache",
+      "type": "p_cpu:cache_node",
+      "label": "icache",
+      "module": "icache",
+      "domain": "sys",
+      "status": "ok",
+      "x-cpu-ways": 2,
+      "x-cpu-sets": 256,
+      "loc": { "file": "rvgen.yaml", "line": 40, "end_line": 52 }
+    }
+  ],
+  "edges": [
+    {
+      "id": "clk:clk->mod:cpu_fetch",
+      "source": "clk:clk",
+      "target": "mod:cpu_fetch",
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:cpu_alu",
+      "source": "clk:clk",
+      "target": "mod:cpu_alu",
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "mod:cpu_fetch.instr->mod:cpu_alu.instr",
+      "source": "mod:cpu_fetch",
+      "target": "mod:cpu_alu",
+      "source_port": "instr",
+      "target_port": "instr",
+      "kind": "data",
+      "width_bits": 32,
+      "bandwidth": { "source": "derived", "width_bits": 32, "clock": "clk", "freq_hz": 100000000.0 }
+    }
+  ]
+}

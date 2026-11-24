@@ -69,6 +69,26 @@ body {
   font-size: 12px;
 }
 
+.app__tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.app__tab {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.app__tab--active {
+  border-color: var(--accent);
+  color: var(--text);
+  background: rgba(79, 140, 255, 0.12);
+}
+
 .app__digest {
   font-family: ui-monospace, Consolas, monospace;
 }
@@ -347,4 +367,93 @@ body {
 .detail-drawer__footer button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.stats-view {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 12px;
+  padding: 14px;
+  height: 100%;
+  overflow: auto;
+  align-content: start;
+}
+
+.stats-view__chart {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 6px;
+  min-width: 0;
+}
+
+.stats-view__hint {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+.plugin-empty {
+  padding: 24px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pipeline-view {
+  height: 100%;
+  overflow: auto;
+  padding: 18px;
+}
+
+.pipeline-view__grid {
+  display: grid;
+  gap: 4px;
+  min-width: 560px;
+}
+
+.pipeline-view__stage,
+.pipeline-view__cycle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pipeline-view__slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  background: rgba(79, 140, 255, 0.16);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+}
+
+.cache-view {
+  padding: 18px;
+  overflow: auto;
+  height: 100%;
+}
+
+.cache-view table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.cache-view th,
+.cache-view td {
+  border-bottom: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.cache-view th {
+  color: var(--muted);
+  font-weight: 500;
 }
