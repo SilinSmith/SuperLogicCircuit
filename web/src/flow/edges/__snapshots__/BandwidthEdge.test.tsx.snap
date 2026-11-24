@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BandwidthEdge > derived 带宽显示 bits/cycle 与十进制 GB/s 1`] = `
+<div>
+  <span
+    class="bandwidth-edge__label"
+    data-testid="edge-label-mod:fifo.pop->mod:uart.cfg"
+    style="transform: translate(-50%, -50%) translate(120px, 0px);"
+  >
+    8 bit/cyc · 0.050 GB/s (decimal)
+  </span>
+</div>
+`;
+
+exports[`BandwidthEdge > 快照稳定 1`] = `
+<div>
+  <svg>
+    <path
+      class="react-flow__edge-path bandwidth-edge edge--data"
+      d="M0,0 C120,0 120,0 240,0"
+      fill="none"
+      id="mod:fifo.pop->mod:uart.cfg"
+    />
+    <path
+      class="react-flow__edge-interaction"
+      d="M0,0 C120,0 120,0 240,0"
+      fill="none"
+      stroke-opacity="0"
+      stroke-width="20"
+    />
+  </svg>
+</div>
+`;

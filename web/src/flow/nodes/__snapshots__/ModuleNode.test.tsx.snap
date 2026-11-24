@@ -1,0 +1,129 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ModuleNode > 快照稳定 1`] = `
+<div>
+  <div
+    class="module-node"
+    data-testid="module-node-mod:uart"
+  >
+    <div
+      class="react-flow__handle react-flow__handle-left nodrag nopan module-node__handle target connectable connectablestart connectableend connectionindicator"
+      data-handlepos="left"
+      data-id="1-null-null-target"
+    />
+    <header
+      class="module-node__header"
+    >
+      <span
+        class="module-node__label"
+      >
+        uart
+      </span>
+      <span
+        class="module-node__badge"
+      >
+        module
+      </span>
+    </header>
+    <div
+      class="module-node__meta"
+    >
+      <span>
+        sys
+      </span>
+      <span>
+        clk
+      </span>
+    </div>
+    <ul
+      class="module-node__ports"
+    >
+      <li
+        class="module-node__port"
+        title="input clk"
+      >
+        <span
+          class="module-node__dir"
+        >
+          ←
+        </span>
+        <span
+          class="module-node__port-name"
+        >
+          clk
+        </span>
+        <span
+          class="module-node__width"
+        >
+          1b
+        </span>
+      </li>
+      <li
+        class="module-node__port"
+        title="input cfg"
+      >
+        <span
+          class="module-node__dir"
+        >
+          ←
+        </span>
+        <span
+          class="module-node__port-name"
+        >
+          cfg
+        </span>
+        <span
+          class="module-node__width"
+        >
+          8b
+        </span>
+      </li>
+      <li
+        class="module-node__port"
+        title="input rxd"
+      >
+        <span
+          class="module-node__dir"
+        >
+          ←
+        </span>
+        <span
+          class="module-node__port-name"
+        >
+          rxd
+        </span>
+        <span
+          class="module-node__width"
+        >
+          1b
+        </span>
+      </li>
+      <li
+        class="module-node__port"
+        title="output tx"
+      >
+        <span
+          class="module-node__dir"
+        >
+          →
+        </span>
+        <span
+          class="module-node__port-name"
+        >
+          tx
+        </span>
+        <span
+          class="module-node__width"
+        >
+          1b
+        </span>
+      </li>
+    </ul>
+    <div
+      class="react-flow__handle react-flow__handle-right nodrag nopan module-node__handle source connectable connectablestart connectableend connectionindicator"
+      data-handlepos="right"
+      data-id="1-null-null-source"
+    />
+  </div>
+</div>
+`;

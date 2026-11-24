@@ -1,0 +1,292 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "rvgen 0.1.0",
+  "source_digest": "sha256:a96d6747077e540f",
+  "nodes": [
+    {
+      "id": "cdc:sys_fast",
+      "type": "cdc_node",
+      "label": "sys_fast",
+      "domain": "sys",
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 17
+      }
+    },
+    {
+      "id": "clk:clk",
+      "type": "clock_node",
+      "label": "clk",
+      "clock": "clk",
+      "domain": "sys",
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 8,
+        "end_line": 12
+      }
+    },
+    {
+      "id": "clk:clk_fast",
+      "type": "clock_node",
+      "label": "clk_fast",
+      "clock": "clk_fast",
+      "domain": "fast",
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 12,
+        "end_line": 16
+      }
+    },
+    {
+      "id": "mod:bridge",
+      "type": "module_node",
+      "label": "bridge",
+      "module": "bridge",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "din",
+          "dir": "input",
+          "width_expr": 8,
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 40,
+        "end_line": 46
+      }
+    },
+    {
+      "id": "mod:fast_sink",
+      "type": "module_node",
+      "label": "fast_sink",
+      "module": "fast_sink",
+      "clock": "clk_fast",
+      "domain": "fast",
+      "ports": [
+        {
+          "name": "clk_fast",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "din",
+          "dir": "input",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 46,
+        "end_line": 52
+      }
+    },
+    {
+      "id": "mod:fifo",
+      "type": "module_node",
+      "label": "fifo",
+      "module": "fifo",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "push",
+          "dir": "input",
+          "width_expr": 8,
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "pop",
+          "dir": "output",
+          "width_expr": 8,
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 33,
+        "end_line": 40
+      }
+    },
+    {
+      "id": "mod:uart",
+      "type": "module_node",
+      "label": "uart",
+      "module": "uart",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "cfg",
+          "dir": "input",
+          "width_expr": "WIDTH",
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rxd",
+          "dir": "input",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "tx",
+          "dir": "output",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 23,
+        "end_line": 33
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "cdc:sys_fast->clk:clk_fast",
+      "source": "cdc:sys_fast",
+      "target": "clk:clk_fast",
+      "source_port": null,
+      "target_port": null,
+      "kind": "cdc",
+      "width_bits": 1,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->cdc:sys_fast",
+      "source": "clk:clk",
+      "target": "cdc:sys_fast",
+      "source_port": null,
+      "target_port": null,
+      "kind": "cdc",
+      "width_bits": 1,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:bridge",
+      "source": "clk:clk",
+      "target": "mod:bridge",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:fifo",
+      "source": "clk:clk",
+      "target": "mod:fifo",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:uart",
+      "source": "clk:clk",
+      "target": "mod:uart",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk_fast->mod:fast_sink",
+      "source": "clk:clk_fast",
+      "target": "mod:fast_sink",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "mod:fifo.pop->mod:bridge.din",
+      "source": "mod:fifo",
+      "target": "mod:bridge",
+      "source_port": "pop",
+      "target_port": "din",
+      "kind": "data",
+      "width_bits": 8,
+      "bandwidth": {
+        "source": "derived",
+        "width_bits": 8,
+        "clock": "clk",
+        "freq_hz": 50000000.0
+      }
+    },
+    {
+      "id": "mod:uart.tx->mod:fast_sink.din",
+      "source": "mod:uart",
+      "target": "mod:fast_sink",
+      "source_port": "tx",
+      "target_port": "din",
+      "kind": "data",
+      "width_bits": 1,
+      "bandwidth": {
+        "source": "derived",
+        "width_bits": 1,
+        "clock": "clk",
+        "freq_hz": 50000000.0
+      }
+    }
+  ]
+}
