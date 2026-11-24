@@ -295,29 +295,61 @@ def _cmd_check(args: argparse.Namespace) -> int:
 
 
 def _cmd_sync(args: argparse.Namespace) -> int:
-    # P0：--check 复用 lint；生成物比对属于 P2。
-    if not args.check:
-        return _cmd_unimplemented(args)
-    from .checker import run_check
+    from .emitter import check_outputs, emit, plan_files
+    from .graph import build, write
+    from .loader import load
 
     sink = DiagnosticSink()
-    code = run_check(
-        Path.cwd(),
-        sink,
-        strict=args.strict,
-        output_format="text",
-        quiet=False,
-        fix=False,
-    )
-    if code == 0 and (Path.cwd() / "rtl").exists():
-        sink.error(
-            "E00",
-            "rvgen sync --check 的生成物比对在 P2 实现；当前目录已有 rtl/，P0 不能判定是否落后",
-            hint="P0 CI 在仓库根目录运行，不会命中此分支",
-        )
+    root = Path.cwd()
+    rvgen_path = root / "rvgen.yaml"
+    if not rvgen_path.exists():
+        sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen sync")
         _render(sink, "text")
         return sink.exit_code(strict=args.strict)
-    return code
+
+    plugins = discover(sink)
+    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    sink.extend(diagnostics)
+    if model is None or sink.has_errors():
+        _render(sink, "text")
+        return sink.exit_code(strict=args.strict)
+
+    graph = build(model, sink)
+    if sink.has_errors():
+        _render(sink, "text")
+        return sink.exit_code(strict=args.strict)
+
+    out_dir = root / "rtl"
+    if args.check:
+        check_outputs(model, graph, out_dir, sink, force_unfreeze=args.force_unfreeze)
+        _render(sink, "text")
+        return sink.exit_code(strict=args.strict)
+
+    if args.dry_run:
+        for file in plan_files(model, graph, out_dir, sink, force_unfreeze=args.force_unfreeze):
+            state = "stale" if file.stale else "up-to-date"
+            if file.frozen and file.stale:
+                state = "frozen-skip"
+            sys.stdout.write(f"{state:11} {file.path}\n")
+        _render(sink, "text")
+        return sink.exit_code(strict=args.strict)
+
+    written = emit(model, graph, out_dir, sink, force_unfreeze=args.force_unfreeze)
+    for path in written:
+        sys.stdout.write(f"wrote {path}\n")
+
+    if args.update_graph and not sink.has_errors():
+        from .atomic import AtomicWriteError
+
+        try:
+            write(graph, root / "node_graph.json", sink=sink)
+        except AtomicWriteError as exc:
+            sink.error("E12", str(exc), hint="检查文件权限/占用后重试")
+        else:
+            sys.stdout.write("wrote node_graph.json\n")
+
+    _render(sink, "text")
+    return sink.exit_code(strict=args.strict)
 
 
 def main(argv: Sequence[str] | None = None) -> int:

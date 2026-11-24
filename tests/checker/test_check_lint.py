@@ -128,17 +128,17 @@ def test_check_without_node_graph_is_allowed(tmp_path, monkeypatch) -> None:
     assert main(["check"]) == 0
 
 
-def test_sync_check_reuses_lint(tmp_path, monkeypatch) -> None:
+def test_sync_check_is_clean_after_sync(tmp_path, monkeypatch) -> None:
     _valid_project(tmp_path)
     monkeypatch.chdir(tmp_path)
+    assert main(["sync"]) == 0
     assert main(["sync", "--check"]) == 0
 
 
-def test_sync_check_with_existing_rtl_is_p0_limited(tmp_path, monkeypatch, capsys) -> None:
+def test_sync_check_detects_stale_outputs(tmp_path, monkeypatch, capsys) -> None:
     _valid_project(tmp_path)
-    (tmp_path / "rtl").mkdir()
     monkeypatch.chdir(tmp_path)
     assert main(["sync", "--check"]) == 1
     err = capsys.readouterr().err
-    assert "E00" in err
-    assert "P2" in err
+    assert "E15" in err
+    assert "生成物落后" in err
