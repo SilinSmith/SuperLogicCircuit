@@ -9,6 +9,6 @@ repos:
         files: '(rvgen\.yaml|node_graph\.json|py/rvgen/.*\.py|plugins/.*\.py)$'
       - id: rvgen-sync-dry
         name: rvgen sync --check（生成物是否落后）
-        entry: rvgen sync --check
+        entry: bash -c 'if [ -f rvgen.yaml ]; then exec rvgen sync --check; fi'
         language: system
         pass_filenames: false

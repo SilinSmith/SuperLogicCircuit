@@ -27,10 +27,15 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: lint-imports（分层契约）
         run: lint-imports
-      - name: rvgen check（schema + 语义）
-        run: rvgen check --strict
-      - name: rvgen sync --check（P0 只做 lint，生成物比对在 P2）
-        run: rvgen sync --check
+      - name: rvgen 冒烟（golden 样例：graph/sync/check）
+        run: |
+          rm -rf build/smoke && mkdir -p build/smoke
+          cp tests/fixtures/golden/uart/rvgen.yaml build/smoke/
+          cd build/smoke
+          rvgen graph --write
+          rvgen sync
+          rvgen sync --check
+          rvgen check --strict
       - name: P1/P2 tests（含覆盖率门禁）
         run: |
           pytest -q tests/unit tests/checker tests/property tests/golden \
@@ -65,11 +70,17 @@ jobs:
           cache-dependency-path: requirements.lock
       - name: install
         run: python -m pip install -e '.[dev]'
-      - name: rvgen check（Windows 路径 / I01）
-        run: rvgen check --strict
-      - name: rvgen sync --check
-        run: rvgen sync --check
-      - name: P1 tests
+      - name: rvgen 冒烟（Windows 路径 / I01）
+        shell: bash
+        run: |
+          rm -rf build/smoke && mkdir -p build/smoke
+          cp tests/fixtures/golden/uart/rvgen.yaml build/smoke/
+          cd build/smoke
+          rvgen graph --write
+          rvgen sync
+          rvgen sync --check
+          rvgen check --strict
+      - name: P1/P2 tests
         run: pytest -q tests/unit tests/checker tests/property tests/golden
 
   offline-windows:
