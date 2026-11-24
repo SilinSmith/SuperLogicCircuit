@@ -293,3 +293,10 @@
 - 理由：不把联网依赖伪装成离线可复现；仓库已有 `scripts/npm-offline.{sh,ps1}`，缺的只是首次回填。
 - 影响：AC01、README 安装说明。
 - 状态：**未收口**；需联网一次回填 tgz 后复测全新 clone。
+
+### D43 AC10 补 role: clock 同名端口不连线的建图断言
+
+- 决策：新增 `test_AC10_clock_role_top_port_never_infers_data_connection`，只补测试不改实现；断言 `role: clock` 的顶层端口与数据口同名时不产生数据边/候选，对应输入仍报 `E14`。
+- 理由：AC10 的第二半此前只有文字结论，没有回归保护；现有实现本就不做同名推断，测试应锁住这一行为。
+- 影响：`tests/unit/test_graph.py`、`docs/ACCEPTANCE.md`（AC10 转 ✅）。
+- 状态：已收口（目标测试 2 passed）。

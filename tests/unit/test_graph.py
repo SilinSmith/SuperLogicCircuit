@@ -264,6 +264,32 @@ def test_E13_duplicate_top_name_and_multi_driver() -> None:
     assert any("多个输出端口驱动" in item.message for item in sink.items if item.code == "E13")
 
 
+def test_AC10_clock_role_top_port_never_infers_data_connection() -> None:
+    """role: clock 的顶层端口即使与数据口同名，也不连线、不产生候选。"""
+    document = doc(
+        [
+            mod(
+                "uart",
+                ports=[
+                    {"name": "clk", "dir": "input", "kind": "clock"},
+                    {"name": "rx", "dir": "input", "width": 8},
+                    {"name": "tx", "dir": "output", "width": 8},
+                ],
+            )
+        ],
+        top_ports=[
+            {"name": "clk", "dir": "input", "role": "clock"},
+            {"name": "rx", "dir": "input", "role": "clock"},
+            {"name": "tx", "dir": "output", "from": "uart.tx"},
+        ],
+    )
+    graph, sink = run(document)
+    assert [edge["id"] for edge in graph.edges] == ["clk:clk->mod:uart"]
+    assert [edge for edge in graph.edges if edge["kind"] == "data"] == []
+    assert "E14" in codes(sink)
+    assert any("uart.rx" in item.message for item in sink.items if item.code == "E14")
+
+
 def test_E14_lists_all_missing_inputs_once() -> None:
     document = doc(
         [
