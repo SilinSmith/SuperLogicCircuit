@@ -23,9 +23,10 @@ export interface FlowCanvasProps {
   nodes: FlowNode[];
   edges: FlowEdge[];
   onSelectNode?: (node: GraphNode) => void;
+  onNodeDragStop?: (id: string, position: { x: number; y: number }) => void;
 }
 
-export function FlowCanvas({ nodes, edges, onSelectNode }: FlowCanvasProps) {
+export function FlowCanvas({ nodes, edges, onSelectNode, onNodeDragStop }: FlowCanvasProps) {
   const [containerRef, size] = useElementSize<HTMLDivElement>();
   // 受控画布：拖拽只改本地坐标，不回写 node_graph.json（方案决策二）。
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(nodes);
@@ -53,6 +54,7 @@ export function FlowCanvas({ nodes, edges, onSelectNode }: FlowCanvasProps) {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodeClick={handleNodeClick}
+        onNodeDragStop={(_event, node) => onNodeDragStop?.(node.id, node.position)}
         fitView
         minZoom={0.15}
         maxZoom={2}

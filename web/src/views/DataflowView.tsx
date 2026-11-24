@@ -3,6 +3,7 @@ import type { GraphEdge, GraphNode, NodeGraph } from "../../contracts/node_graph
 import { FlowCanvas } from "../flow/FlowCanvas";
 import { layoutNodes } from "../flow/layout";
 import { NODE_WIDTH, nodeHeight, type FlowEdge, type FlowNode } from "../flow/types";
+import { applyLayout, type LayoutFile } from "../lib/layout";
 
 const DATAFLOW_EDGE_KINDS: GraphEdge["kind"][] = ["data", "handshake", "bundle", "param"];
 
@@ -21,7 +22,10 @@ export function dataflowSubset(graph: NodeGraph): { nodes: GraphNode[]; edges: G
   return { nodes, edges };
 }
 
-export function buildFlowElements(graph: NodeGraph): { nodes: FlowNode[]; edges: FlowEdge[] } {
+export function buildFlowElements(
+  graph: NodeGraph,
+  layout?: LayoutFile,
+): { nodes: FlowNode[]; edges: FlowEdge[] } {
   const { nodes, edges } = dataflowSubset(graph);
   const positions = layoutNodes(nodes, edges, "LR");
   const flowNodes: FlowNode[] = nodes.map((node) => {
@@ -36,6 +40,7 @@ export function buildFlowElements(graph: NodeGraph): { nodes: FlowNode[]; edges:
       selected: false,
     };
   });
+  const positioned = layout ? applyLayout(flowNodes, layout) : flowNodes;
   const flowEdges: FlowEdge[] = edges.map((edge) => ({
     id: edge.id,
     source: edge.source,
@@ -44,15 +49,24 @@ export function buildFlowElements(graph: NodeGraph): { nodes: FlowNode[]; edges:
     data: { graph: edge },
     animated: false,
   }));
-  return { nodes: flowNodes, edges: flowEdges };
+  return { nodes: positioned, edges: flowEdges };
 }
 
 export interface DataflowViewProps {
   graph: NodeGraph;
   onSelectNode?: (node: GraphNode) => void;
+  layout?: LayoutFile;
+  onNodeDragStop?: (id: string, position: { x: number; y: number }) => void;
 }
 
-export function DataflowView({ graph, onSelectNode }: DataflowViewProps) {
-  const elements = useMemo(() => buildFlowElements(graph), [graph]);
-  return <FlowCanvas nodes={elements.nodes} edges={elements.edges} onSelectNode={onSelectNode} />;
+export function DataflowView({ graph, onSelectNode, layout, onNodeDragStop }: DataflowViewProps) {
+  const elements = useMemo(() => buildFlowElements(graph, layout), [graph, layout]);
+  return (
+    <FlowCanvas
+      nodes={elements.nodes}
+      edges={elements.edges}
+      onSelectNode={onSelectNode}
+      onNodeDragStop={onNodeDragStop}
+    />
+  );
 }

@@ -53,10 +53,24 @@ addopts = "-ra"
 [tool.importlinter]
 root_package = "rvgen"
 
-# import-linter 会拒绝引用尚不存在的模块；server/gitw/rvopen/layout 属 P3/P5，
-# 对应的 core 反依赖契约随模块落地时再加回。
+# import-linter 会拒绝引用尚不存在的模块；layout/gitw/rvopen 等 infra 模块已随 P5 落地。
 [[tool.importlinter.contracts]]
 name = "loader 不得依赖 graph/emitter"
 type = "forbidden"
 source_modules = ["rvgen.loader"]
 forbidden_modules = ["rvgen.graph"]
+
+[[tool.importlinter.contracts]]
+name = "core 不得依赖 server/gitw/rvopen"
+type = "forbidden"
+source_modules = [
+  "rvgen.loader",
+  "rvgen.model",
+  "rvgen.graph",
+  "rvgen.digest",
+  "rvgen.emitter",
+  "rvgen.importer",
+  "rvgen.trace",
+  "rvgen.checker",
+]
+forbidden_modules = ["rvgen.server", "rvgen.gitw", "rvgen.rvopen"]

@@ -55,6 +55,26 @@ def test_unimplemented_command_returns_one(capsys) -> None:
     assert "尚未实现" in err
 
 
-def test_serve_is_registered_but_unimplemented(capsys) -> None:
-    assert main(["serve", "--no-open"]) == 1
-    assert "rvgen serve" in capsys.readouterr().err
+def test_serve_is_wired_to_server(monkeypatch, tmp_path, capsys) -> None:
+    calls: dict[str, object] = {}
+
+    def fake_serve(root, host="127.0.0.1", port=8123, *, open_browser=True):
+        calls.update(root=root, host=host, port=port, open_browser=open_browser)
+        return 0
+
+    import rvgen.server as server_module
+
+    monkeypatch.setattr(server_module, "serve", fake_serve)
+    assert main(["serve", "--project", str(tmp_path), "--port", "9000", "--no-open"]) == 0
+    assert calls == {
+        "root": tmp_path.resolve(),
+        "host": "127.0.0.1",
+        "port": 9000,
+        "open_browser": False,
+    }
+
+
+def test_serve_rejects_missing_project(capsys, tmp_path) -> None:
+    missing = tmp_path / "absent"
+    assert main(["serve", "--project", str(missing), "--no-open"]) == 3
+    assert "E00" in capsys.readouterr().err

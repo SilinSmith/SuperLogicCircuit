@@ -1,7 +1,9 @@
-// 只读图加载：P3 先吃静态样例，P5 起默认走 /api/graph（同一契约）。
+// 只读图加载：P5 起由 rvgen serve 提供 /api/graph；静态样例仅用于离线演示。
 import type { GraphEdge, GraphNode, NodeGraph } from "../../contracts/node_graph";
 
-export const DEFAULT_GRAPH_URL = "/sample/node_graph.json";
+export const SAMPLE_GRAPH_URL = "/sample/node_graph.json";
+export const LIVE_GRAPH_URL = "/api/graph";
+export const DEFAULT_GRAPH_URL = SAMPLE_GRAPH_URL;
 
 export class GraphLoadError extends Error {
   constructor(
@@ -13,11 +15,24 @@ export class GraphLoadError extends Error {
   }
 }
 
-/** ?graph=/api/graph 可覆盖数据源，便于 e2e 与多项目切换。 */
-export function resolveGraphUrl(search = window.location.search): string {
+/** serve 默认端口 8123；`?live=1` 可强制，`?live=0` 可回到样例。 */
+export function isLiveSource(
+  search = window.location.search,
+  port = window.location.port,
+): boolean {
+  const params = new URLSearchParams(search);
+  const flag = params.get("live");
+  if (flag === "0") return false;
+  if (flag === "1") return true;
+  return params.get("graph") === null && port === "8123";
+}
+
+/** ?graph= 优先；否则由 serve 托管时走 /api/graph，其余场景读样例。 */
+export function resolveGraphUrl(search = window.location.search, port = window.location.port): string {
   const params = new URLSearchParams(search);
   const value = params.get("graph");
-  return value && value.trim() !== "" ? value : DEFAULT_GRAPH_URL;
+  if (value && value.trim() !== "") return value;
+  return isLiveSource(search, port) ? LIVE_GRAPH_URL : SAMPLE_GRAPH_URL;
 }
 
 function asArray(value: unknown, field: string): unknown[] {

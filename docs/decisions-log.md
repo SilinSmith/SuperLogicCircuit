@@ -136,3 +136,41 @@
 - 决策：统计视图使用 `echarts/core` 按需注册（BarChart/Grid/Tooltip/CanvasRenderer），不引入全量 `echarts`。P4 构建 JS 体积增至 980.16 kB（gzip 323.94 kB）。
 - 理由：统计图表是方案明确的核心视图；按需注册已把体积压到可接受范围，暂不做路由级 code-split（单页应用，切换视图不重复下载）。
 - 状态：已收口；若 P5/P6 加入更多视图导致体积失控，再按视图动态 import。
+  P5 实测构建 **JS 983.58 kB（gzip 325.31 kB）**、CSS 22.13 kB（gzip 4.16 kB），增量来自 SSE/布局模块。
+
+## P5
+
+### D22 服务端实现：stdlib HTTP + 轮询 watcher
+
+- 决策：`server.py` 使用标准库 `ThreadingHTTPServer` + SSE 手写流，watcher 用 200 ms 轮询 mtime/sha256 + 400 ms 去抖；不引入 ASGI/FastAPI 运行时，也不使用 `watchdog` 事件线程。
+- 理由：P5 契约（端点、事件、补发/resync）与实现无关；stdlib 方案无线程生命周期泄漏、Windows 文件通知差异与额外测试依赖，单测可直接起本地端口验证。`fastapi/uvicorn/watchdog` 仍在 P0 依赖清单中，后续若要换实现不影响对外契约。
+- 影响：`py/rvgen/server.py`、`tests/unit/test_server_sse.py`。
+- 状态：已收口（如需 ASGI 化，另开阶段）。
+
+### D23 布局持久化键与合并口径
+
+- 决策：前端固定使用 `localStorage["rvgen:layout:v1"]`，按 node id 合并；live 模式下拖动同时 `POST /api/layout` 写入项目根 `layout.json`。重载（应用内或浏览器刷新）只按 id 覆盖坐标，不重建视图偏好。
+- 理由：若按 `source_digest` 分键，YAML 任何改动都会丢坐标，违背“重载保留坐标”的验收；`layout.json` 与 localStorage 双写保证 `serve` 与静态演示一致。
+- 影响：`web/src/lib/layout.ts`、`web/src/App.tsx`、`web/src/views/DataflowView.tsx`。
+- 状态：已收口。
+
+### D24 事件与端点的最小集合
+
+- 决策：只发 `yaml_changed` / `graph_changed` / `summary_changed` / `git_state` / `resync`；不实现 `check_result`、`rtl_changed`（服务端不跑 check、不监听 RTL）；`POST /api/reload` 仅回读当前图，无副作用、不发事件。
+- 理由：`check_result` 需要服务端常驻 check 运行器，`rtl_changed` 在无 check 模式下会制造噪声；手动重载按 §7.2 由前端 `GET /api/graph` 完成，端点保留只用于显式回读。`node_graph.json` 的变化用 `graph_changed` 表达，避免与 YAML 语义混淆。
+- 影响：`py/rvgen/server.py`、`docs/WEBUI.md`。
+- 状态：待 P6/后续若加入服务端 check 时补 `check_result`/`rtl_changed`。
+
+### D25 collapsed / pinned 只持久化、不提供控件
+
+- 决策：布局条目保留 `pinned`、`collapsed`、`control_points` 字段并在合并时原样保留，但 P5 UI 不新增折叠/钉住按钮。
+- 理由：P5 验收只要求“重载保留折叠/坐标/pinned”，字段与合并语义已满足；新增交互控件超出本轮范围，且会牵动节点渲染与边重算。
+- 影响：`web/src/lib/layout.ts`。
+- 状态：待后续 UI 迭代收口。
+
+### D26 rvgen:// 拉起与兜底
+
+- 决策：详情抽屉新增“在编辑器中打开”，点击即尝试 `window.location.href = rvgen://…`，同时把 URI 复制到剪贴板并提示“若未响应，已复制”；保存原复制按钮。三平台注册脚本只给脚本，不自动执行。
+- 理由：浏览器无法可靠检测自定义协议是否被处理，静默失败不可接受；Windows 脚本本机可验证，macOS/Linux 脚本按平台标准做法编写但**未实机验证**。
+- 影响：`web/src/lib/rvopen.ts`、`web/src/panels/DetailDrawer.tsx`、`scripts/*`、`docs/WEBUI.md`。
+- 状态：Windows 已收口；macOS/Linux 脚本待实机验证。

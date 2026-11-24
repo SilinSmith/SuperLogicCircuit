@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+# rvgen git hook（post-commit / post-checkout 共用）。
+# 只做“轻量校验 + 标记”，绝不自动覆写工作区；hook 的失败不影响已提交内容。
+set -eu
+
+repo="$(git rev-parse --show-toplevel)"
+
+# post-checkout 会传入 old/new/flag；flag=0 表示文件 checkout，跳过。
+if [ "${3:-}" = "0" ]; then exit 0; fi
+
+if command -v rvgen >/dev/null 2>&1 && [ -f "$repo/rvgen.yaml" ]; then
+  if ! rvgen check --quiet; then
+    echo "rvgen: node_graph.json 与 rvgen.yaml 不一致；显式更新：rvgen graph --write" >&2
+    exit 1
+  fi
+fi
+
+mkdir -p "$repo/.rvgen"
+touch "$repo/.rvgen/.git-event"     # server 若在运行会拾取并推 git_state

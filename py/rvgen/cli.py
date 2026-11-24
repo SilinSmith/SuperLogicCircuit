@@ -180,9 +180,9 @@ def _cmd_doctor(args: argparse.Namespace) -> int:
         {
             "name": "rvgen_protocol",
             "required": False,
-            "status": "deferred",
+            "status": "manual",
             "version": None,
-            "detail": "rvgen:// 协议注册在 P5 实现",
+            "detail": "运行 scripts/register-rvopen.{ps1,sh} 注册 rvgen://",
         }
     )
     ok = all(tool["status"] != "missing" for tool in tools if tool["required"])
@@ -353,6 +353,25 @@ def _cmd_sync(args: argparse.Namespace) -> int:
     return sink.exit_code(strict=args.strict)
 
 
+def _cmd_serve(args: argparse.Namespace) -> int:
+    from .server import serve
+
+    sink = DiagnosticSink()
+    root = Path(args.project).expanduser().resolve() if args.project else Path.cwd()
+    if not root.is_dir():
+        sink.io_failure = True
+        sink.error("E00", f"项目根不存在：{root}", hint="用 --project 指定包含 rvgen.yaml 的目录")
+        _render(sink, "text")
+        return sink.exit_code()
+    try:
+        return serve(root, host=args.host, port=args.port, open_browser=not args.no_open)
+    except OSError as exc:
+        sink.io_failure = True
+        sink.error("E00", f"serve 启动失败：{exc}", hint="端口被占用时用 --port 换一个")
+        _render(sink, "text")
+        return sink.exit_code()
+
+
 def _cmd_trace(args: argparse.Namespace) -> int:
     from .trace import normalize, stats, summary
 
@@ -418,4 +437,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _cmd_graph(args)
     if args.command == "trace":
         return _cmd_trace(args)
+    if args.command == "serve":
+        return _cmd_serve(args)
     return _cmd_unimplemented(args)

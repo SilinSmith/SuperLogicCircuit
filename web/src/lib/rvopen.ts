@@ -1,5 +1,5 @@
-// rvgen:// 按钮：P3 生成 URI 并复制到剪贴板；协议注册与拉起在 P5（rvopen + register 脚本）。
-// 不做全局 URI Scheme 注册，也不在未注册时静默失败。
+// rvgen:// 按钮：生成 URI、尝试拉起协议，并始终提供剪贴板回退。
+// 不做全局 URI Scheme 注册；注册脚本见 scripts/register-rvopen-*。
 import type { GraphNode } from "../../contracts/node_graph";
 
 export function buildRvgenUri(node: GraphNode): string | null {
@@ -13,6 +13,15 @@ export function buildRvgenUri(node: GraphNode): string | null {
 }
 
 export type OpenResult = "copied" | "failed";
+
+/** 浏览器无法感知协议处理器是否成功，因此拉起后仍需复制作为兜底。 */
+export function openRvgenUri(uri: string): void {
+  try {
+    window.location.href = uri;
+  } catch {
+    // 协议未注册时部分浏览器会抛错；由调用方提示使用复制回退。
+  }
+}
 
 export async function copyRvgenUri(uri: string): Promise<OpenResult> {
   try {

@@ -100,6 +100,24 @@ body {
   white-space: nowrap;
 }
 
+.app__live {
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.app__live--on {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.app__reload-stale {
+  border-color: var(--warn) !important;
+  color: var(--warn) !important;
+}
+
 .app__header button,
 .app__error button,
 .detail-drawer button {

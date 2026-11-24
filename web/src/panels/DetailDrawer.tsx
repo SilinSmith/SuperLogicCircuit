@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { GraphNode } from "../../contracts/node_graph";
-import { buildRvgenUri, copyRvgenUri } from "../lib/rvopen";
+import { buildRvgenUri, copyRvgenUri, openRvgenUri } from "../lib/rvopen";
 import { typeLabel } from "../flow/nodes/ModuleNode";
 
 export interface DetailDrawerProps {
@@ -17,6 +17,12 @@ export function DetailDrawer({ node, onClose }: DetailDrawerProps) {
 
   if (!node) return null;
   const uri = buildRvgenUri(node);
+
+  const handleOpen = () => {
+    if (!uri) return;
+    openRvgenUri(uri);
+    void copyRvgenUri(uri).then((result) => setCopyState(result === "copied" ? "copied" : "failed"));
+  };
 
   const handleCopy = async () => {
     if (!uri) return;
@@ -99,10 +105,15 @@ export function DetailDrawer({ node, onClose }: DetailDrawerProps) {
       </section>
 
       <footer className="detail-drawer__footer">
-        <button type="button" onClick={handleCopy} disabled={!uri} data-testid="rvgen-button">
-          复制 rvgen:// 跳转
+        <button type="button" onClick={handleOpen} disabled={!uri} data-testid="rvgen-open-button">
+          在编辑器中打开
         </button>
-        {copyState === "copied" ? <span>已复制，协议注册后可直接打开</span> : null}
+        <button type="button" onClick={handleCopy} disabled={!uri} data-testid="rvgen-button">
+          复制 rvgen://
+        </button>
+        {copyState === "copied" ? (
+          <span>已请求打开；若未响应，rvgen:// 已复制（需先运行 scripts/register-rvopen-*）</span>
+        ) : null}
         {copyState === "failed" ? <span>复制失败：请手动复制 {uri}</span> : null}
         {!uri ? <span>该节点没有 loc，无法跳转（W10）</span> : null}
       </footer>

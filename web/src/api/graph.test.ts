@@ -23,4 +23,11 @@ describe("node_graph 运行期守卫", () => {
     expect(resolveGraphUrl("?graph=/api/graph")).toBe("/api/graph");
     expect(resolveGraphUrl("")).toBe("/sample/node_graph.json");
   });
+
+  it("serve 托管端口默认走 /api/graph，可显式回退样例", () => {
+    expect(resolveGraphUrl("", "8123")).toBe("/api/graph");
+    expect(resolveGraphUrl("?live=1", "5174")).toBe("/api/graph");
+    expect(resolveGraphUrl("?live=0", "8123")).toBe("/sample/node_graph.json");
+    expect(resolveGraphUrl("?graph=/custom.json", "8123")).toBe("/custom.json");
+  });
 });

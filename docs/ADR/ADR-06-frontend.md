@@ -47,6 +47,14 @@
 - **插件视图**：`plugins/cpu` 注册流水线时空图与 Cache 视图；仅当图出现 `x-cpu-stage` 或 `p_cpu:*` 节点时显示，通用图（如 UART golden）不出现（e2e 覆盖）。
 - **构建体积（P4）**：JS 980.16 kB（gzip 323.94 kB，map 5.03 MB），CSS 21.88 kB（gzip 4.10 kB）。ECharts 使体积翻倍，仍在单页应用可接受范围；若后续视图继续增长，按视图动态 import。
 
+## P5 追加：实时提示与布局持久化
+
+- **事件流**：`EventSource` 订阅 `/api/events`；只累加“有更新（N）”徽标，点击才重新拉图，绝不自动覆写视图。断线由 EventSource 自动重连并携带 `Last-Event-ID`，服务端补发或发 `resync`。
+- **布局**：`localStorage["rvgen:layout:v1"]` 按 node id 合并坐标，重载与浏览器刷新均保留；live 时同步 `POST /api/layout` 写 `layout.json`（不进 git）。`pinned`/`collapsed` 字段已保留，UI 控件待后续（D25）。
+- **数据源**：serve 托管或 `?live=1` 用 `/api/graph`、`/api/trace-summary`；其余场景保持静态样例，e2e 不依赖后端。
+- **构建体积（P5）**：JS 983.58 kB（gzip 325.31 kB），CSS 22.13 kB（gzip 4.16 kB）。
+- **e2e**：新增 `offline.spec.ts`（数据源不可达→错误→恢复后重试）与 `reload-keeps-layout.spec.ts`（应用内重载 / 浏览器刷新后坐标保持）。
+
 ## 被否方案
 
 - 自研 Canvas/SVG 看板：重复实现拖拽/缩放/吸附/无障碍，维护成本高（方案 2.3）。
