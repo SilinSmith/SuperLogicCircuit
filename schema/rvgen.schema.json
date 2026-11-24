@@ -1,0 +1,619 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rvgen.local/schema/rvgen.schema.json",
+  "title": "rvgen.yaml",
+  "description": "rvgen 声明源的唯一契约。核心只认识 module/bridge/memory/clock_gen 四类结构件；plugin 领域字段以 x- 前缀透传。",
+  "type": "object",
+  "required": ["schema_version", "project", "clocks", "modules", "top"],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": true
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.1.0"
+    },
+    "project": {
+      "$ref": "#/$defs/project"
+    },
+    "clocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/clock"
+      }
+    },
+    "cdc": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cdc"
+      }
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/interface_lib"
+      }
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/module"
+      }
+    },
+    "top": {
+      "$ref": "#/$defs/top"
+    },
+    "plugins": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_$]*$"
+    },
+    "core_kind": {
+      "description": "核心内置四类结构件。plugin kind 使用自由字符串，由 P1 的 kind_registry 语义校验（E05）。",
+      "enum": ["module", "bridge", "memory", "clock_gen"]
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "top", "default_clock", "reset"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{2,31}$"
+        },
+        "top": {
+          "$ref": "#/$defs/identifier"
+        },
+        "default_clock": {
+          "$ref": "#/$defs/identifier"
+        },
+        "reset": {
+          "$ref": "#/$defs/reset"
+        }
+      }
+    },
+    "reset": {
+      "type": "object",
+      "required": ["name", "polarity", "sync", "levels"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "polarity": {
+          "enum": ["active_high", "active_low"]
+        },
+        "sync": {
+          "type": "boolean"
+        },
+        "levels": {
+          "type": "integer",
+          "minimum": 2
+        }
+      }
+    },
+    "clock": {
+      "type": "object",
+      "required": ["name", "freq_hz", "domain_id", "source"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "freq_hz": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "domain_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source": {
+          "enum": ["pll", "pad", "generated"]
+        },
+        "parent": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "source": {
+              "const": "generated"
+            }
+          },
+          "required": ["source", "parent"]
+        },
+        {
+          "properties": {
+            "source": {
+              "enum": ["pll", "pad"]
+            }
+          },
+          "required": ["source"]
+        }
+      ]
+    },
+    "cdc": {
+      "type": "object",
+      "required": ["id", "from", "to", "kind"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "from": {
+          "$ref": "#/$defs/identifier"
+        },
+        "to": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": ["2ff", "async_fifo", "handshake", "pulse_sync", "gray_bus"]
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "async_fifo 深度；必须为 2 的幂，此约束由 P1 语义校验补充。"
+        },
+        "almost_full": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "必须小于 depth，此约束由 P1 语义校验补充。"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "async_fifo"
+            }
+          },
+          "required": ["kind", "width", "depth"]
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "gray_bus"
+            }
+          },
+          "required": ["kind", "width"]
+        },
+        {
+          "properties": {
+            "kind": {
+              "enum": ["2ff", "handshake", "pulse_sync"]
+            }
+          },
+          "required": ["kind"]
+        }
+      ]
+    },
+    "interface_signal": {
+      "type": "object",
+      "required": ["name", "dir"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "dir": {
+          "enum": ["input", "output", "inout"]
+        },
+        "width": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "enum": ["data", "valid", "ready", "handshake", "clock", "reset", "param"]
+        },
+        "domain": {
+          "type": ["string", "null"]
+        },
+        "default": {
+          "type": ["string", "null"]
+        },
+        "connect": {
+          "type": ["string", "null"]
+        },
+        "doc": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "interface_lib": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "number", "boolean"]
+          }
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/interface_signal"
+          }
+        },
+        "dir_flip": {
+          "type": "boolean"
+        }
+      }
+    },
+    "top": {
+      "type": "object",
+      "required": ["ports"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/top_port"
+          }
+        },
+        "tieoffs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tieoff"
+          }
+        }
+      }
+    },
+    "top_port": {
+      "type": "object",
+      "required": ["name", "dir"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "dir": {
+          "enum": ["input", "output"]
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_$]*\\.[A-Za-z_][A-Za-z0-9_$]*$"
+        },
+        "to": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_$]*\\.[A-Za-z_][A-Za-z0-9_$]*$"
+          }
+        },
+        "role": {
+          "enum": ["clock", "reset", "data"]
+        },
+        "polarity": {
+          "enum": ["active_high", "active_low"]
+        },
+        "default": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "dir": {
+                "const": "output"
+              }
+            },
+            "required": ["dir"]
+          },
+          "then": {
+            "required": ["from"],
+            "not": {
+              "required": ["to"]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dir": {
+                "const": "input"
+              }
+            },
+            "required": ["dir"]
+          },
+          "then": {
+            "not": {
+              "required": ["from"]
+            },
+            "oneOf": [
+              {
+                "required": ["to"],
+                "properties": {
+                  "role": {
+                    "not": {
+                      "enum": ["clock", "reset"]
+                    }
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "role": {
+                    "enum": ["clock", "reset"]
+                  }
+                },
+                "required": ["role"]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "tieoff": {
+      "type": "object",
+      "required": ["port", "value"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "port": {
+          "$ref": "#/$defs/identifier"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "module": {
+      "type": "object",
+      "required": ["name", "kind", "clock", "ports"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "description": "核心四类见 $defs/core_kind；其他值必须由 plugin kind_registry 注册。"
+        },
+        "clock": {
+          "$ref": "#/$defs/identifier"
+        },
+        "status": {
+          "enum": ["draft", "wip", "stable", "frozen"]
+        },
+        "todo": {
+          "type": ["string", "null"]
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/param"
+          }
+        },
+        "ports": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/port"
+          }
+        },
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/module_interface"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "not": {
+                  "const": "memory"
+                }
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "ports": {
+                "items": {
+                  "properties": {
+                    "dir": {
+                      "not": {
+                        "const": "inout"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "param": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "width": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        },
+        "expr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "default": {
+          "type": ["string", "number", "boolean", "null"]
+        },
+        "doc": {
+          "type": ["string", "null"]
+        }
+      },
+      "not": {
+        "required": ["width", "expr"]
+      }
+    },
+    "port": {
+      "type": "object",
+      "required": ["name", "dir"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "dir": {
+          "enum": ["input", "output", "inout"]
+        },
+        "width": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "enum": ["data", "valid", "ready", "handshake", "clock", "reset", "param"]
+        },
+        "domain": {
+          "type": ["string", "null"]
+        },
+        "default": {
+          "type": ["string", "null"]
+        },
+        "connect": {
+          "type": ["string", "null"]
+        },
+        "doc": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "module_interface": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "number", "boolean"]
+          }
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/interface_signal"
+          }
+        },
+        "dir_flip": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

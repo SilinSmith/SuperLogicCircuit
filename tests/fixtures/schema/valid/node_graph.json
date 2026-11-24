@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "rvgen 0.1.0",
+  "source_digest": "sha256:0123456789abcdef",
+  "nodes": [
+    {
+      "id": "mod:uart",
+      "type": "module_node",
+      "label": "uart",
+      "module": "uart",
+      "domain": "sys",
+      "loc": {
+        "file": "rtl/uart.v",
+        "line": 1
+      },
+      "ports": [
+        {
+          "name": "tx",
+          "dir": "output",
+          "width_expr": "1",
+          "width_bits": 1,
+          "kind": "data",
+          "domain": "sys"
+        }
+      ],
+      "status": "stable",
+      "todo": null
+    },
+    {
+      "id": "mod:fifo",
+      "type": "module_node",
+      "label": "fifo",
+      "module": "fifo",
+      "domain": "sys"
+    },
+    {
+      "id": "clk:clk",
+      "type": "clock_node",
+      "label": "clk",
+      "clock": "clk",
+      "domain": "sys"
+    },
+    {
+      "id": "stats:summary",
+      "type": "stats_node",
+      "label": "Summary"
+    }
+  ],
+  "edges": [
+    {
+      "id": "uart.tx->fifo.push",
+      "source": "mod:uart",
+      "target": "mod:fifo",
+      "source_port": "tx",
+      "target_port": "push",
+      "kind": "data",
+      "width_bits": 8,
+      "bandwidth": {
+        "source": "derived",
+        "width_bits": 8,
+        "clock": "clk",
+        "freq_hz": 50000000
+      },
+      "is_critical": true
+    }
+  ]
+}

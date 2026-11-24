@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rvgen.local/schema/trace.schema.json",
+  "title": "trace JSONL record",
+  "$comment": "TSV 的 6 列与 #rvgen-meta 无法用 JSON Schema 表达；本 schema 只约束 normalize 后的单行 JSONL。TSV 列数/JSONL 逐行校验由 P1 的 trace.normalize 实现（E11）。",
+  "type": "object",
+  "required": ["cycle", "time_ns", "loc", "state", "ids", "arc", "cdc"],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": true,
+    "^p_[a-z0-9_]+$": {
+      "type": "object"
+    }
+  },
+  "properties": {
+    "cycle": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "time_ns": {
+      "type": "number",
+      "minimum": 0
+    },
+    "loc": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "ids": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "number", "integer", "boolean"]
+      }
+    },
+    "arc": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/arc"
+      }
+    },
+    "cdc": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cdc"
+      }
+    }
+  },
+  "$defs": {
+    "arc": {
+      "type": "object",
+      "required": ["edge", "toggle"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "edge": {
+          "type": "string",
+          "minLength": 1
+        },
+        "toggle": {
+          "enum": [0, 1]
+        }
+      }
+    },
+    "cdc": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "afull": {
+          "type": ["integer", "boolean", "null"]
+        },
+        "cnt": {
+          "type": ["integer", "null"]
+        }
+      }
+    }
+  }
+}

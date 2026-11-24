@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rvgen.local/schema/node_graph.schema.json",
+  "title": "node_graph.json",
+  "description": "纯静态图契约。由操作者显式 graph --write 生成；不得包含布局、trace 指标或时间戳。",
+  "type": "object",
+  "required": ["schema_version", "generated_by", "source_digest", "nodes", "edges"],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": true
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "generated_by": {
+      "type": "string",
+      "pattern": "^rvgen \\d+\\.\\d+\\.\\d+$"
+    },
+    "source_digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{16}$"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    }
+  },
+  "$defs": {
+    "core_node_types": {
+      "description": "核心四类图节点。plugin 节点必须以 p_<plugin>:<type> 形式注册。",
+      "enum": ["module_node", "clock_node", "cdc_node", "stats_node"]
+    },
+    "plugin_type_pattern": {
+      "type": "string",
+      "pattern": "^p_[a-z0-9_]+:[a-z][a-z0-9_]*$"
+    },
+    "node_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^(mod|clk|cdc|stats):[a-z][a-z0-9_]*$"
+        },
+        {
+          "type": "string",
+          "pattern": "^p_[a-z0-9_]+:[a-z][a-z0-9_]*:[a-z][a-z0-9_]*$"
+        }
+      ]
+    },
+    "node_type": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/core_node_types"
+        },
+        {
+          "$ref": "#/$defs/plugin_type_pattern"
+        }
+      ]
+    },
+    "loc": {
+      "type": "object",
+      "required": ["file", "line"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      }
+    },
+    "node_port": {
+      "type": "object",
+      "required": ["name", "dir"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "dir": {
+          "enum": ["input", "output", "inout"]
+        },
+        "width_expr": {
+          "type": ["string", "integer", "null"]
+        },
+        "width_bits": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "kind": {
+          "enum": ["data", "valid", "ready", "handshake", "clock", "reset", "param"]
+        },
+        "domain": {
+          "type": ["string", "null"]
+        },
+        "unresolved": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": ["id", "type", "label"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/node_id"
+        },
+        "type": {
+          "$ref": "#/$defs/node_type"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "module": {
+          "type": ["string", "null"]
+        },
+        "clock": {
+          "type": ["string", "null"]
+        },
+        "loc": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/loc"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "domain": {
+          "type": ["string", "null"]
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node_port"
+          }
+        },
+        "status": {
+          "type": ["string", "null"]
+        },
+        "todo": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "bandwidth_explicit": {
+      "type": "object",
+      "required": ["source", "value", "reason"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "source": {
+          "const": "explicit"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "bandwidth_derived": {
+      "type": "object",
+      "required": ["source", "width_bits", "clock", "freq_hz"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "source": {
+          "const": "derived"
+        },
+        "width_bits": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        },
+        "clock": {
+          "type": "string",
+          "minLength": 1
+        },
+        "freq_hz": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "bandwidth": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/bandwidth_explicit"
+        },
+        {
+          "$ref": "#/$defs/bandwidth_derived"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "source", "target", "kind"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_port": {
+          "type": ["string", "null"]
+        },
+        "target_port": {
+          "type": ["string", "null"]
+        },
+        "kind": {
+          "enum": ["data", "handshake", "clock", "reset", "cdc", "param", "bundle"]
+        },
+        "width_bits": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "bandwidth": {
+          "$ref": "#/$defs/bandwidth"
+        },
+        "is_critical": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

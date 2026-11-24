@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rvgen.local/schema/layout.schema.json",
+  "title": "layout.json",
+  "description": "只存坐标、折叠与视图偏好；默认不进 git。不得包含结构信息。",
+  "type": "object",
+  "required": ["schema_version", "views"],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^x-": true
+  },
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "views": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z0-9_.:-]+$": {
+          "$ref": "#/$defs/view"
+        }
+      },
+      "additionalProperties": false
+    },
+    "_stale": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "node_layout": {
+      "type": "object",
+      "required": ["x", "y"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "collapsed": {
+          "type": "boolean"
+        },
+        "pinned": {
+          "type": "boolean"
+        },
+        "group": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "edge_layout": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "control_points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        },
+        "label_offset": {
+          "$ref": "#/$defs/point"
+        }
+      }
+    },
+    "viewport": {
+      "type": "object",
+      "required": ["x", "y", "zoom"],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "zoom": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "prefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "layout_algo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "direction": {
+          "enum": ["LR", "TB", "RL", "BT"]
+        },
+        "show_trace": {
+          "type": "boolean"
+        },
+        "filter_domain": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": true
+      },
+      "properties": {
+        "nodes": {
+          "type": "object",
+          "patternProperties": {
+            "^.+$": {
+              "$ref": "#/$defs/node_layout"
+            }
+          },
+          "additionalProperties": false
+        },
+        "edges": {
+          "type": "object",
+          "patternProperties": {
+            "^.+$": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/edge_layout"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "viewport": {
+          "$ref": "#/$defs/viewport"
+        },
+        "prefs": {
+          "$ref": "#/$defs/prefs"
+        }
+      }
+    }
+  }
+}
