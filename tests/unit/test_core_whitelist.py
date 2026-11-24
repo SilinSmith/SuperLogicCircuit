@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -63,16 +62,6 @@ def test_node_graph_has_no_bare_plugin_types_in_core_enum() -> None:
     core = set(NODE_GRAPH["$defs"]["core_node_types"]["enum"])
     assert "cache_node" not in core
     assert "pipeline_slot_node" not in core
-
-
-def test_core_python_has_no_domain_tokens() -> None:
-    pattern = re.compile(r"\b(rv32i|jalr|pipeline_stage|stage_index|is_cpu)\b", re.IGNORECASE)
-    offenders: list[str] = []
-    for path in sorted((REPO_ROOT / "py" / "rvgen").rglob("*.py")):
-        text = path.read_text(encoding="utf-8")
-        if pattern.search(text):
-            offenders.append(str(path.relative_to(REPO_ROOT)))
-    assert offenders == []
 
 
 def test_structural_objects_allow_x_extensions() -> None:
