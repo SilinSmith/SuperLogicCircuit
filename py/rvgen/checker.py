@@ -1,7 +1,8 @@
-"""check 的 P0 通路：只读 schema lint。
+"""check 通路：schema lint + loader/graph 语义校验（P1）。
 
-语义 diff（YAML 期望 vs node_graph.json 实际）从 P1 开始实现；本模块现在只保证：
-- rvgen.yaml / node_graph.json / layout.json 能按契约校验；
+语义 diff（YAML 期望 vs node_graph.json 实际）仍属 P2；本模块保证：
+- rvgen.yaml 走 loader（schema + 引用检查），再跑 graph 的静态规则码；
+- node_graph.json / layout.json 按契约 lint；
 - 诊断带点号 json_path；
 - 退出码严格遵循 0/1/2/3；
 - 不写任何文件。
@@ -15,12 +16,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import yaml
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError, ValidationError, best_match
 
 from . import __version__
 from .diag import DiagnosticSink, Location
+from .graph import build as build_graph
+from .loader import load
+from .plugins import discover
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_DIR = REPO_ROOT / "schema"
@@ -130,33 +133,6 @@ def _read_text(path: Path, file_label: str, sink: DiagnosticSink) -> str | None:
         return None
 
 
-def _lint_yaml(
-    path: Path,
-    root: Path,
-    schema: dict[str, Any],
-    sink: DiagnosticSink,
-) -> dict[str, Any] | None:
-    file_label = _relative(path, root)
-    text = _read_text(path, file_label, sink)
-    if text is None:
-        return None
-    try:
-        document = yaml.safe_load(text)
-    except yaml.YAMLError as exc:
-        mark = getattr(exc, "problem_mark", None)
-        where = Location(file=file_label)
-        if mark is not None:
-            where = Location(file=file_label, line=mark.line + 1, col=mark.column + 1)
-        sink.error("E09", f"YAML 解析失败：{exc}", where, hint="检查缩进、冒号与引号")
-        return None
-    if not isinstance(document, dict):
-        sink.error("E09", "顶层必须是 mapping", Location(file=file_label))
-        return None
-    if not _validate(document, schema, file_label, sink):
-        return None
-    return document
-
-
 def _lint_json(
     path: Path,
     root: Path,
@@ -200,15 +176,18 @@ def _lint_contracts(sink: DiagnosticSink) -> None:
 
 
 def _lint_project(root: Path, sink: DiagnosticSink) -> None:
-    schema_rvgen = _load_schema("rvgen", sink)
     schema_graph = _load_schema("node_graph", sink)
     schema_layout = _load_schema("layout", sink)
-    if schema_rvgen is None or schema_graph is None or schema_layout is None:
+    if schema_graph is None or schema_layout is None:
         return
 
     rvgen_path = root / "rvgen.yaml"
-    if _lint_yaml(rvgen_path, root, schema_rvgen, sink) is None:
+    plugins = discover(sink)
+    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    sink.extend(diagnostics)
+    if model is None:
         return
+    build_graph(model, sink)
 
     graph_path = root / "node_graph.json"
     if graph_path.exists():

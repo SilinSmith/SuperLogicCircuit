@@ -72,3 +72,11 @@ top:
       dir: input
       to:
         - uart.rxd
+    - name: cfg
+      dir: input
+      to:
+        - uart.cfg
+    - name: fifo_push
+      dir: input
+      to:
+        - fifo.push

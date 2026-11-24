@@ -225,15 +225,61 @@ def _cmd_unimplemented(args: argparse.Namespace) -> int:
     sink = DiagnosticSink()
     sink.error(
         "E00",
-        f"rvgen {_command_label(args)} 尚未实现：P0 只提供 CLI 骨架与 check 的 lint 通路",
-        hint="按 rvgen完整方案.md 第 9 章，语义核心从 P1 开始实现",
+        f"rvgen {_command_label(args)} 尚未实现：P1 只提供 loader/model/graph/digest/importer 与 graph --write",
+        hint="按 rvgen完整方案.md 第 9 章，生成与前端分别属于 P2/P3",
     )
     _render(sink, "text")
     return sink.exit_code()
 
 
+def _cmd_graph(args: argparse.Namespace) -> int:
+    sink = DiagnosticSink()
+    if not args.write or args.check or args.accept_wiring or args.list_cdc:
+        sink.error(
+            "E00",
+            "graph --check/--accept-wiring/--list-cdc 尚未实现：P1 只实现 --write",
+            hint="需要落盘时运行 rvgen graph --write",
+        )
+        _render(sink, "text")
+        return sink.exit_code()
+
+    from .graph import build, write
+    from .loader import load
+
+    root = Path.cwd()
+    rvgen_path = root / "rvgen.yaml"
+    if not rvgen_path.exists():
+        sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen graph --write")
+        _render(sink, "text")
+        return sink.exit_code()
+
+    plugins = discover(sink)
+    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    sink.extend(diagnostics)
+    if model is None or sink.has_errors():
+        _render(sink, "text")
+        return sink.exit_code()
+
+    node_graph = build(model, sink)
+    if sink.has_errors():
+        _render(sink, "text")
+        return sink.exit_code()
+
+    from .atomic import AtomicWriteError
+
+    try:
+        write(node_graph, root / "node_graph.json", sink=sink)
+    except AtomicWriteError as exc:
+        sink.error("E12", str(exc), hint="检查文件权限/占用后重试")
+        _render(sink, "text")
+        return sink.exit_code()
+    sys.stdout.write("wrote node_graph.json\n")
+    _render(sink, "text")
+    return sink.exit_code()
+
+
 def _cmd_check(args: argparse.Namespace) -> int:
-    # P0：check 只做 schema lint，不写文件；P1 接入语义 diff。
+    # P1：schema lint + loader/graph 语义校验；生成物 diff 仍属 P2。
     from .checker import run_check
 
     sink = DiagnosticSink()
@@ -294,4 +340,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _cmd_check(args)
     if args.command == "sync":
         return _cmd_sync(args)
+    if args.command == "graph":
+        return _cmd_graph(args)
     return _cmd_unimplemented(args)
