@@ -30,3 +30,6 @@ trace/*.jsonl
 # 编辑器 / 系统
 .DS_Store
 Thumbs.db
+
+# IME / 本地调试噪声（Sogou 输入法会写入 cwd）
+debug.log
