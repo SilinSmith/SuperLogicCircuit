@@ -39,6 +39,9 @@ package-dir = {"" = "py", "plugins" = "plugins"}
 packages = ["rvgen", "plugins", "plugins.cpu"]
 include-package-data = true
 
+[tool.setuptools.package-data]
+rvgen = ["templates/*.j2"]
+
 [tool.setuptools.dynamic]
 version = {attr = "rvgen.__version__"}
 

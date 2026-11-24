@@ -1,0 +1,17 @@
+// 本文件由 rvgen {{ version }} 生成；生成区每次整体重写，请勿手改。
+// rvgen:fingerprint {{ fingerprint }}
+{% if contract_notice %}// [W01] {{ contract_notice }}
+{% endif %}`timescale 1ns/1ps
+module {{ module_name }}{% if params %} #(
+{% for p in params %}    parameter {{ p.name }} = {{ p.expr }}{{ "," if not loop.last }}
+{% endfor %}
+){% endif %} (
+{% for p in ports %}    {{ p.dir }} wire {{ p.range }}{{ p.name }}{{ "," if not loop.last }}
+{% endfor %}
+);
+
+// rvgen:user-begin logic
+// TODO(rvgen): 手写逻辑写在这里；sync 会保留块内内容
+// rvgen:user-end logic
+
+endmodule

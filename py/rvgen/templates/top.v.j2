@@ -1,0 +1,33 @@
+// 本文件由 rvgen {{ version }} 生成；生成区每次整体重写，请勿手改。
+// rvgen:fingerprint {{ top_fingerprint }}
+{% if contract_notice %}// [W01] {{ contract_notice }}
+{% endif %}`timescale 1ns/1ps
+module {{ project.top }} (
+{% for p in ports %}    {{ p.dir }} wire {{ p.range }}{{ p.name }}{{ "," if not loop.last }}
+{% endfor %}
+);
+{% for w in wires %}    wire {{ w.range }}{{ w.name }};
+{% endfor %}
+{% for c in cdc_insts %}
+    // CDC {{ c.id }}: {{ c.from_domain }} -> {{ c.to_domain }} (kind={{ c.kind }})
+    {{ c.module }} #(
+{% for b in c.param_bindings %}        .{{ b.name }}({{ b.value }}){{ "," if not loop.last }}
+{% endfor %}
+    ) u_cdc_{{ c.id }} (
+{% for b in c.port_bindings %}        .{{ b.port }}({{ b.net }}){{ "," if not loop.last }}
+{% endfor %}
+    );
+{% endfor %}
+{% for m in insts %}
+    {{ m.module }}{% if m.param_bindings %} #(
+{% for p in m.param_bindings %}        .{{ p.name }}({{ p.expr }}){{ "," if not loop.last }}
+{% endfor %}
+    ){% endif %} u_{{ m.inst }} (
+{% for p in m.port_bindings %}        .{{ p.port }}({{ p.net }}){{ "," if not loop.last }}
+{% endfor %}
+    );
+    // rvgen:user-begin inst.{{ m.inst }}
+    // TODO(rvgen): 该实例的附加逻辑写在这里
+    // rvgen:user-end inst.{{ m.inst }}
+{% endfor %}
+endmodule
