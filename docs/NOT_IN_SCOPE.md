@@ -28,7 +28,6 @@
 
 | 项 | 状态 |
 |---|---|
-| `examples/rv32i` 参考设计 | 未落地 |
 | elkjs / Web Worker 精细布局 | 未实现 |
 | macOS `rvgen://` 实机验证 | 未验证 |
 | Windows 变异测试 | 依赖 fork，不可用 |

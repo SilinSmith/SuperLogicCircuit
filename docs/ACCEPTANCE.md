@@ -1,7 +1,7 @@
 # 验收场景清单（30 条）
 
 > 状态：✅ 通过；⚠️ 部分通过/未实测；❌ 未实现。
-> 统计：**✅ 17 · ⚠️ 11 · ❌ 2**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
+> 统计：**✅ 19 · ⚠️ 9 · ❌ 2**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
 > 未通过项不是“测试没跑”，而是能力缺口；逐条对应 [decisions-log.md](decisions-log.md) D27 与 [HANDOVER.md](HANDOVER.md) 第 7 节。
 
 | # | 状态 | 结论与证据 |
@@ -13,13 +13,13 @@
 | AC05 | ✅ | `test_emitter.py::test_emit_is_idempotent`；`tests/golden` 校验 `graph --write` 两次逐字节相同。 |
 | AC06 | ✅ | `check` 逐字段比较期望图与 `node_graph.json`：手改端口位宽 → `E16` + 点号路径 `nodes.mod:uart.ports.cfg.width_bits` + hint，退出 1；`check --fix` 重写图后退出 0。测试：`tests/checker/test_check_lint.py::test_check_semantic_diff_and_fix`。 |
 | AC07 | ⚠️ | `examples/uart` 的 `graph --write → sync → check --strict → sync --check` 均退出 0，无 `P*` 码；但 `init` 缺失，链路不完整。 |
-| AC08 | ❌ | `examples/rv32i` 未落地，无法验证两项目并存与流水线视图隔离。 |
+| AC08 | ✅ | `examples/rv32i` 已落地（5 级流水 + I/D cache）；`check --strict`、`sync --check` 退出 0，iverilog 编译退出 0。`serve --project examples/uart` 与 `examples/rv32i` 各自加载自己的图；流水线视图只在含 `x-cpu-stage` 的 rv32i 出现。 |
 | AC09 | ✅ | `rvgen import <file.v> -o rvgen.yaml` 已接线；端口/参数骨架 + `W14`，`[WIDTH-1:0]` 归一为 `width: WIDTH`。测试：`test_import_writes_skeleton`、`test_importer.py`。 |
 | AC10 | ⚠️ | `test_graph.py::test_E13_duplicate_top_name_and_multi_driver` 覆盖重复名与多驱动；`role: clock` 与数据口同名的“不连线不候选”没有单独断言。 |
 | AC11 | ✅ | `rvgen gen fuse-soc` 生成 `<project>.core`：CAPI=2、VLNV、fileset 文件列表、参数默认值、default target；`gen cdc` 生成五个基础模块。测试：`test_gen_fuse_soc_writes_core`、`test_gen_cdc_writes_five_modules`。 |
 | AC12 | ⚠️ | `tests/unit/test_core_whitelist.py` 全部通过（四类 kind、无 stage/cache、plugin 必须 `p_` 前缀）；但 `grep -rnE "is_cpu\|rv32i\|JALR\|pipeline_stage" py/rvgen/` 命中 1 处：`cli.py:42 --preset rv32i`（CLI 样例名，非核心逻辑）。 |
 | AC13 | ✅ | `tests/unit/test_plugins.py` 覆盖坏 plugin：schema 非法/规则抛异常 → `W11` 跳过，其余命令退出 0；`rvgen plugin list` 可用。 |
-| AC14 | ⚠️ | `trace normalize` 的 `core` flavor 与 6 列契约通过；`examples/rv32i` 与 `--flavor cpu` 端到端缺样例。 |
+| AC14 | ✅ | `examples/rv32i/trace/example.tsv` 用 `--flavor cpu` 归一化退出 0，`pipe/dec/ctrl/regw/dcache` 进入 `p_cpu`；核心 6 列不变，`trace summary` 退出 0。 |
 | AC15 | ✅ | `node_graph.json` 无 `metrics`/`viewport`/`position`（`examples/uart` 实测 grep 零命中）；布局与 trace 写旁路文件。 |
 | AC16 | ✅ | `test_graph.py` 的 E03 用例断言完整环路径。 |
 | AC17 | ✅ | `test_graph.py` 的 E08 用例：跨域直连报错，补 `cdc[]` 后通过。 |

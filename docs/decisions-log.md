@@ -207,6 +207,14 @@
 - 影响：`py/rvgen/importer.py`、`tests/unit/test_importer.py`。
 - 状态：已收口；已知边界：复杂表达式（如 `2*W-1:0`）原样输出，是否可被 loader 解析由 schema 决定，不在 import 阶段展开。
 
+### D39 AC08/AC14 收口：rv32i 样例与 CPU flavor
+
+- 决策：`examples/rv32i` 由 `init --preset rv32i` 生成并提交生成物；trace 样例用 `schema=cpu`，已声明键进 `p_cpu`。
+- 同时把模块的 `x-*` 扩展字段透传到图节点：否则前端流水线视图拿不到 `x-cpu-stage`，AC08 的“流水线视图只在 rv32i 出现”不成立。
+- 理由：plugin 字段是图契约的一部分；只透传 `x-` 前缀，核心仍不解释。
+- 影响：`py/rvgen/graph.py`、`tests/unit/test_graph.py`、`examples/rv32i/*`。
+- 状态：已收口；AC08/AC14 = ✅。未做：真实 RTL 仿真 trace（样例为手工 TSV），`trace summary` 的 `flavor` 仍写 `core`。
+
 ### D28 迁移首例：`axi → handshake`
 
 - 决策：`1.0.0 → 1.1.0` 迁移中，模块 `x-cpu-*` 外的 `axi` 接口/端口统一映射为 `handshake`，同时删除 `profiles`、`stage/stage_index → x-cpu-stage/x-cpu-stage_index`。

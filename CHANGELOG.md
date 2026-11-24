@@ -20,6 +20,7 @@
 - **CLI**：`init`（minimal/uart/rv32i）、`import`、`gen cdc`、`gen fuse-soc` 接线；`.core` 含 fileset/参数/target。
 - **CI**：Python 覆盖率门禁、lint-imports、前端 typecheck/unit/build/e2e、pre-commit；nightly 变异测试（门槛 80%）。
 - **examples/uart**：uart + fifo + baud_gen，零 CPU，iverilog 编译通过。
+- **examples/rv32i**：5 级流水 + I/D cache，cpu 插件字段进图；`trace/example.tsv` 覆盖 `--flavor cpu`。
 - **docs**：README、ARCHITECTURE、YAML/NODE_GRAPH/TRACE 参考、EXTENDING、TESTING、HANDOVER、NOT_IN_SCOPE、PERF、ACCEPTANCE、12 篇 ADR、决策与偏差记录。
 
 ### Changed

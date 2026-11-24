@@ -332,6 +332,24 @@ def test_normalize_and_topsort_are_deterministic() -> None:
     assert topsort(graph) == topsort(graph) == ["mod:alpha", "mod:beta"]
 
 
+def test_plugin_extension_fields_reach_node() -> None:
+    document = doc(
+        [
+            mod(
+                "if_stage",
+                ports=[{"name": "clk", "dir": "input", "kind": "clock"}],
+                **{"x-cpu-stage": "IF", "x-cpu-stage_index": 0},
+            )
+        ],
+        top_ports=[{"name": "clk", "dir": "input", "role": "clock"}],
+    )
+    graph, sink = run(document)
+    assert not sink.has_errors()
+    node = next(item for item in graph.document["nodes"] if item["id"] == "mod:if_stage")
+    assert node["x-cpu-stage"] == "IF"
+    assert node["x-cpu-stage_index"] == 0
+
+
 def test_write_is_atomic_deterministic_and_keeps_lf(tmp_path: Path) -> None:
     document = doc(
         [mod("alpha", ports=[{"name": "clk", "dir": "input", "kind": "clock"}])],

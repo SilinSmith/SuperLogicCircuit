@@ -1,0 +1,9 @@
+#rvgen-meta	schema=cpu	timescale=ns
+10	0	0x00000000	0x00000013	-	pipe=IF;dec=addi
+20	1	0x00000004	0x00000093	-	pipe=ID;dec=addi
+30	2	0x00000008	0x00000013	x1=00000001	pipe=EX;ctrl=alu
+40	3	0x0000000c	0x00000023	-	pipe=MEM;dcache=hit
+50	4	0x00000010	0x00000033	x2=00000002	pipe=WB;regw=x2
+60	5	0x00000014	0x00000063	-	pipe=IF;dec=beq
+70	6	0x00000018	0x00000003	-	pipe=ID;dec=beq;ctrl=branch
+80	7	0x0000001c	0x00000000	-	pipe=EX;ctrl=flush

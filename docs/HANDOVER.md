@@ -91,8 +91,7 @@ npm run test:e2e
 
 ## 7. 已知缺口（接手第一优先级）
 
-1. `examples/rv32i` 参考设计未落地；当前验收样例是 `examples/uart`。
-2. elkjs 精细布局与 Web Worker 未实现；当前只有 dagre 与径向。
+1. elkjs 精细布局与 Web Worker 未实现；当前只有 dagre 与径向。
 3. macOS `rvgen://` 注册脚本未实机验证；Windows 脚本已验证。
 4. mutmut 在 Windows 不可用，变异分数只在 nightly Linux 产出。
 5. `trace_summary` 无 plugin 专属聚合；CPU 字段原样保留。

@@ -1,0 +1,522 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "rvgen 1.0.0",
+  "source_digest": "sha256:ba9b565dcbf17f68",
+  "nodes": [
+    {
+      "id": "clk:clk",
+      "type": "clock_node",
+      "label": "clk",
+      "clock": "clk",
+      "domain": "sys",
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 8,
+        "end_line": 8
+      }
+    },
+    {
+      "id": "mod:dcache",
+      "type": "module_node",
+      "label": "dcache",
+      "module": "dcache",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "req",
+          "dir": "input",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "ready",
+          "dir": "output",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 74,
+        "end_line": 84
+      },
+      "x-cpu-ways": 2,
+      "x-cpu-sets": 256
+    },
+    {
+      "id": "mod:ex_stage",
+      "type": "module_node",
+      "label": "ex_stage",
+      "module": "ex_stage",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "din",
+          "dir": "input",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "dout",
+          "dir": "output",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 34,
+        "end_line": 44
+      },
+      "x-cpu-stage": "EX",
+      "x-cpu-stage_index": 2
+    },
+    {
+      "id": "mod:icache",
+      "type": "module_node",
+      "label": "icache",
+      "module": "icache",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "req",
+          "dir": "input",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "ready",
+          "dir": "output",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 64,
+        "end_line": 74
+      },
+      "x-cpu-ways": 2,
+      "x-cpu-sets": 256
+    },
+    {
+      "id": "mod:id_stage",
+      "type": "module_node",
+      "label": "id_stage",
+      "module": "id_stage",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "din",
+          "dir": "input",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "dout",
+          "dir": "output",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 24,
+        "end_line": 34
+      },
+      "x-cpu-stage": "ID",
+      "x-cpu-stage_index": 1
+    },
+    {
+      "id": "mod:if_stage",
+      "type": "module_node",
+      "label": "if_stage",
+      "module": "if_stage",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "din",
+          "dir": "input",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "dout",
+          "dir": "output",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 14,
+        "end_line": 24
+      },
+      "x-cpu-stage": "IF",
+      "x-cpu-stage_index": 0
+    },
+    {
+      "id": "mod:mem_stage",
+      "type": "module_node",
+      "label": "mem_stage",
+      "module": "mem_stage",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "din",
+          "dir": "input",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "dout",
+          "dir": "output",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 44,
+        "end_line": 54
+      },
+      "x-cpu-stage": "MEM",
+      "x-cpu-stage_index": 3
+    },
+    {
+      "id": "mod:wb_stage",
+      "type": "module_node",
+      "label": "wb_stage",
+      "module": "wb_stage",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": null,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "din",
+          "dir": "input",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "dout",
+          "dir": "output",
+          "width_expr": 32,
+          "width_bits": 32,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 54,
+        "end_line": 64
+      },
+      "x-cpu-stage": "WB",
+      "x-cpu-stage_index": 4
+    }
+  ],
+  "edges": [
+    {
+      "id": "clk:clk->mod:dcache",
+      "source": "clk:clk",
+      "target": "mod:dcache",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:ex_stage",
+      "source": "clk:clk",
+      "target": "mod:ex_stage",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:icache",
+      "source": "clk:clk",
+      "target": "mod:icache",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:id_stage",
+      "source": "clk:clk",
+      "target": "mod:id_stage",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:if_stage",
+      "source": "clk:clk",
+      "target": "mod:if_stage",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:mem_stage",
+      "source": "clk:clk",
+      "target": "mod:mem_stage",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:wb_stage",
+      "source": "clk:clk",
+      "target": "mod:wb_stage",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "mod:ex_stage.dout->mod:mem_stage.din",
+      "source": "mod:ex_stage",
+      "target": "mod:mem_stage",
+      "source_port": "dout",
+      "target_port": "din",
+      "kind": "data",
+      "width_bits": 32,
+      "bandwidth": {
+        "source": "derived",
+        "width_bits": 32,
+        "clock": "clk",
+        "freq_hz": 50000000.0
+      }
+    },
+    {
+      "id": "mod:id_stage.dout->mod:ex_stage.din",
+      "source": "mod:id_stage",
+      "target": "mod:ex_stage",
+      "source_port": "dout",
+      "target_port": "din",
+      "kind": "data",
+      "width_bits": 32,
+      "bandwidth": {
+        "source": "derived",
+        "width_bits": 32,
+        "clock": "clk",
+        "freq_hz": 50000000.0
+      }
+    },
+    {
+      "id": "mod:if_stage.dout->mod:id_stage.din",
+      "source": "mod:if_stage",
+      "target": "mod:id_stage",
+      "source_port": "dout",
+      "target_port": "din",
+      "kind": "data",
+      "width_bits": 32,
+      "bandwidth": {
+        "source": "derived",
+        "width_bits": 32,
+        "clock": "clk",
+        "freq_hz": 50000000.0
+      }
+    },
+    {
+      "id": "mod:mem_stage.dout->mod:wb_stage.din",
+      "source": "mod:mem_stage",
+      "target": "mod:wb_stage",
+      "source_port": "dout",
+      "target_port": "din",
+      "kind": "data",
+      "width_bits": 32,
+      "bandwidth": {
+        "source": "derived",
+        "width_bits": 32,
+        "clock": "clk",
+        "freq_hz": 50000000.0
+      }
+    }
+  ]
+}

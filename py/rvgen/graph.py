@@ -172,6 +172,9 @@ class _Build:
                 node["loc"] = {"file": YAML_FILE, "line": module.line, "end_line": module.end_line}
             else:
                 node["loc"] = None
+            for key, value in module.extensions.items():
+                if key.startswith("x-"):
+                    node[key] = value
             if module.status is not None:
                 node["status"] = module.status
             if module.todo is not None:

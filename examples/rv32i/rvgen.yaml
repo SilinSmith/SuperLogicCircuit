@@ -1,0 +1,91 @@
+schema_version: '1.1.0'
+project:
+  name: rv32i_demo
+  top: top
+  default_clock: clk
+  reset: {name: rst_n, polarity: active_low, sync: true, levels: 2}
+clocks:
+  - {name: clk, freq_hz: 50000000, domain_id: sys, source: pad}
+plugins:
+  cpu:
+    enabled: true
+    lanes: [IF, ID, EX, MEM, WB]
+modules:
+  - name: if_stage
+    kind: module
+    clock: clk
+    x-cpu-stage: IF
+    x-cpu-stage_index: 0
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: rst_n, dir: input, kind: reset}
+      - {name: din, dir: input, width: 32}
+      - {name: dout, dir: output, width: 32}
+  - name: id_stage
+    kind: module
+    clock: clk
+    x-cpu-stage: ID
+    x-cpu-stage_index: 1
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: rst_n, dir: input, kind: reset}
+      - {name: din, dir: input, width: 32, connect: if_stage.dout}
+      - {name: dout, dir: output, width: 32}
+  - name: ex_stage
+    kind: module
+    clock: clk
+    x-cpu-stage: EX
+    x-cpu-stage_index: 2
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: rst_n, dir: input, kind: reset}
+      - {name: din, dir: input, width: 32, connect: id_stage.dout}
+      - {name: dout, dir: output, width: 32}
+  - name: mem_stage
+    kind: module
+    clock: clk
+    x-cpu-stage: MEM
+    x-cpu-stage_index: 3
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: rst_n, dir: input, kind: reset}
+      - {name: din, dir: input, width: 32, connect: ex_stage.dout}
+      - {name: dout, dir: output, width: 32}
+  - name: wb_stage
+    kind: module
+    clock: clk
+    x-cpu-stage: WB
+    x-cpu-stage_index: 4
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: rst_n, dir: input, kind: reset}
+      - {name: din, dir: input, width: 32, connect: mem_stage.dout}
+      - {name: dout, dir: output, width: 32}
+  - name: icache
+    kind: memory
+    clock: clk
+    x-cpu-ways: 2
+    x-cpu-sets: 256
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: rst_n, dir: input, kind: reset}
+      - {name: req, dir: input, width: 32, default: "'0"}
+      - {name: ready, dir: output, width: 1}
+  - name: dcache
+    kind: memory
+    clock: clk
+    x-cpu-ways: 2
+    x-cpu-sets: 256
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: rst_n, dir: input, kind: reset}
+      - {name: req, dir: input, width: 32, default: "'0"}
+      - {name: ready, dir: output, width: 1}
+top:
+  ports:
+    - {name: clk, dir: input, role: clock}
+    - {name: rst_n, dir: input, role: reset, polarity: active_low}
+    - {name: instr, dir: input, to: [if_stage.din]}
+    - {name: result, dir: output, from: wb_stage.dout}
+    - {name: icache_ready, dir: output, from: icache.ready}
+    - {name: dcache_ready, dir: output, from: dcache.ready}
