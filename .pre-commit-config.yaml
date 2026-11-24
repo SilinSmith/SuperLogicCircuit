@@ -1,0 +1,14 @@
+repos:
+  - repo: local
+    hooks:
+      - id: rvgen-check
+        name: rvgen check（YAML 与图一致性）
+        entry: rvgen check
+        language: system
+        pass_filenames: false
+        files: '(rvgen\.yaml|node_graph\.json|py/rvgen/.*\.py|plugins/.*\.py)$'
+      - id: rvgen-sync-dry
+        name: rvgen sync --check（生成物是否落后）
+        entry: rvgen sync --check
+        language: system
+        pass_filenames: false

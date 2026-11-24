@@ -1,0 +1,80 @@
+name: rvgen-ci
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.6'
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          # P3 引入 web/package-lock.json 后再打开 npm cache：
+          # cache: npm
+          # cache-dependency-path: web/package-lock.json
+      - name: npm cache（vendor 为空时只告警）
+        run: sh scripts/npm-offline.sh
+      - name: install
+        run: python -m pip install -e '.[dev]'
+      - name: rvgen check（schema lint）
+        run: rvgen check --strict
+      - name: rvgen sync --check（P0 只做 lint，生成物比对在 P2）
+        run: rvgen sync --check
+      - name: P0 tests（不跑覆盖率）
+        run: pytest -q tests/unit tests/checker
+      - name: frontend（P3 起生效；P0 无 web/package.json，自动跳过）
+        if: ${{ hashFiles('web/package.json') != '' }}
+        working-directory: web
+        run: |
+          npm ci --offline
+          npm run typecheck
+          npm run test:unit
+          npm run build
+      - name: frontend e2e（P3 起生效）
+        if: ${{ hashFiles('web/package.json') != '' }}
+        working-directory: web
+        run: |
+          npx playwright install chromium
+          npm run test:e2e
+
+  windows-smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.6'
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: install
+        run: python -m pip install -e '.[dev]'
+      - name: rvgen check（Windows 路径 / I01）
+        run: rvgen check --strict
+      - name: rvgen sync --check
+        run: rvgen sync --check
+      - name: P0 tests
+        run: pytest -q tests/unit tests/checker
+
+  offline-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.6'
+      - name: 只用 vendor/wheels 安装（AC01）
+        run: |
+          python -m venv .venv-offline
+          .\.venv-offline\Scripts\python.exe -m pip install --no-index --find-links vendor/wheels -r requirements.lock
+          .\.venv-offline\Scripts\python.exe -m pip install --no-index --no-build-isolation --no-deps -e .
+      - name: offline check
+        run: .\.venv-offline\Scripts\rvgen.exe check --strict
