@@ -1,0 +1,59 @@
+﻿schema_version: '1.1.0'
+project:
+  name: golden_uart
+  top: top
+  default_clock: clk
+  reset: {name: rst_n, polarity: active_low, sync: true, levels: 2}
+clocks:
+  - name: clk
+    freq_hz: 50000000
+    domain_id: sys
+    source: pad
+  - name: clk_fast
+    freq_hz: 100000000
+    domain_id: fast
+    source: pad
+cdc:
+  - id: sys_fast
+    from: sys
+    to: fast
+    kind: 2ff
+    width: 1
+modules:
+  - name: uart
+    kind: module
+    clock: clk
+    params:
+      - {name: WIDTH, default: 8}
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: cfg, dir: input, width: WIDTH}
+      - {name: rxd, dir: input, width: 1}
+      - {name: tx, dir: output, width: 1}
+  - name: fifo
+    kind: memory
+    clock: clk
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: push, dir: input, width: 8}
+      - {name: pop, dir: output, width: 8}
+  - name: bridge
+    kind: bridge
+    clock: clk
+    ports:
+      - {name: clk, dir: input, kind: clock}
+      - {name: din, dir: input, width: 8, connect: fifo.pop}
+  - name: fast_sink
+    kind: module
+    clock: clk_fast
+    ports:
+      - {name: clk_fast, dir: input, kind: clock}
+      - {name: din, dir: input, width: 1, connect: uart.tx}
+top:
+  ports:
+    - {name: clk, dir: input, role: clock}
+    - {name: cfg, dir: input, to: [uart.cfg]}
+    - {name: rxd, dir: input, to: [uart.rxd]}
+    - {name: fifo_push, dir: input, to: [fifo.push]}
+    - {name: tx, dir: output, from: uart.tx}
+    - {name: fifo_pop, dir: output, from: fifo.pop}
