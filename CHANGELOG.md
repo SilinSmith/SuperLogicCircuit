@@ -30,6 +30,7 @@
 
 ### Fixed
 
+- `check` 增加与 `node_graph.json` 的逐字段语义 diff（`E16`，点号路径 + hint）与 `check --fix`。
 - Windows 上 `allow_reuse_address=False`，端口冲突正确退出 3。
 - `sync` 后 `sync --check` 把 W01 一次性提示误判为生成物落后；现比较时忽略 `// [W01]` 行。
 - `merge_layout` 改为两层深合并，节点坐标不再丢失。

@@ -183,7 +183,15 @@
 - 决策：P6 不补 `check --fix`，也不补“手改图逐字段 diff → 退出 1”。`check` 维持 schema lint + 语义规则重算 + `generated_by` 的 `W10`；`sync --check` 负责生成物落后（E15）。
 - 理由：逐字段 diff 与 `--fix` 的修图语义（哪些字段可由 YAML 覆盖、哪些是人工意图）文档没有定论；P2 已记为 D10 待收口。P6 范围是硬化与交付，补实现会越过“范围之外不写”的约束。
 - 影响：AC06 ❌、AC12 的 grep 口径、HANDOVER 第 7 节。
-- 状态：**未收口**，列入 v1.1 首项。
+- 状态：**已收口**（D36 补齐）。
+
+### D36 AC06 收口：语义 diff + `check --fix`
+
+- 决策：`check` 对期望图与 `node_graph.json` 做逐字段 diff，差异报 `E16`，路径按 `nodes.<id>.ports.<port>.<field>` 生成，最多 20 条；忽略 `generated_by`（仍走 `W10`）与 `source_digest`（注释/格式变化不产生语义噪声）。
+- `--fix`：先按 loader + graph 顺序校验，全部通过后才原子重写 `node_graph.json`，再跑一次 check；schema/规则错误时**不写**。
+- 理由：AC06 要求退出 1、点号路径、hint 与 `--fix`；用户本轮明确把 AC06 纳入范围。
+- 影响：`py/rvgen/checker.py`、`tests/checker/test_check_lint.py`、`tests/fixtures/schema/valid/node_graph.json`（改为真实生成的期望图）。
+- 状态：已收口；验收 AC06 = ✅。
 
 ### D28 迁移首例：`axi → handshake`
 

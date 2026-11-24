@@ -1,11 +1,11 @@
-"""check 通路：schema lint + loader/graph 语义校验（P1）。
+"""check 通路：schema lint + loader/graph 语义校验 + 与 node_graph.json 的语义 diff。
 
-语义 diff（YAML 期望 vs node_graph.json 实际）仍属 P2；本模块保证：
+本模块保证：
 - rvgen.yaml 走 loader（schema + 引用检查），再跑 graph 的静态规则码；
-- node_graph.json / layout.json 按契约 lint；
+- node_graph.json / layout.json 按契约 lint，并与期望图逐字段比较；
 - 诊断带点号 json_path；
 - 退出码严格遵循 0/1/2/3；
-- 不写任何文件。
+- 除显式 `--fix` 外不写任何文件。
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,9 @@ from jsonschema.exceptions import SchemaError, ValidationError, best_match
 
 from . import __version__
 from .diag import DiagnosticSink, Location
+from .graph import NodeGraph
 from .graph import build as build_graph
+from .graph import write as write_graph
 from .loader import load
 from .plugins import discover
 
@@ -175,6 +178,125 @@ def _lint_contracts(sink: DiagnosticSink) -> None:
             )
 
 
+_IGNORED_TOP_FIELDS = {"generated_by", "source_digest"}
+_MAX_DIFFS = 20
+
+
+@dataclass(frozen=True)
+class Change:
+    path: str
+    expected: Any
+    actual: Any
+
+
+def _short(value: Any) -> str:
+    text = json.dumps(value, ensure_ascii=False, sort_keys=True)
+    return text if len(text) <= 80 else text[:77] + "..."
+
+
+def _keyed(items: list[Any], key: str) -> dict[str, Any] | None:
+    result: dict[str, Any] = {}
+    for item in items:
+        if not isinstance(item, dict) or not isinstance(item.get(key), str):
+            return None
+        result[item[key]] = item
+    return result
+
+
+def _compare(path: str, expected: Any, actual: Any, changes: list[Change]) -> None:
+    if isinstance(expected, dict) and isinstance(actual, dict):
+        for key in sorted(set(expected) | set(actual)):
+            if not path and key in _IGNORED_TOP_FIELDS:
+                continue
+            child = f"{path}.{key}" if path else key
+            if key not in actual:
+                changes.append(Change(child, expected[key], "<missing>"))
+            elif key not in expected:
+                changes.append(Change(child, "<missing>", actual[key]))
+            else:
+                _compare(child, expected[key], actual[key], changes)
+        return
+
+    if isinstance(expected, list) and isinstance(actual, list):
+        if path == "nodes" or path == "edges":
+            key = "id"
+        elif path.startswith("nodes.") and path.endswith(".ports"):
+            key = "name"
+        else:
+            key = ""
+        if key:
+            expected_map = _keyed(expected, key)
+            actual_map = _keyed(actual, key)
+            if expected_map is not None and actual_map is not None:
+                for item_key in sorted(set(expected_map) | set(actual_map)):
+                    child = f"{path}.{item_key}"
+                    if item_key not in actual_map:
+                        changes.append(Change(child, expected_map[item_key], "<missing>"))
+                    elif item_key not in expected_map:
+                        changes.append(Change(child, "<missing>", actual_map[item_key]))
+                    else:
+                        _compare(child, expected_map[item_key], actual_map[item_key], changes)
+                return
+        for index, (left, right) in enumerate(zip(expected, actual)):
+            _compare(f"{path}[{index}]", left, right, changes)
+        if len(expected) > len(actual):
+            for index in range(len(actual), len(expected)):
+                changes.append(Change(f"{path}[{index}]", expected[index], "<missing>"))
+        elif len(actual) > len(expected):
+            for index in range(len(expected), len(actual)):
+                changes.append(Change(f"{path}[{index}]", "<missing>", actual[index]))
+        return
+
+    if expected != actual:
+        changes.append(Change(path, expected, actual))
+
+
+def diff_graphs(expected: NodeGraph, actual: dict[str, Any]) -> list[Change]:
+    """返回从 rvgen.yaml 期望图到 node_graph.json 实际值的逐字段差异。"""
+    changes: list[Change] = []
+    _compare("", expected.document, actual, changes)
+    return changes
+
+
+def _report_diff(changes: list[Change], file_label: str, sink: DiagnosticSink) -> None:
+    for change in changes[:_MAX_DIFFS]:
+        sink.error(
+            "E16",
+            f"语义不一致：{change.path} 期望 {_short(change.expected)}，实际 {_short(change.actual)}",
+            Location(file=file_label, json_path=change.path),
+            hint="运行 rvgen check --fix 或 rvgen graph --write 重新生成",
+        )
+    if len(changes) > _MAX_DIFFS:
+        sink.error(
+            "E16",
+            f"共 {len(changes)} 处语义差异，仅显示前 {_MAX_DIFFS} 处",
+            Location(file=file_label),
+            hint="运行 rvgen check --fix 或 rvgen graph --write 重新生成",
+        )
+
+
+def _fix_graph(root: Path, sink: DiagnosticSink) -> None:
+    rvgen_path = root / "rvgen.yaml"
+    if not rvgen_path.exists():
+        sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen check --fix")
+        return
+    plugins = discover(sink)
+    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    sink.extend(diagnostics)
+    if model is None or sink.has_errors():
+        return
+    graph = build_graph(model, sink)
+    if sink.has_errors():
+        return
+    from .atomic import AtomicWriteError
+
+    try:
+        write_graph(graph, root / "node_graph.json", sink=sink)
+    except AtomicWriteError as exc:
+        sink.io_failure = True
+        sink.error("E12", str(exc), hint="检查文件权限/占用后重试")
+
+
 def _lint_project(root: Path, sink: DiagnosticSink) -> None:
     schema_graph = _load_schema("node_graph", sink)
     schema_layout = _load_schema("layout", sink)
@@ -187,12 +309,16 @@ def _lint_project(root: Path, sink: DiagnosticSink) -> None:
     sink.extend(diagnostics)
     if model is None:
         return
-    build_graph(model, sink)
+    before_build = len(sink.items)
+    expected_graph = build_graph(model, sink)
 
     graph_path = root / "node_graph.json"
     if graph_path.exists():
         graph = _lint_json(graph_path, root, schema_graph, sink)
         if graph is not None:
+            build_errors = [item for item in sink.items[before_build:] if item.severity == "E"]
+            if not build_errors:
+                _report_diff(diff_graphs(expected_graph, graph), _relative(graph_path, root), sink)
             generated_by = graph.get("generated_by")
             expected = f"rvgen {__version__}"
             if generated_by != expected:
@@ -220,9 +346,13 @@ def run_check(
     root = Path(project_root).resolve()
 
     if fix:
-        sink.error("E00", "check --fix 尚未实现：P0 的 check 不写文件；--fix 属 P2")
-        _render(sink, output_format, quiet=quiet)
-        return sink.exit_code(strict=strict)
+        fix_sink = DiagnosticSink()
+        _fix_graph(root, fix_sink)
+        if fix_sink.io_failure or fix_sink.has_errors():
+            sink.extend(fix_sink.items)
+            sink.io_failure = fix_sink.io_failure
+            _render(sink, output_format, quiet=quiet)
+            return sink.exit_code(strict=strict)
 
     rvgen_path = root / "rvgen.yaml"
     if rvgen_path.exists():

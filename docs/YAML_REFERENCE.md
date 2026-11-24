@@ -190,6 +190,8 @@ top:
 | E08 | 不同 `domain_id` 直连且无 CDC |
 | E09 | 标识符非小写 / 不匹配 `^[a-z][a-z0-9_]*$` |
 | E13 | 两个 output 指向同一模块端口 |
+| E15 | `sync --check`：生成物落后（`sync` 可修复） |
+| E16 | `check`：`node_graph.json` 与 YAML 期望图语义不一致（`check --fix` 可修复） |
 | W01 | USER 块契约（fingerprint）变更 |
 | W14 | `import` 生成的待办字段（kind/clock/domain/top.ports） |
 | I05 | `` `ifdef `` 包裹的端口被跳过 |

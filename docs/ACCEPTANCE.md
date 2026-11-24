@@ -1,7 +1,7 @@
 # 验收场景清单（30 条）
 
 > 状态：✅ 通过；⚠️ 部分通过/未实测；❌ 未实现。
-> 统计：**✅ 13 · ⚠️ 13 · ❌ 4**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
+> 统计：**✅ 14 · ⚠️ 12 · ❌ 4**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
 > 未通过项不是“测试没跑”，而是能力缺口；逐条对应 [decisions-log.md](decisions-log.md) D27 与 [HANDOVER.md](HANDOVER.md) 第 7 节。
 
 | # | 状态 | 结论与证据 |
@@ -11,7 +11,7 @@
 | AC03 | ✅ | `tests/unit/test_emitter.py::test_emit_preserves_user_logic_across_runs`：USER 块原样保留；生成区更新；W01 只在块外。 |
 | AC04 | ✅ | `test_emitter.py::test_merge_reports_duplicate_and_orphan_block`：`orphaned/` 落 `.v.bak`，`I04`，退出 0。 |
 | AC05 | ✅ | `test_emitter.py::test_emit_is_idempotent`；`tests/golden` 校验 `graph --write` 两次逐字节相同。 |
-| AC06 | ❌ | `check` 只做 schema lint + `generated_by` 的 `W10`，没有逐字段语义 diff，也没有 `--fix`；手改端口位宽不会退出 1。 |
+| AC06 | ✅ | `check` 逐字段比较期望图与 `node_graph.json`：手改端口位宽 → `E16` + 点号路径 `nodes.mod:uart.ports.cfg.width_bits` + hint，退出 1；`check --fix` 重写图后退出 0。测试：`tests/checker/test_check_lint.py::test_check_semantic_diff_and_fix`。 |
 | AC07 | ⚠️ | `examples/uart` 的 `graph --write → sync → check --strict → sync --check` 均退出 0，无 `P*` 码；但 `init` 缺失，链路不完整。 |
 | AC08 | ❌ | `examples/rv32i` 未落地，无法验证两项目并存与流水线视图隔离。 |
 | AC09 | ⚠️ | `py/rvgen/importer.py` 已实现端口/参数骨架与 `W14` 待办，单测通过；`rvgen import` CLI 未接线。 |

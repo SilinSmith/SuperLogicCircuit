@@ -94,11 +94,27 @@ def test_check_does_not_write_files(tmp_path, monkeypatch) -> None:
     assert before == after
 
 
-def test_check_fix_is_not_implemented_in_p0(tmp_path, monkeypatch, capsys) -> None:
+def test_check_semantic_diff_and_fix(tmp_path, monkeypatch, capsys) -> None:
     _valid_project(tmp_path)
+    graph_path = tmp_path / "node_graph.json"
+    graph = json.loads(graph_path.read_text(encoding="utf-8"))
+    uart = next(node for node in graph["nodes"] if node["id"] == "mod:uart")
+    cfg = next(port for port in uart["ports"] if port["name"] == "cfg")
+    cfg["width_bits"] = 99
+    graph_path.write_text(json.dumps(graph, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
-    assert main(["check", "--fix"]) == 1
-    assert "E00" in capsys.readouterr().err
+
+    assert main(["check"]) == 1
+    err = capsys.readouterr().err
+    assert "E16" in err
+    assert "nodes.mod:uart.ports.cfg.width_bits" in err
+
+    assert main(["check", "--fix"]) == 0
+    assert main(["check"]) == 0
+    fixed = json.loads(graph_path.read_text(encoding="utf-8"))
+    uart_fixed = next(node for node in fixed["nodes"] if node["id"] == "mod:uart")
+    cfg_fixed = next(port for port in uart_fixed["ports"] if port["name"] == "cfg")
+    assert cfg_fixed["width_bits"] == 8
 
 
 def test_check_invalid_node_graph_json(tmp_path, monkeypatch, capsys) -> None:

@@ -146,7 +146,7 @@
 | `rvgen check` | 重算图；对 `node_graph.json` 做 schema lint，并在 `generated_by` 与当前 CLI 不一致时报 `W10` |
 | `rvgen serve` / watch / hook | 只读，最多提示“图落后” |
 
-> **当前实现边界**：逐字段语义 diff（手改图后退出 1 并给点号路径）与 `check --fix` 尚未实现，`check` 目前覆盖 schema lint + 语义规则重算 + `W10`。该偏差记录在 [ACCEPTANCE.md](ACCEPTANCE.md) AC06 与 [decisions-log.md](decisions-log.md) D27。
+> `check` 会把期望图与 `node_graph.json` 逐字段比较：差异报 `E16`（点号路径，最多 20 条），退出 1；`generated_by` 单独走 `W10`，`source_digest` 不参与语义比较。`rvgen check --fix` 在校验通过后重写 `node_graph.json` 并再次检查。
 
 ## 7. 禁止事项
 

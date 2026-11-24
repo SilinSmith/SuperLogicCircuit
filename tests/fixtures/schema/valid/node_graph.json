@@ -1,67 +1,144 @@
 {
   "schema_version": "1.0.0",
   "generated_by": "rvgen 1.0.0",
-  "source_digest": "sha256:0123456789abcdef",
+  "source_digest": "sha256:8feae0ae59e95d61",
   "nodes": [
     {
-      "id": "mod:uart",
-      "type": "module_node",
-      "label": "uart",
-      "module": "uart",
+      "id": "clk:clk",
+      "type": "clock_node",
+      "label": "clk",
+      "clock": "clk",
       "domain": "sys",
       "loc": {
-        "file": "rtl/uart.v",
-        "line": 1
-      },
-      "ports": [
-        {
-          "name": "tx",
-          "dir": "output",
-          "width_expr": "1",
-          "width_bits": 1,
-          "kind": "data",
-          "domain": "sys"
-        }
-      ],
-      "status": "stable",
-      "todo": null
+        "file": "rvgen.yaml",
+        "line": 13,
+        "end_line": 17
+      }
     },
     {
       "id": "mod:fifo",
       "type": "module_node",
       "label": "fifo",
       "module": "fifo",
-      "domain": "sys"
-    },
-    {
-      "id": "clk:clk",
-      "type": "clock_node",
-      "label": "clk",
       "clock": "clk",
-      "domain": "sys"
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "push",
+          "dir": "input",
+          "width_expr": 8,
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "pop",
+          "dir": "output",
+          "width_expr": 8,
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 45,
+        "end_line": 59
+      }
     },
     {
-      "id": "stats:summary",
-      "type": "stats_node",
-      "label": "Summary"
+      "id": "mod:uart",
+      "type": "module_node",
+      "label": "uart",
+      "module": "uart",
+      "clock": "clk",
+      "domain": "sys",
+      "ports": [
+        {
+          "name": "clk",
+          "dir": "input",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "clock",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rst_n",
+          "dir": "input",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "reset",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "tx",
+          "dir": "output",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "rxd",
+          "dir": "input",
+          "width_expr": 1,
+          "width_bits": 1,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        },
+        {
+          "name": "cfg",
+          "dir": "input",
+          "width_expr": "WIDTH",
+          "width_bits": 8,
+          "kind": "data",
+          "domain": null,
+          "unresolved": null
+        }
+      ],
+      "loc": {
+        "file": "rvgen.yaml",
+        "line": 18,
+        "end_line": 45
+      },
+      "status": "stable"
     }
   ],
   "edges": [
     {
-      "id": "uart.tx->fifo.push",
-      "source": "mod:uart",
+      "id": "clk:clk->mod:fifo",
+      "source": "clk:clk",
       "target": "mod:fifo",
-      "source_port": "tx",
-      "target_port": "push",
-      "kind": "data",
-      "width_bits": 8,
-      "bandwidth": {
-        "source": "derived",
-        "width_bits": 8,
-        "clock": "clk",
-        "freq_hz": 50000000
-      },
-      "is_critical": true
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
+    },
+    {
+      "id": "clk:clk->mod:uart",
+      "source": "clk:clk",
+      "target": "mod:uart",
+      "source_port": null,
+      "target_port": null,
+      "kind": "clock",
+      "width_bits": null,
+      "bandwidth": null
     }
   ]
 }

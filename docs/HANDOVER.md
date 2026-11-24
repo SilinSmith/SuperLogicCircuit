@@ -91,8 +91,7 @@ npm run test:e2e
 
 ## 7. 已知缺口（接手第一优先级）
 
-1. `check` 没有逐字段语义 diff，也没有 `--fix`；手改 `node_graph.json` 目前不会被 `check` 直接判 1（见 AC06）。
-2. `rvgen init` / `rvgen import` / `rvgen gen cdc` / `rvgen gen fuse-soc` 的 CLI 未接线；`importer.py` 与 `render_cdc` 能力已存在。
+1. `rvgen init` / `rvgen import` / `rvgen gen cdc` / `rvgen gen fuse-soc` 的 CLI 未接线；`importer.py` 与 `render_cdc` 能力已存在。
 3. `examples/rv32i` 参考设计未落地；当前验收样例是 `examples/uart`。
 4. elkjs 精细布局与 Web Worker 未实现；当前只有 dagre 与径向。
 5. macOS `rvgen://` 注册脚本未实机验证；Windows 脚本已验证。
