@@ -29,6 +29,7 @@ class Plugin:
     trace_flavors: Sequence[str] = ()
     node_types: Sequence[str] = ()
     kinds: Sequence[str] = ()
+    interface_types: Sequence[str] = ()
 
     def validate(self) -> None:
         if not PLUGIN_ID_RE.fullmatch(self.id):
@@ -48,6 +49,12 @@ class Plugin:
         for kind in self.kinds:
             if not isinstance(kind, str) or not KIND_RE.fullmatch(kind):
                 raise ValueError(f"plugin {self.id}: kind 非法 {kind!r}")
+        for interface_type in self.interface_types:
+            if not isinstance(interface_type, str) or not FLAVOR_RE.fullmatch(interface_type):
+                raise ValueError(f"plugin {self.id}: interface_type 非法 {interface_type!r}")
+        for rule in self.rules:
+            if not callable(rule):
+                raise ValueError(f"plugin {self.id}: rules 元素必须可调用，实际为 {type(rule).__name__}")
 
 
 def _coerce_plugin(candidate: Any) -> Plugin:
