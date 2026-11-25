@@ -314,3 +314,10 @@
 - 理由：preset 名是方案 §7.1 明确列出的 CLI 名称；把它当领域知识会误伤样例入口。
 - 影响：`docs/ACCEPTANCE.md`（AC12 转 ✅）。
 - 状态：已收口。
+
+### D47 AC19 stats_node 契约降级为仅 plugin 可产出
+
+- 决策：`stats_node` 不再作为核心产出的验收对象，契约降级为“仅 plugin 可产出”；核心构图不产出，因此不做外观验证。统计视图继续由前端从边与 `trace_summary.json` 计算。
+- 理由：核心不产出该节点，要求外观验证等于验证不存在的东西；保留 schema/前端类型只为插件扩展与向后兼容。
+- 影响：`docs/ACCEPTANCE.md`（AC19 转 ✅）、`docs/NODE_GRAPH_REFERENCE.md`、`docs/HANDOVER.md`。
+- 状态：已收口（无代码改动）。

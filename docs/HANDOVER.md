@@ -96,7 +96,7 @@ npm run test:e2e
 3. macOS `rvgen://` 注册脚本未实机验证；Windows 脚本已验证。
 4. mutmut 在 Windows 不可用，变异分数只在 nightly Linux 产出。
 5. `trace_summary` 无 plugin 专属聚合；CPU 字段原样保留。
-6. `stats_node` 仅为契约保留，核心构图不产出。
+6. `stats_node` 仅保留给 plugin，核心构图不产出，因此不做外观验收。
 
 ## 8. 修改前自检
 

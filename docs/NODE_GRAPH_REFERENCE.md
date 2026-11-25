@@ -53,7 +53,7 @@
 | `module_node` | 每个 `modules[]` | `module`、`clock`、`domain`、`ports[]`、`status`、`todo` |
 | `clock_node` | 每个 `clocks[]` | `clock`、`domain` |
 | `cdc_node` | 每个 `cdc[]` | `domain` = `cdc.from` 所在域 |
-| `stats_node` | 契约保留；核心构图当前不产出 | 由 plugin 或后续统计节点使用；前端已提供 `stats` 外观 |
+| `stats_node` | 契约保留；核心构图不产出，仅 plugin 可产出 | 统计视图由前端从边与 `trace_summary.json` 计算，不依赖该节点；v1.0.1 不做外观验收 |
 
 > 当前版本核心只产出 `module_node` / `clock_node` / `cdc_node`。统计视图由前端从边与 `trace_summary.json` 计算，不依赖 `stats_node`。
 

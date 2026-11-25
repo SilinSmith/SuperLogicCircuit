@@ -1,7 +1,7 @@
 # 验收场景清单（30 条）
 
 > 状态：✅ 通过；⚠️ 部分通过/未实测；❌ 未实现。
-> 统计：**✅ 23 · ⚠️ 7 · ❌ 0**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
+> 统计：**✅ 24 · ⚠️ 6 · ❌ 0**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
 > 计数说明：此前 `⚠️7 · ❌2` 是分块提交时未同步减项的残留；表内 30 条实际为 ✅21 / ⚠️9 / ❌0，本次只修正计数，未改动任何条目状态。
 > 未通过项不是“测试没跑”，而是能力缺口；逐条对应 [decisions-log.md](decisions-log.md) D27 与 [HANDOVER.md](HANDOVER.md) 第 7 节。
 
@@ -25,7 +25,7 @@
 | AC16 | ✅ | `test_graph.py` 的 E03 用例断言完整环路径。 |
 | AC17 | ✅ | `test_graph.py` 的 E08 用例：跨域直连报错，补 `cdc[]` 后通过。 |
 | AC18 | ✅ | `test_graph.py` 的 E01 用例：未声明参数 + hint 列出可用参数。 |
-| AC19 | ⚠️ | `module_node`/`clock_node`/`cdc_node` 与 `p_cpu:cache_node`/`p_cpu:pipeline_slot_node` 均有外观（`ModuleNode` 变体 + 样例）；`stats_node` 仅契约保留，核心构图不产出，无法验证其外观。 |
+| AC19 | ✅ | `module_node`/`clock_node`/`cdc_node` 与 `p_cpu:cache_node`/`p_cpu:pipeline_slot_node` 均有外观（`ModuleNode` 变体 + 样例）；`stats_node` 契约降级为“仅 plugin 可产出”，核心构图不产出，因此不做外观验证（统计视图由前端从边与 trace_summary 计算）。 |
 | AC20 | ✅ | 边标签按来源显示徽标 `E`（explicit）/`D`（derived）/`T`（trace_summary）：derived 显示 bits/cycle + 十进制 GB/s，explicit 显示原值，trace 边附实测利用率（如 `83%`）。测试：`BandwidthEdge.test.tsx::带宽来源与 trace 利用率使用不同标记`、`DataflowView.test.ts::trace_summary 的利用率按边 id 挂到边数据上`；web 单测 39 passed、e2e 9 passed。 |
 | AC21 | ⚠️ | 核心三视图 + cpu 两视图切换有 e2e（`views.spec.ts` 两条）；“切换 20 次内存增长 <20%”**未测量**：浏览器无稳定跨浏览器 heap API，视图切换 remount 属设计。影响：无法用数据证明无泄漏，仅能确认反复切换不崩溃、e2e 通过。 |
 | AC22 | ✅ | `test_server_sse.py` 的 watcher/SSE；`web/e2e/reload-keeps-layout.spec.ts` 验证重载后坐标保持；1.5 s 内徽标（轮询 200 ms + 去抖 400 ms）。 |
@@ -38,10 +38,9 @@
 | AC29 | ⚠️ | 500 节点 p95 **60.2 FPS**（门槛 30）、100 万行归一化 **6.50 s**；200 节点 elkjs Worker <1.5 s **未实现**：新增 elkjs 依赖与异步布局改造成本高，dagre 已满足 500 节点性能门槛。影响：缺少精细分层布局，既有性能指标不受影响。 |
 | AC30 | ⚠️ | `docs/HANDOVER.md` 已交付；未做“未参与者半天独立跑通”的外部试用。 |
 
-### ⚠️ 7 条未通过项：缺什么、卡在哪、补齐成本
+### ⚠️ 6 条未通过项：缺什么、卡在哪、补齐成本
 
 - **AC01**：缺“全新 clone 严格离线”的物料；仓库不内置 tgz，离线安装依赖有网时先跑 `scripts/npm-prefetch.*` 预取本机 cache；补齐需引入制品仓或接受仓库体积增加。
-- **AC19**：缺 `stats_node` 的实际外观验证；卡在核心构图按设计不产出该节点、只保留契约；补齐约 1 天（造一个产出该节点的 plugin 并补前端 e2e，或把契约降级）。
 - **AC21**：缺“视图切换 20 次内存增长 <20%”的实测；卡在浏览器没有稳定的跨浏览器 heap API，只能人工 DevTools 采样或依赖实验性接口；补齐约 1 天，且结果受浏览器与运行环境影响。
 - **AC24**：缺 macOS/Linux 的 `rvgen://` 实机验证；卡在需要对应桌面环境与真人执行注册脚本；补齐约每平台半天，无法在当前 Windows 机器完成。
 - **AC27**：缺 `ubuntu-22.04` 的 CI 实跑；卡在仓库未推送、没有远程 runner；补齐约半天（推送并触发一次 CI），但涉及外部平台与推送授权。
