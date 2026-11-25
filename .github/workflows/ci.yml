@@ -1,4 +1,4 @@
-name: rvgen-ci
+name: slc-ci
 
 on: [push, pull_request]
 
@@ -24,22 +24,22 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: lint-imports（分层契约）
         run: lint-imports
-      - name: rvgen 冒烟（golden 样例：graph/sync/check）
+      - name: slc 冒烟（golden 样例：graph/sync/check）
         run: |
           rm -rf build/smoke && mkdir -p build/smoke
-          cp tests/fixtures/golden/uart/rvgen.yaml build/smoke/
+          cp tests/fixtures/golden/uart/slc.yaml build/smoke/
           cd build/smoke
-          rvgen graph --write
-          rvgen sync
-          rvgen sync --check
-          rvgen check --strict
+          slc graph --write
+          slc sync
+          slc sync --check
+          slc check --strict
       - name: P1/P2 tests（含覆盖率门禁）
         run: |
           pytest -q tests/unit tests/checker tests/property tests/golden \
-            --cov=rvgen.loader --cov=rvgen.model --cov=rvgen.graph --cov=rvgen.digest --cov=rvgen.emitter \
+            --cov=slc.loader --cov=slc.model --cov=slc.graph --cov=slc.digest --cov=slc.emitter \
             --cov-report=term-missing --cov-fail-under=90
           pytest -q tests/checker tests/unit/test_digest.py \
-            --cov=rvgen.checker --cov=rvgen.digest \
+            --cov=slc.checker --cov=slc.digest \
             --cov-report=term-missing --cov-fail-under=95
       - name: frontend（P3 起生效）
         if: ${{ hashFiles('web/package.json') != '' }}
@@ -67,16 +67,16 @@ jobs:
           cache-dependency-path: requirements.lock
       - name: install
         run: python -m pip install -e '.[dev]'
-      - name: rvgen 冒烟（Windows 路径 / I01）
+      - name: slc 冒烟（Windows 路径 / I01）
         shell: bash
         run: |
           rm -rf build/smoke && mkdir -p build/smoke
-          cp tests/fixtures/golden/uart/rvgen.yaml build/smoke/
+          cp tests/fixtures/golden/uart/slc.yaml build/smoke/
           cd build/smoke
-          rvgen graph --write
-          rvgen sync
-          rvgen sync --check
-          rvgen check --strict
+          slc graph --write
+          slc sync
+          slc sync --check
+          slc check --strict
       - name: P1/P2 tests
         run: pytest -q tests/unit tests/checker tests/property tests/golden
 
@@ -93,4 +93,4 @@ jobs:
           .\.venv-offline\Scripts\python.exe -m pip install --no-index --find-links vendor/wheels -r requirements.lock
           .\.venv-offline\Scripts\python.exe -m pip install --no-index --no-build-isolation --no-deps -e .
       - name: offline check
-        run: .\.venv-offline\Scripts\rvgen.exe check --strict
+        run: .\.venv-offline\Scripts\slc.exe check --strict

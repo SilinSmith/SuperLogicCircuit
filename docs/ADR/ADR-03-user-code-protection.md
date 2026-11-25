@@ -1,7 +1,7 @@
 # ADR-03 用户代码保护：marker + fingerprint + orphaned
 
 > 状态：已采纳；日期：2026-11-25；适用阶段：P2 起。
-> 依据：`rvgen完整方案.md` 决策三、§6；决策记录 D6–D9。
+> 依据：`slc完整方案.md` 决策三、§6；决策记录 D6–D9。
 
 ## 背景
 
@@ -11,9 +11,9 @@ Verilog 缺少稳定 AST 基线，3-way merge 的冲突对用户不可读；重�
 
 | 机制 | 规则 |
 |---|---|
-| USER 块 | `// rvgen:user-begin <id>` … `// rvgen:user-end <id>`；块内字节原样保留 |
-| 生成区 | 块外整体重写；头部写 `rvgen:fingerprint` |
-| 删除块 | 不静默丢弃，落 `.rvgen/orphaned/<ts>/<module>.<id>.v.bak`，stderr 报 `I04`，退出 0 |
+| USER 块 | `// slc:user-begin <id>` … `// slc:user-end <id>`；块内字节原样保留 |
+| 生成区 | 块外整体重写；头部写 `slc:fingerprint` |
+| 删除块 | 不静默丢弃，落 `.slc/orphaned/<ts>/<module>.<id>.v.bak`，stderr 报 `I04`，退出 0 |
 | frozen | `status: frozen` 的生成物被改 → `E10`，`sync` 不覆盖；`--force-unfreeze` 显式解除 |
 | 契约提示 | `W01` 只写 USER 块外，绝不改块内字节 |
 | 生成物落后 | `sync --check` 比较去提示后的文本，落后报 `E15` |

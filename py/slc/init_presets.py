@@ -1,4 +1,4 @@
-"""`rvgen init` 的内置样例（只依赖核心 schema 与插件配置）。"""
+"""`slc init` 的内置样例（只依赖核心 schema 与插件配置）。"""
 
 from __future__ import annotations
 

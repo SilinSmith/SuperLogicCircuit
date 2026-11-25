@@ -1,4 +1,4 @@
-"""rvgen CLI 骨架。
+"""SuperLogicCircuit（slc）CLI 骨架。
 
 P0 只实现 doctor / plugin list 与 check 的通路；其余命令注册完整但返回 E00，
 明确提示"尚未实现"，避免把用户带进 P1/P2 的语义核心。
@@ -33,17 +33,17 @@ def _add_subparsers(parser: argparse.ArgumentParser, dest: str) -> argparse._Sub
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = _CliParser(prog="rvgen", description="声明式 Verilog/IP 工程脚手架")
-    parser.add_argument("--version", action="version", version=f"rvgen {__version__}")
+    parser = _CliParser(prog="slc", description="SuperLogicCircuit：声明式 Verilog/IP 工程脚手架")
+    parser.add_argument("--version", action="version", version=f"slc {__version__}")
     sub = _add_subparsers(parser, "command")
 
-    init = sub.add_parser("init", help="建目录 + rvgen.yaml 样例")
+    init = sub.add_parser("init", help="建目录 + slc.yaml 样例")
     init.add_argument("path", nargs="?", default=".")
     init.add_argument("--preset", choices=["minimal", "uart", "rv32i"], default="minimal")
 
     imp = sub.add_parser("import", help="从已有 Verilog 反生成声明骨架")
     imp.add_argument("file")
-    imp.add_argument("-o", "--output", default="rvgen.yaml")
+    imp.add_argument("-o", "--output", default="slc.yaml")
 
     sync = sub.add_parser("sync", help="生成骨架/top/CDC/.core，合并 USER 块")
     sync.add_argument("--dry-run", action="store_true")
@@ -178,11 +178,11 @@ def _cmd_doctor(args: argparse.Namespace) -> int:
     ]
     tools.append(
         {
-            "name": "rvgen_protocol",
+            "name": "slc_protocol",
             "required": False,
             "status": "manual",
             "version": None,
-            "detail": "运行 scripts/register-rvopen.{ps1,sh} 注册 rvgen://",
+            "detail": "运行 scripts/register-rvopen.{ps1,sh} 注册 slc://",
         }
     )
     ok = all(tool["status"] != "missing" for tool in tools if tool["required"])
@@ -202,7 +202,7 @@ def _cmd_plugin_list(_args: argparse.Namespace) -> int:
     sink = DiagnosticSink()
     plugins = discover(sink)
     if not plugins:
-        sys.stdout.write("没有发现 plugin（entry_points group=rvgen.plugins）\n")
+        sys.stdout.write("没有发现 plugin（entry_points group=slc.plugins）\n")
     for plugin in plugins:
         sys.stdout.write(f"plugin: {plugin.id}\n")
         sys.stdout.write(f"  kinds: {', '.join(plugin.kinds) or '-'}\n")
@@ -231,14 +231,14 @@ def _cmd_init(args: argparse.Namespace) -> int:
 
     sink = DiagnosticSink()
     root = Path(args.path).expanduser()
-    rvgen_path = root / "rvgen.yaml"
-    if rvgen_path.exists():
-        sink.error("E00", f"{rvgen_path} 已存在", hint="换一个空目录，或先备份现有声明")
+    slc_path = root / "slc.yaml"
+    if slc_path.exists():
+        sink.error("E00", f"{slc_path} 已存在", hint="换一个空目录，或先备份现有声明")
         _render(sink, "text")
         return sink.exit_code()
     try:
         root.mkdir(parents=True, exist_ok=True)
-        atomic_write(rvgen_path, PRESETS[args.preset])
+        atomic_write(slc_path, PRESETS[args.preset])
     except (OSError, AtomicWriteError) as exc:
         sink.io_failure = True
         sink.error("E12", f"初始化失败：{exc}", hint="检查目录权限后重试")
@@ -246,7 +246,7 @@ def _cmd_init(args: argparse.Namespace) -> int:
         return sink.exit_code()
 
     plugins = discover(sink)
-    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    model, diagnostics = load(slc_path, plugins, sink=sink)
     sink.extend(diagnostics)
     if model is not None and not sink.has_errors():
         graph = build(model, sink)
@@ -325,12 +325,12 @@ def _cmd_gen(args: argparse.Namespace) -> int:
         from .fusesoc import render_core
         from .loader import load
 
-        rvgen_path = Path.cwd() / "rvgen.yaml"
-        if not rvgen_path.exists():
-            sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen gen fuse-soc")
+        slc_path = Path.cwd() / "slc.yaml"
+        if not slc_path.exists():
+            sink.error("E00", f"未找到 {slc_path}", hint="在项目根运行 slc gen fuse-soc")
             _render(sink, "text")
             return sink.exit_code()
-        model, diagnostics = load(rvgen_path, discover(sink), sink=sink)
+        model, diagnostics = load(slc_path, discover(sink), sink=sink)
         sink.extend(diagnostics)
         if model is not None and not sink.has_errors():
             target = Path(args.out) / f"{model.project.name}.core"
@@ -351,8 +351,8 @@ def _cmd_unimplemented(args: argparse.Namespace) -> int:
     sink = DiagnosticSink()
     sink.error(
         "E00",
-        f"rvgen {_command_label(args)} 尚未实现：P1 只提供 loader/model/graph/digest/importer 与 graph --write",
-        hint="按 rvgen完整方案.md 第 9 章，生成与前端分别属于 P2/P3",
+        f"slc {_command_label(args)} 尚未实现：P1 只提供 loader/model/graph/digest/importer 与 graph --write",
+        hint="按 slc完整方案.md 第 9 章，生成与前端分别属于 P2/P3",
     )
     _render(sink, "text")
     return sink.exit_code()
@@ -364,7 +364,7 @@ def _cmd_graph(args: argparse.Namespace) -> int:
         sink.error(
             "E00",
             "graph --check/--accept-wiring/--list-cdc 尚未实现：P1 只实现 --write",
-            hint="需要落盘时运行 rvgen graph --write",
+            hint="需要落盘时运行 slc graph --write",
         )
         _render(sink, "text")
         return sink.exit_code()
@@ -373,14 +373,14 @@ def _cmd_graph(args: argparse.Namespace) -> int:
     from .loader import load
 
     root = Path.cwd()
-    rvgen_path = root / "rvgen.yaml"
-    if not rvgen_path.exists():
-        sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen graph --write")
+    slc_path = root / "slc.yaml"
+    if not slc_path.exists():
+        sink.error("E00", f"未找到 {slc_path}", hint="在项目根运行 slc graph --write")
         _render(sink, "text")
         return sink.exit_code()
 
     plugins = discover(sink)
-    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    model, diagnostics = load(slc_path, plugins, sink=sink)
     sink.extend(diagnostics)
     if model is None or sink.has_errors():
         _render(sink, "text")
@@ -427,14 +427,14 @@ def _cmd_sync(args: argparse.Namespace) -> int:
 
     sink = DiagnosticSink()
     root = Path.cwd()
-    rvgen_path = root / "rvgen.yaml"
-    if not rvgen_path.exists():
-        sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen sync")
+    slc_path = root / "slc.yaml"
+    if not slc_path.exists():
+        sink.error("E00", f"未找到 {slc_path}", hint="在项目根运行 slc sync")
         _render(sink, "text")
         return sink.exit_code(strict=args.strict)
 
     plugins = discover(sink)
-    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    model, diagnostics = load(slc_path, plugins, sink=sink)
     sink.extend(diagnostics)
     if model is None or sink.has_errors():
         _render(sink, "text")
@@ -485,7 +485,7 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     root = Path(args.project).expanduser().resolve() if args.project else Path.cwd()
     if not root.is_dir():
         sink.io_failure = True
-        sink.error("E00", f"项目根不存在：{root}", hint="用 --project 指定包含 rvgen.yaml 的目录")
+        sink.error("E00", f"项目根不存在：{root}", hint="用 --project 指定包含 slc.yaml 的目录")
         _render(sink, "text")
         return sink.exit_code()
     try:
@@ -542,18 +542,18 @@ def _cmd_migrate(args: argparse.Namespace) -> int:
     from .migrate import MigrationError, migrate_file
 
     sink = DiagnosticSink()
-    path = Path.cwd() / "rvgen.yaml"
+    path = Path.cwd() / "slc.yaml"
     try:
         result = migrate_file(path, dry_run=args.dry_run, from_version=args.from_version)
     except MigrationError as exc:
         if not path.exists():
             sink.io_failure = True
-        sink.error("E00", str(exc), hint="迁移前请先备份；rvgen 会自动写 .rvgen/snapshots/")
+        sink.error("E00", str(exc), hint="迁移前请先备份；slc 会自动写 .slc/snapshots/")
         _render(sink, "text")
         return sink.exit_code()
 
     if not result.steps:
-        sys.stdout.write(f"rvgen.yaml 已是 {result.to_version}，无需迁移\n")
+        sys.stdout.write(f"slc.yaml 已是 {result.to_version}，无需迁移\n")
         _render(sink, "text")
         return sink.exit_code()
 
@@ -561,7 +561,7 @@ def _cmd_migrate(args: argparse.Namespace) -> int:
         sys.stdout.write(json.dumps(result.patch, ensure_ascii=False, indent=2) + "\n")
     else:
         chain = " → ".join([result.from_version, *(step.target for step in result.steps)])
-        sys.stdout.write(f"migrated rvgen.yaml: {chain}\n")
+        sys.stdout.write(f"migrated slc.yaml: {chain}\n")
         if result.snapshot:
             sys.stdout.write(f"snapshot: {result.snapshot}\n")
     _render(sink, "text")
@@ -574,7 +574,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args = parser.parse_args(argv)
     except CliUsageError as exc:
         sink = DiagnosticSink()
-        sink.error("E00", f"CLI 用法错误：{exc}", hint="运行 rvgen --help")
+        sink.error("E00", f"CLI 用法错误：{exc}", hint="运行 slc --help")
         _render(sink, "text")
         return 1
     except SystemExit as exc:

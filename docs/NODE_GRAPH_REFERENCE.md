@@ -1,7 +1,7 @@
 # `node_graph.json` 契约（schema 1.0.0）
 
 > `node_graph.json` 是 YAML 与看板之间的唯一图形契约，**纯静态**：不写布局、不写实测指标、不写时间戳。
-> 只有操作者显式运行 `rvgen graph --write`（或 `sync --update-graph`）才会改写它。
+> 只有操作者显式运行 `slc graph --write`（或 `sync --update-graph`）才会改写它。
 > JSON Schema 见 [schema/node_graph.schema.json](../schema/node_graph.schema.json)。
 
 ## 1. 顶层字段
@@ -9,8 +9,8 @@
 | 字段 | 类型 | 必填 | 说明 |
 |---|---|---|---|
 | `schema_version` | string | 是 | 固定 `"1.0.0"` |
-| `generated_by` | string | 是 | `rvgen x.y.z`；不写 `generated_at`，保证逐字节幂等 |
-| `source_digest` | string | 是 | `rvgen.yaml` 文本的 `sha256:` 前 16 位 |
+| `generated_by` | string | 是 | `slc x.y.z`；不写 `generated_at`，保证逐字节幂等 |
+| `source_digest` | string | 是 | `slc.yaml` 文本的 `sha256:` 前 16 位 |
 | `nodes[]` | array | 是 | 按 `id` 升序排序 |
 | `edges[]` | array | 是 | 按 `id` 升序排序 |
 
@@ -25,7 +25,7 @@
 | `id` | string | 核心：`mod:<name>` / `clk:<name>` / `cdc:<id>` / `stats:<name>`；plugin：`p_<plugin>:<type>:<name>` |
 | `type` | string | 核心：`module_node` / `clock_node` / `cdc_node` / `stats_node`；plugin：`p_<plugin>:<type>` |
 | `label` | string | 展示名 |
-| `module` | string\|null | 回指 `modules[].name`，用于 `rvgen://` 跳转 |
+| `module` | string\|null | 回指 `modules[].name`，用于 `slc://` 跳转 |
 | `clock` | string\|null | 该模块使用的时钟名 |
 | `domain` | string\|null | 时钟域；未知为 `null` |
 | `loc` | object\|null | `{file, line, end_line}`，相对项目根；`null` 表示不可跳转 |
@@ -119,7 +119,7 @@
     {"name": "cfg", "dir": "input", "width_expr": "WIDTH", "width_bits": 8, "kind": "data", "domain": null, "unresolved": null},
     {"name": "tx", "dir": "output", "width_expr": 1, "width_bits": 1, "kind": "data", "domain": null, "unresolved": null}
   ],
-  "loc": {"file": "rvgen.yaml", "line": 10, "end_line": 20}
+  "loc": {"file": "slc.yaml", "line": 10, "end_line": 20}
 }
 ```
 
@@ -140,13 +140,13 @@
 
 | 动作 | 行为 |
 |---|---|
-| `rvgen graph --write` | 重算并原子写入；第二次运行逐字节相同（AC05） |
-| `rvgen sync` | **不改** `node_graph.json` |
-| `rvgen sync --update-graph` | 生成 RTL 后额外写图，等价显式 `graph --write` |
-| `rvgen check` | 重算图；对 `node_graph.json` 做 schema lint，并在 `generated_by` 与当前 CLI 不一致时报 `W10` |
-| `rvgen serve` / watch / hook | 只读，最多提示“图落后” |
+| `slc graph --write` | 重算并原子写入；第二次运行逐字节相同（AC05） |
+| `slc sync` | **不改** `node_graph.json` |
+| `slc sync --update-graph` | 生成 RTL 后额外写图，等价显式 `graph --write` |
+| `slc check` | 重算图；对 `node_graph.json` 做 schema lint，并在 `generated_by` 与当前 CLI 不一致时报 `W10` |
+| `slc serve` / watch / hook | 只读，最多提示“图落后” |
 
-> `check` 会把期望图与 `node_graph.json` 逐字段比较：差异报 `E16`（点号路径，最多 20 条），退出 1；`generated_by` 单独走 `W10`，`source_digest` 不参与语义比较。`rvgen check --fix` 在校验通过后重写 `node_graph.json` 并再次检查。
+> `check` 会把期望图与 `node_graph.json` 逐字段比较：差异报 `E16`（点号路径，最多 20 条），退出 1；`generated_by` 单独走 `W10`，`source_digest` 不参与语义比较。`slc check --fix` 在校验通过后重写 `node_graph.json` 并再次检查。
 
 ## 7. 禁止事项
 

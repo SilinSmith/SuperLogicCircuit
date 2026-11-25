@@ -1,4 +1,4 @@
-#rvgen-meta	schema=cpu	timescale=ns
+#slc-meta	schema=cpu	timescale=ns
 10	0	0x00000000	0x00000013	-	pipe=IF;dec=addi
 20	1	0x00000004	0x00000093	-	pipe=ID;dec=addi
 30	2	0x00000008	0x00000013	x1=00000001	pipe=EX;ctrl=alu

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from rvgen.diag import DiagnosticSink, Location
+from slc.diag import DiagnosticSink, Location
 
 
 def test_exit_code_contract() -> None:
@@ -35,11 +35,11 @@ def test_location_and_text_rendering() -> None:
     sink.error(
         "E09",
         "width 不是整数",
-        Location(file="rvgen.yaml", line=12, col=5, json_path="modules.0.ports.1.width"),
+        Location(file="slc.yaml", line=12, col=5, json_path="modules.0.ports.1.width"),
         hint="改成整数或参数名",
     )
     text = sink.render("text")
-    assert "rvgen.yaml:12:5 (modules.0.ports.1.width)" in text
+    assert "slc.yaml:12:5 (modules.0.ports.1.width)" in text
     assert "E09 error width 不是整数" in text
     assert "hint: 改成整数或参数名" in text
 

@@ -134,7 +134,7 @@ export function App() {
     <div className="app">
       <header className="app__header">
         <div className="app__brand">
-          <span className="app__logo">rvgen</span>
+          <span className="app__logo">SuperLogicCircuit</span>
           <span className="app__subtitle">静态结构看板</span>
         </div>
         {graph ? (
@@ -178,7 +178,7 @@ export function App() {
           <span
             className={eventStatus === "live" ? "app__live app__live--on" : "app__live"}
             data-testid="event-status"
-            title="rvgen serve 事件流"
+            title="slc serve 事件流"
           >
             {eventStatus === "live" ? "实时" : "连接中"}
           </span>

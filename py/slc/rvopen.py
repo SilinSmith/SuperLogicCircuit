@@ -1,4 +1,4 @@
-"""rvgen:// URL 构造与三平台拉起（P5）。
+"""slc:// URL 构造与三平台拉起（P5）。
 
 不注册全局 URI Scheme；注册脚本位于 `scripts/`，由用户自行执行。
 协议未注册时返回 False，调用方打印手动命令并记 I06。
@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from urllib.parse import quote, urlencode
 
-SCHEME = "rvgen"
+SCHEME = "slc"
 
 
 def url_for(file: str | Path, line: int | None = None, node_id: str | None = None) -> str:

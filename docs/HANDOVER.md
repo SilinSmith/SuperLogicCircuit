@@ -4,7 +4,7 @@
 
 ## 1. 一句话现状
 
-`rvgen` v1.0.1 已实现 **YAML 声明 → 校验/建图 → RTL 骨架生成 → 静态看板 → 本地服务 + 失效提示 → trace 指标 → 迁移首例** 的主链路；核心零领域知识，CPU 只是 `plugins/cpu` 示例。
+`slc` v1.0.1 已实现 **YAML 声明 → 校验/建图 → RTL 骨架生成 → 静态看板 → 本地服务 + 失效提示 → trace 指标 → 迁移首例** 的主链路；核心零领域知识，CPU 只是 `plugins/cpu` 示例。
 **未实现**：视图切换内存增长实测、离线 npm 缓存内置、macOS/Linux 协议实机验证；elkjs/Worker 已由 dagre 等效替代。详见第 7 节与 AC 表。
 
 ## 2. 上手五分钟
@@ -15,16 +15,16 @@ cd y:\workspace\SuperLogicCircuit2
 .venv\Scripts\lint-imports.exe
 
 cd examples\uart
-..\..\.venv\Scripts\rvgen.exe graph --write
-..\..\.venv\Scripts\rvgen.exe sync
-..\..\.venv\Scripts\rvgen.exe check --strict
-..\..\.venv\Scripts\rvgen.exe sync --check
+..\..\.venv\Scripts\slc.exe graph --write
+..\..\.venv\Scripts\slc.exe sync
+..\..\.venv\Scripts\slc.exe check --strict
+..\..\.venv\Scripts\slc.exe sync --check
 
 cd ..\..
-.venv\Scripts\rvgen.exe serve --project examples\uart
+.venv\Scripts\slc.exe serve --project examples\uart
 ```
 
-浏览器打开 `http://127.0.0.1:8123`（或 `?live=1`）。改动 `examples/uart/rvgen.yaml` 后看板应出现“源已变更”，点“重新加载”才更新。
+浏览器打开 `http://127.0.0.1:8123`（或 `?live=1`）。改动 `examples/uart/slc.yaml` 后看板应出现“源已变更”，点“重新加载”才更新。
 
 前端开发：
 
@@ -40,14 +40,14 @@ npm run test:e2e
 
 | 关注点 | 入口 |
 |---|---|
-| CLI 与退出码 | `py/rvgen/cli.py`、`py/rvgen/diag.py` |
-| 加载/schema/行号/命名 | `py/rvgen/loader.py`、`py/rvgen/model.py` |
-| 静态建图 | `py/rvgen/graph.py` |
-| 指纹与差异 | `py/rvgen/digest.py`、`py/rvgen/checker.py` |
-| 生成物保护 | `py/rvgen/emitter.py`、`templates/` |
-| trace | `py/rvgen/trace.py`、`templates/trace_*.v.j2` |
-| 迁移 | `py/rvgen/migrate.py` |
-| 本地服务 | `py/rvgen/server.py`、`py/rvgen/gitw.py`、`py/rvgen/rvopen.py` |
+| CLI 与退出码 | `py/slc/cli.py`、`py/slc/diag.py` |
+| 加载/schema/行号/命名 | `py/slc/loader.py`、`py/slc/model.py` |
+| 静态建图 | `py/slc/graph.py` |
+| 指纹与差异 | `py/slc/digest.py`、`py/slc/checker.py` |
+| 生成物保护 | `py/slc/emitter.py`、`templates/` |
+| trace | `py/slc/trace.py`、`templates/trace_*.v.j2` |
+| 迁移 | `py/slc/migrate.py` |
+| 本地服务 | `py/slc/server.py`、`py/slc/gitw.py`、`py/slc/rvopen.py` |
 | 前端 | `web/src/`（App、views、flow、panels、api、lib、plugins） |
 | hook / 注册脚本 | `scripts/hooks/`、`scripts/register-rvopen-*` |
 | CI | `.github/workflows/ci.yml`、`nightly.yml` |
@@ -81,11 +81,11 @@ npm run test:e2e
 
 | 现象 | 处理 |
 |---|---|
-| `rvgen` 命令找不到 | 用 `.venv\Scripts\rvgen.exe`，或 `pip install -e .` |
+| `slc` 命令找不到 | 用 `.venv\Scripts\slc.exe`，或 `pip install -e .` |
 | `serve` 退出 3 | 端口被占；换 `--port`，Windows 上不会复用端口 |
-| `sync --check` 报 E15 | 先 `rvgen sync`，确认 diff 后提交生成物 |
+| `sync --check` 报 E15 | 先 `slc sync`，确认 diff 后提交生成物 |
 | frozen 模块报 E10 | 人工改回生成物，或显式 `--force-unfreeze`（会有 W 提示） |
-| pre-commit 失败 | 先跑 `rvgen check` 与 `rvgen sync --check`；hook 在无 `rvgen.yaml` 时自动跳过 |
+| pre-commit 失败 | 先跑 `slc check` 与 `slc sync --check`；hook 在无 `slc.yaml` 时自动跳过 |
 | e2e 起不来 | `npx playwright install chromium` |
 | 前端快照 | `CI=true` 不自动写，用 `npx vitest run -u` 人工确认 |
 
@@ -93,7 +93,7 @@ npm run test:e2e
 
 1. 不引入 elkjs/Worker；dagre 已达成 500 节点 p95 60 FPS 的同等性能目标。
 2. 视图切换 20 次内存增长 <20% 未测量；无稳定跨浏览器 heap API。
-3. macOS `rvgen://` 注册脚本未实机验证；Windows 脚本已验证。
+3. macOS `slc://` 注册脚本未实机验证；Windows 脚本已验证。
 4. mutmut 在 Windows 不可用，变异分数只在 nightly Linux 产出。
 5. `trace_summary` 无 plugin 专属聚合；CPU 字段原样保留。
 6. `stats_node` 仅保留给 plugin，核心构图不产出，因此不做外观验收。

@@ -15,7 +15,7 @@ export interface LayoutFile {
   _stale?: Record<string, NodeLayout & { at: string }>;
 }
 
-export const LAYOUT_STORAGE_KEY = "rvgen:layout:v1";
+export const LAYOUT_STORAGE_KEY = "slc:layout:v1";
 const STALE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export function emptyLayout(): LayoutFile {

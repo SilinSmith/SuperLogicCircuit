@@ -6,13 +6,13 @@ import json
 import shutil
 from pathlib import Path
 
-from rvgen.cli import main
-from rvgen.diag import DiagnosticSink
-from rvgen.graph import build
-from rvgen.loader import load
+from slc.cli import main
+from slc.diag import DiagnosticSink
+from slc.graph import build
+from slc.loader import load
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURE = ROOT / "fixtures" / "golden" / "uart" / "rvgen.yaml"
+FIXTURE = ROOT / "fixtures" / "golden" / "uart" / "slc.yaml"
 GOLDEN_DIR = ROOT / "golden"
 
 
@@ -39,7 +39,7 @@ def test_node_graph_matches_golden(pytestconfig) -> None:
 def test_cli_graph_write_is_idempotent(tmp_path: Path, monkeypatch) -> None:
     project = tmp_path / "project"
     project.mkdir()
-    shutil.copy(FIXTURE, project / "rvgen.yaml")
+    shutil.copy(FIXTURE, project / "slc.yaml")
     monkeypatch.chdir(project)
 
     assert main(["graph", "--write"]) == 0

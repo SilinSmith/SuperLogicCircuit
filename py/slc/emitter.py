@@ -22,9 +22,9 @@ from .digest import fingerprint, fingerprint_model
 from .graph import NodeGraph
 from .model import DesignModel, ModuleDecl, Port, PortKind, WidthError, param_values, resolve_width
 
-BEGIN_RE = re.compile(r"^\s*//\s*rvgen:user-begin\s+(\S+)\s*$")
-END_RE = re.compile(r"^\s*//\s*rvgen:user-end\s+(\S+)\s*$")
-FINGERPRINT_RE = re.compile(r"^//\s*rvgen:fingerprint\s+(\S+)\s*$", re.MULTILINE)
+BEGIN_RE = re.compile(r"^\s*//\s*slc:user-begin\s+(\S+)\s*$")
+END_RE = re.compile(r"^\s*//\s*slc:user-end\s+(\S+)\s*$")
+FINGERPRINT_RE = re.compile(r"^//\s*slc:fingerprint\s+(\S+)\s*$", re.MULTILINE)
 # W01 是给用户看的临时提示，不参与“生成物是否落后”的判定，否则 sync 后立刻 --check 会误报。
 W01_NOTICE_RE = re.compile(r"^//\s*\[W01\].*\n?", re.MULTILINE)
 REF_RE = re.compile(r"^([a-z][a-z0-9_]*)\.([a-z][a-z0-9_]*)$")
@@ -138,7 +138,7 @@ def merge_blocks(
         body = old_blocks.get(bid, default_body)
         if not body.endswith("\n"):
             body += "\n"
-        pieces.append(f"// rvgen:user-begin {bid}\n{body}// rvgen:user-end {bid}\n")
+        pieces.append(f"// slc:user-begin {bid}\n{body}// slc:user-end {bid}\n")
     orphans = tuple((bid, body) for bid, body in old_blocks.items() if bid not in kept)
     if orphans:
         names = ", ".join(f"{owner}.{bid}" for bid, _ in orphans)
@@ -482,13 +482,13 @@ def _write_orphans(root: Path, file: EmittedFile, sink: DiagnosticSink) -> None:
     if not file.orphans:
         return
     stamp = datetime.now().strftime("%Y%m%dT%H%M%S%f")
-    target = root / ".rvgen" / "orphaned" / stamp
+    target = root / ".slc" / "orphaned" / stamp
     try:
         target.mkdir(parents=True, exist_ok=True)
         for bid, body in file.orphans:
             (target / f"{file.owner}.{bid}.v.bak").write_text(body, encoding="utf-8")
     except OSError as exc:
-        sink.error("E12", f"备份 orphaned USER 块失败：{exc}", hint="检查 .rvgen 目录权限")
+        sink.error("E12", f"备份 orphaned USER 块失败：{exc}", hint="检查 .slc 目录权限")
 
 
 def emit(
@@ -539,7 +539,7 @@ def check_outputs(
         else:
             sink.error(
                 "E15",
-                f"生成物落后于 rvgen.yaml：{file.path}",
-                hint="运行 rvgen sync（或先看 --dry-run）",
+                f"生成物落后于 slc.yaml：{file.path}",
+                hint="运行 slc sync（或先看 --dry-run）",
             )
     return stale

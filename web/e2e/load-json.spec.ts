@@ -10,8 +10,8 @@ test("load-json：加载 node_graph.json 并打开详情抽屉", async ({ page }
   const drawer = page.getByTestId("detail-drawer");
   await expect(drawer).toBeVisible();
   await expect(drawer).toContainText("uart");
-  await expect(drawer).toContainText("rvgen.yaml:23");
-  await expect(page.getByTestId("rvgen-button")).toBeEnabled();
+  await expect(drawer).toContainText("slc.yaml:23");
+  await expect(page.getByTestId("slc-button")).toBeEnabled();
 });
 
 test("load-json：非法数据源给出可读错误", async ({ page }) => {

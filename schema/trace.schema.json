@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://rvgen.local/schema/trace.schema.json",
+  "$id": "https://slc.local/schema/trace.schema.json",
   "title": "trace JSONL record",
-  "$comment": "TSV 的 6 列与 #rvgen-meta 无法用 JSON Schema 表达；本 schema 只约束 normalize 后的单行 JSONL。TSV 列数/JSONL 逐行校验由 P1 的 trace.normalize 实现（E11）。",
+  "$comment": "TSV 的 6 列与 #slc-meta 无法用 JSON Schema 表达；本 schema 只约束 normalize 后的单行 JSONL。TSV 列数/JSONL 逐行校验由 P1 的 trace.normalize 实现（E11）。",
   "type": "object",
   "required": ["cycle", "time_ns", "loc", "state", "ids", "arc", "cdc"],
   "additionalProperties": false,

@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from rvgen.diag import DiagnosticSink
-from rvgen.emitter import (
+from slc.diag import DiagnosticSink
+from slc.emitter import (
     _top_port_width,
     check_outputs,
     emit,
@@ -19,10 +19,10 @@ from rvgen.emitter import (
     render_top,
     split_markers,
 )
-from rvgen.graph import build
-from rvgen.loader import load, load_data
+from slc.graph import build
+from slc.loader import load, load_data
 
-FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "schema" / "valid" / "rvgen.yaml"
+FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "schema" / "valid" / "slc.yaml"
 
 
 def _load(sink: DiagnosticSink | None = None):
@@ -42,15 +42,15 @@ def test_render_module_has_fingerprint_and_ports() -> None:
     module = model.module("uart")
     assert module is not None
     text = render_module(module)
-    assert "rvgen:fingerprint" in text
-    assert "// rvgen:user-begin logic" in text
+    assert "slc:fingerprint" in text
+    assert "// slc:user-begin logic" in text
     assert "input wire [7:0] cfg" in text
 
 
 def test_merge_preserves_user_block_and_updates_generated_region() -> None:
     sink = DiagnosticSink()
-    generated = "// new\n// rvgen:user-begin logic\n// TODO\n// rvgen:user-end logic\n// tail\n"
-    existing = "// old\n// rvgen:user-begin logic\n    assign x = y;\n// rvgen:user-end logic\n// old tail\n"
+    generated = "// new\n// slc:user-begin logic\n// TODO\n// slc:user-end logic\n// tail\n"
+    existing = "// old\n// slc:user-begin logic\n    assign x = y;\n// slc:user-end logic\n// old tail\n"
     merged, orphans = merge_blocks(existing, generated, "uart", sink)
     assert "assign x = y;" in merged
     assert "// new" in merged
@@ -61,19 +61,19 @@ def test_merge_preserves_user_block_and_updates_generated_region() -> None:
 
 def test_split_markers_reports_broken_markers() -> None:
     sink = DiagnosticSink()
-    split_markers("// rvgen:user-end logic\n", sink)
-    split_markers("// rvgen:user-begin a\n// rvgen:user-begin b\n", sink)
-    split_markers("// rvgen:user-begin a\n", sink)
+    split_markers("// slc:user-end logic\n", sink)
+    split_markers("// slc:user-begin a\n// slc:user-begin b\n", sink)
+    split_markers("// slc:user-begin a\n", sink)
     assert _codes(sink).count("E06") == 4
 
 
 def test_merge_reports_duplicate_and_orphan_block() -> None:
     sink = DiagnosticSink()
-    generated = "// rvgen:user-begin logic\n// d\n// rvgen:user-end logic\n"
+    generated = "// slc:user-begin logic\n// d\n// slc:user-end logic\n"
     existing = (
-        "// rvgen:user-begin logic\n// a\n// rvgen:user-end logic\n"
-        "// rvgen:user-begin logic\n// b\n// rvgen:user-end logic\n"
-        "// rvgen:user-begin extra\n// c\n// rvgen:user-end extra\n"
+        "// slc:user-begin logic\n// a\n// slc:user-end logic\n"
+        "// slc:user-begin logic\n// b\n// slc:user-end logic\n"
+        "// slc:user-begin extra\n// c\n// slc:user-end extra\n"
     )
     merged, orphans = merge_blocks(existing, generated, "uart", sink)
     assert "E06" in _codes(sink)
@@ -88,7 +88,7 @@ def test_emit_preserves_user_logic_across_runs(tmp_path: Path) -> None:
     emit(model, graph, tmp_path, sink)
     uart = tmp_path / "uart.v"
     text = uart.read_text(encoding="utf-8")
-    uart.write_text(text.replace("// TODO(rvgen): 手写逻辑写在这里", "    assign tx = rxd;"), encoding="utf-8")
+    uart.write_text(text.replace("// TODO(slc): 手写逻辑写在这里", "    assign tx = rxd;"), encoding="utf-8")
 
     emit(model, graph, tmp_path, sink)
     assert "assign tx = rxd;" in uart.read_text(encoding="utf-8")
@@ -164,12 +164,12 @@ def test_orphan_block_is_backed_up(tmp_path: Path) -> None:
     uart = tmp_path / "uart.v"
     text = uart.read_text(encoding="utf-8").replace(
         "endmodule",
-        "// rvgen:user-begin extra\n    // keep\n// rvgen:user-end extra\nendmodule",
+        "// slc:user-begin extra\n    // keep\n// slc:user-end extra\nendmodule",
     )
     uart.write_text(text, encoding="utf-8")
     emit(model, graph, tmp_path, sink)
     assert "I04" in _codes(sink)
-    backups = list((tmp_path.parent / ".rvgen" / "orphaned").rglob("uart.extra.v.bak"))
+    backups = list((tmp_path.parent / ".slc" / "orphaned").rglob("uart.extra.v.bak"))
     assert backups
     assert "keep" in backups[0].read_text(encoding="utf-8")
 
@@ -181,7 +181,7 @@ def test_contract_fingerprint_change_warns_w01(tmp_path: Path) -> None:
     uart = tmp_path / "uart.v"
     text = uart.read_text(encoding="utf-8")
     lines = text.splitlines(keepends=True)
-    lines[1] = "// rvgen:fingerprint stale\n"
+    lines[1] = "// slc:fingerprint stale\n"
     uart.write_text("".join(lines), encoding="utf-8")
     plan_files(model, graph, tmp_path, sink)
     assert "W01" in _codes(sink)
@@ -194,7 +194,7 @@ def test_sync_converges_after_contract_notice(tmp_path: Path) -> None:
     emit(model, graph, tmp_path, sink)
     uart = tmp_path / "uart.v"
     lines = uart.read_text(encoding="utf-8").splitlines(keepends=True)
-    lines[1] = "// rvgen:fingerprint stale\n"
+    lines[1] = "// slc:fingerprint stale\n"
     uart.write_text("".join(lines), encoding="utf-8")
 
     emit(model, graph, tmp_path, sink)
@@ -208,7 +208,7 @@ def test_render_cdc_creates_bridge() -> None:
     text = render_cdc("2ff", "two_ff", 8)
     assert "module two_ff #(" in text
     assert "parameter WIDTH = 8" in text
-    assert "rvgen:fingerprint cdc/2ff/8" in text
+    assert "slc:fingerprint cdc/2ff/8" in text
 
 
 def test_render_top_reports_unbound_output() -> None:
@@ -339,7 +339,7 @@ def test_top_contract_change_warns_w01(tmp_path: Path) -> None:
     emit(model, graph, tmp_path, sink)
     top = tmp_path / "top_core.v"
     lines = top.read_text(encoding="utf-8").splitlines(keepends=True)
-    lines[1] = "// rvgen:fingerprint stale\n"
+    lines[1] = "// slc:fingerprint stale\n"
     top.write_text("".join(lines), encoding="utf-8")
     plan_files(model, graph, tmp_path, sink)
     assert "W01" in _codes(sink)

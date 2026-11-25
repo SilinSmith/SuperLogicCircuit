@@ -1,7 +1,7 @@
 # ADR-02 声明源与显式图更新
 
 > 状态：已采纳；日期：2026-11-25；适用阶段：P1 起。
-> 依据：`rvgen完整方案.md` 决策二、§5；决策记录 D4。
+> 依据：`slc完整方案.md` 决策二、§5；决策记录 D4。
 
 ## 背景
 
@@ -9,9 +9,9 @@
 
 ## 决策
 
-- `rvgen.yaml` 是唯一声明源。
-- `node_graph.json` 是受控生成物，**只有** `rvgen graph --write` 或 `rvgen sync --update-graph` 能写。
-- `rvgen sync` 默认只生成 RTL 骨架/top/CDC，不碰图。
+- `slc.yaml` 是唯一声明源。
+- `node_graph.json` 是受控生成物，**只有** `slc graph --write` 或 `slc sync --update-graph` 能写。
+- `slc sync` 默认只生成 RTL 骨架/top/CDC，不碰图。
 - `serve`、watcher、pre-commit/post-checkout hook 只读；最多提示“图落后”。
 - `layout.json`、`trace_summary.json` 是旁路文件，默认不进 git，`check` 不读。
 - 图文件不含时间戳，排序确定，保证两次 `graph --write` 逐字节相同。

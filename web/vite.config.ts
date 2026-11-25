@@ -2,7 +2,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// dev 5174（避开旧工程的 5173）；/api 代理到 rvgen serve 的 8123。
+// dev 5174（避开旧工程的 5173）；/api 代理到 slc serve 的 8123。
 export default defineConfig({
   plugins: [react()],
   server: {

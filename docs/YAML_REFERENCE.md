@@ -1,6 +1,6 @@
-# `rvgen.yaml` 参考（schema 1.1.0）
+# `slc.yaml` 参考（schema 1.1.0）
 
-> `schema/rvgen.schema.json` 是结构契约；本文补充 schema 无法表达或由 loader 语义校验的规则。
+> `schema/slc.schema.json` 是结构契约；本文补充 schema 无法表达或由 loader 语义校验的规则。
 > 标识符（模块名、端口名、实例名、时钟/域/CDC id、顶层端口名）一律小写 `^[a-z][a-z0-9_]*$`，
 > 否则在加载阶段报 **E09**；`params[].name` 例外，允许 Verilog 惯例的大写。
 

@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from rvgen.diag import Diagnostic, Location
-from rvgen.loader import load_data
-from rvgen.model import Port, PortDir, PortKind, WidthError, resolve_width
-from rvgen.plugins import Plugin
+from slc.diag import Diagnostic, Location
+from slc.loader import load_data
+from slc.model import Port, PortDir, PortKind, WidthError, resolve_width
+from slc.plugins import Plugin
 
 
 def _port(name: str = "a", width=None, kind: str = "data") -> Port:

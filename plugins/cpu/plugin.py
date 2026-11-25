@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from rvgen.plugins import Plugin
+from slc.plugins import Plugin
 
 from .rules import validate
 from .schema import CPU_SCHEMA

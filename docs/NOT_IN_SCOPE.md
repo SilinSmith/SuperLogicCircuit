@@ -8,7 +8,7 @@
 |---|---|---|
 | 1 | 核心层任何 ISA / 应用域知识（RV32I、AXI、UART、Cache 一致性） | 一律 plugin；`plugins/cpu` 只是示例 |
 | 2 | 综合/布局布线脚本、时序约束、FPGA 板级 IO 约束 | 文件列表与 target 交给 FuseSoC `.core`；不自研构建系统 |
-| 3 | VSCode 插件、浏览器扩展 | 只提供 `rvgen://` 与注册脚本 |
+| 3 | VSCode 插件、浏览器扩展 | 只提供 `slc://` 与注册脚本 |
 | 4 | 全局 URI Scheme 自动注册 | 注册脚本需用户自行执行，不改系统关联 |
 | 5 | GUI → YAML 自动写回 | GUI 只写 `layout.json`；结构变更必须改 YAML |
 | 6 | diff 可视化、波形查看器 | 只出统计与时空图 |
@@ -19,7 +19,7 @@
 | 11 | IP-XACT 读写 | 仅作数据模型参照；将来走 plugin |
 | 12 | 安装/管理 verilator、fusesoc、verible、yosys、Node 版本 | `doctor` 只探测并提示 |
 | 13 | 静默更新受控资产 | `node_graph.json` 只能显式写；`serve`/hook 永不写 |
-| 14 | 自动生成 `rvgen.yaml`（除 `import` 的骨架能力外） | 声明是人工输入 |
+| 14 | 自动生成 `slc.yaml`（除 `import` 的骨架能力外） | 声明是人工输入 |
 | 15 | 跨项目模板市场、远程 registry | 不在 v1 范围 |
 
 ## 2. 本版未交付但属于方案范围的项
@@ -31,7 +31,7 @@
 | elkjs / Web Worker 精细布局 | 不实现；dagre 已达成 500 节点 p95 60 FPS 的同等目标 |
 | 视图切换内存增长 <20% 实测 | 未测（无稳定跨浏览器 heap API） |
 | 仓库内置离线 npm tgz | 不内置；改为有网时用 `scripts/npm-prefetch.*` 预取到本机 cache |
-| macOS `rvgen://` 实机验证 | 未验证 |
+| macOS `slc://` 实机验证 | 未验证 |
 | Windows 变异测试 | 依赖 fork，不可用 |
 
 ## 3. 判定方法

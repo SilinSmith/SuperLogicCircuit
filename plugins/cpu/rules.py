@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Sequence
 
-from rvgen.diag import Diagnostic, Location
-from rvgen.model import DesignModel
+from slc.diag import Diagnostic, Location
+from slc.model import DesignModel
 
 
 def validate(model: DesignModel, config: Mapping[str, Any]) -> Sequence[Diagnostic]:

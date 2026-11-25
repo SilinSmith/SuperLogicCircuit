@@ -1,5 +1,5 @@
-// 本文件由 rvgen {{ version }} 生成；生成区每次整体重写，请勿手改。
-// rvgen:fingerprint {{ top_fingerprint }}
+// 本文件由 slc {{ version }} 生成；生成区每次整体重写，请勿手改。
+// slc:fingerprint {{ top_fingerprint }}
 {% if contract_notice %}// [W01] {{ contract_notice }}
 {% endif %}`timescale 1ns/1ps
 module {{ project.top }} (
@@ -26,8 +26,8 @@ module {{ project.top }} (
 {% for p in m.port_bindings %}        .{{ p.port }}({{ p.net }}){{ "," if not loop.last }}
 {% endfor %}
     );
-    // rvgen:user-begin inst.{{ m.inst }}
-    // TODO(rvgen): 该实例的附加逻辑写在这里
-    // rvgen:user-end inst.{{ m.inst }}
+    // slc:user-begin inst.{{ m.inst }}
+    // TODO(slc): 该实例的附加逻辑写在这里
+    // slc:user-end inst.{{ m.inst }}
 {% endfor %}
 endmodule

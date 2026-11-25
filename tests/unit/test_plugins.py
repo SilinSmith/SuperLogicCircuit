@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 import pytest
 
-from rvgen.diag import DiagnosticSink
-from rvgen.plugins import Plugin, discover
+from slc.diag import DiagnosticSink
+from slc.plugins import Plugin, discover
 
 
 @dataclass

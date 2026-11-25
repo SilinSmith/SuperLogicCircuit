@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_by": "rvgen 1.0.1",
+  "generated_by": "slc 1.0.1",
   "source_digest": "sha256:cpu0demo00000000",
   "nodes": [
     {
@@ -9,7 +9,7 @@
       "label": "clk",
       "clock": "clk",
       "domain": "sys",
-      "loc": { "file": "rvgen.yaml", "line": 8 }
+      "loc": { "file": "slc.yaml", "line": 8 }
     },
     {
       "id": "mod:cpu_fetch",
@@ -25,7 +25,7 @@
         { "name": "clk", "dir": "input", "width_bits": 1, "kind": "clock" },
         { "name": "instr", "dir": "output", "width_bits": 32, "kind": "data" }
       ],
-      "loc": { "file": "rvgen.yaml", "line": 20, "end_line": 30 }
+      "loc": { "file": "slc.yaml", "line": 20, "end_line": 30 }
     },
     {
       "id": "mod:cpu_alu",
@@ -40,7 +40,7 @@
         { "name": "clk", "dir": "input", "width_bits": 1, "kind": "clock" },
         { "name": "instr", "dir": "input", "width_bits": 32, "kind": "data" }
       ],
-      "loc": { "file": "rvgen.yaml", "line": 30, "end_line": 40 }
+      "loc": { "file": "slc.yaml", "line": 30, "end_line": 40 }
     },
     {
       "id": "p_cpu:slot_if_addi",
@@ -75,7 +75,7 @@
       "status": "ok",
       "x-cpu-ways": 2,
       "x-cpu-sets": 256,
-      "loc": { "file": "rvgen.yaml", "line": 40, "end_line": 52 }
+      "loc": { "file": "slc.yaml", "line": 40, "end_line": 52 }
     }
   ],
   "edges": [

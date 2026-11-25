@@ -22,7 +22,7 @@ def load_yaml(name: str) -> dict:
 
 
 SCHEMAS = {
-    "rvgen": load_schema("rvgen"),
+    "slc": load_schema("slc"),
     "node_graph": load_schema("node_graph"),
     "layout": load_schema("layout"),
     "trace": load_schema("trace"),
@@ -39,8 +39,8 @@ def test_schema_declares_draft_2020_12(name: str) -> None:
     assert SCHEMAS[name]["$schema"] == "https://json-schema.org/draft/2020-12/schema"
 
 
-def test_valid_rvgen_sample() -> None:
-    Draft202012Validator(SCHEMAS["rvgen"]).validate(load_yaml("rvgen.yaml"))
+def test_valid_slc_sample() -> None:
+    Draft202012Validator(SCHEMAS["slc"]).validate(load_yaml("slc.yaml"))
 
 
 def test_valid_node_graph_sample() -> None:
@@ -61,74 +61,74 @@ def test_valid_trace_sample() -> None:
         validator.validate(json.loads(line))
 
 
-def _rvgen_validator() -> Draft202012Validator:
-    return Draft202012Validator(SCHEMAS["rvgen"])
+def _slc_validator() -> Draft202012Validator:
+    return Draft202012Validator(SCHEMAS["slc"])
 
 
-def test_rvgen_rejects_core_stage_field() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_core_stage_field() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["modules"][0]["stage"] = "IF"
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
-def test_rvgen_accepts_plugin_stage_extension_field() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_accepts_plugin_stage_extension_field() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["modules"][0]["x-cpu-stage"] = "IF"
-    _rvgen_validator().validate(data)
+    _slc_validator().validate(data)
 
 
-def test_rvgen_accepts_plugin_kind_at_schema_layer() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_accepts_plugin_kind_at_schema_layer() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["modules"][0]["kind"] = "cache"
-    _rvgen_validator().validate(data)
+    _slc_validator().validate(data)
 
 
-def test_rvgen_rejects_inout_on_non_memory_module() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_inout_on_non_memory_module() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["modules"][0]["ports"].append({"name": "io", "dir": "inout", "width": 1})
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
-def test_rvgen_rejects_async_fifo_without_depth() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_async_fifo_without_depth() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["cdc"] = [{"id": "cf", "from": "sys", "to": "sys2", "kind": "async_fifo", "width": 8}]
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
-def test_rvgen_rejects_generated_clock_without_parent() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_generated_clock_without_parent() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["clocks"][0]["source"] = "generated"
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
-def test_rvgen_rejects_output_top_port_without_from() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_output_top_port_without_from() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     del data["top"]["ports"][2]["from"]
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
-def test_rvgen_rejects_output_top_port_with_to() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_output_top_port_with_to() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["top"]["ports"][2]["to"] = ["fifo.pop"]
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
-def test_rvgen_rejects_data_input_top_port_without_to() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_data_input_top_port_without_to() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["top"]["ports"].append({"name": "din", "dir": "input"})
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
-def test_rvgen_accepts_clock_input_top_port_without_to() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_accepts_clock_input_top_port_without_to() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["top"]["ports"].append({"name": "clk_aux", "dir": "input", "role": "clock"})
-    _rvgen_validator().validate(data)
+    _slc_validator().validate(data)
 
 
-def test_rvgen_rejects_param_with_width_and_expr() -> None:
-    data = copy.deepcopy(load_yaml("rvgen.yaml"))
+def test_slc_rejects_param_with_width_and_expr() -> None:
+    data = copy.deepcopy(load_yaml("slc.yaml"))
     data["modules"][0]["params"][0]["expr"] = "WIDTH"
-    assert not _rvgen_validator().is_valid(data)
+    assert not _slc_validator().is_valid(data)
 
 
 def test_node_graph_rejects_metrics_top_level() -> None:

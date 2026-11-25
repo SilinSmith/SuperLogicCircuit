@@ -3,9 +3,9 @@ requires = ["setuptools>=65", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rvgen"
+name = "slc"
 dynamic = ["version"]
-description = "声明式 Verilog/IP 工程脚手架、图形化看板与 Git 一致性闭环"
+description = "SuperLogicCircuit：声明式 Verilog/IP 工程脚手架、图形化看板与 Git 一致性闭环"
 requires-python = "==3.11.*"
 dependencies = [
   "pyyaml==6.0.4",
@@ -29,21 +29,21 @@ dev = [
 ]
 
 [project.scripts]
-rvgen = "rvgen.cli:main"
+slc = "slc.cli:main"
 
-[project.entry-points."rvgen.plugins"]
+[project.entry-points."slc.plugins"]
 cpu = "plugins.cpu.plugin:cpu_plugin"
 
 [tool.setuptools]
 package-dir = {"" = "py", "plugins" = "plugins"}
-packages = ["rvgen", "plugins", "plugins.cpu"]
+packages = ["slc", "plugins", "plugins.cpu"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-rvgen = ["templates/*.j2"]
+slc = ["templates/*.j2"]
 
 [tool.setuptools.dynamic]
-version = {attr = "rvgen.__version__"}
+version = {attr = "slc.__version__"}
 
 [tool.pytest.ini_options]
 minversion = "8.0"
@@ -52,31 +52,31 @@ addopts = "-ra"
 
 [tool.mutmut]
 # nightly 只变异核心判定逻辑；score 门槛由 scripts/mutation_score.py 执行。
-source_paths = ["py/rvgen"]
+source_paths = ["py/slc"]
 pytest_add_cli_args_test_selection = ["tests/unit"]
 do_not_mutate = ["*/__init__.py"]
 
 [tool.importlinter]
-root_package = "rvgen"
+root_package = "slc"
 
 # import-linter 会拒绝引用尚不存在的模块；layout/gitw/rvopen 等 infra 模块已随 P5 落地。
 [[tool.importlinter.contracts]]
 name = "loader 不得依赖 graph/emitter"
 type = "forbidden"
-source_modules = ["rvgen.loader"]
-forbidden_modules = ["rvgen.graph"]
+source_modules = ["slc.loader"]
+forbidden_modules = ["slc.graph"]
 
 [[tool.importlinter.contracts]]
 name = "core 不得依赖 server/gitw/rvopen"
 type = "forbidden"
 source_modules = [
-  "rvgen.loader",
-  "rvgen.model",
-  "rvgen.graph",
-  "rvgen.digest",
-  "rvgen.emitter",
-  "rvgen.importer",
-  "rvgen.trace",
-  "rvgen.checker",
+  "slc.loader",
+  "slc.model",
+  "slc.graph",
+  "slc.digest",
+  "slc.emitter",
+  "slc.importer",
+  "slc.trace",
+  "slc.checker",
 ]
-forbidden_modules = ["rvgen.server", "rvgen.gitw", "rvgen.rvopen"]
+forbidden_modules = ["slc.server", "slc.gitw", "slc.rvopen"]

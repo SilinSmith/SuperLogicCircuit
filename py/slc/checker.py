@@ -1,7 +1,7 @@
 """check 通路：schema lint + loader/graph 语义校验 + 与 node_graph.json 的语义 diff。
 
 本模块保证：
-- rvgen.yaml 走 loader（schema + 引用检查），再跑 graph 的静态规则码；
+- slc.yaml 走 loader（schema + 引用检查），再跑 graph 的静态规则码；
 - node_graph.json / layout.json 按契约 lint，并与期望图逐字段比较；
 - 诊断带点号 json_path；
 - 退出码严格遵循 0/1/2/3；
@@ -30,7 +30,7 @@ from .plugins import discover
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_DIR = REPO_ROOT / "schema"
-SCHEMA_NAMES = ("rvgen", "node_graph", "layout", "trace")
+SCHEMA_NAMES = ("slc", "node_graph", "layout", "trace")
 
 
 def _render(sink: DiagnosticSink, output_format: str, *, quiet: bool) -> None:
@@ -252,7 +252,7 @@ def _compare(path: str, expected: Any, actual: Any, changes: list[Change]) -> No
 
 
 def diff_graphs(expected: NodeGraph, actual: dict[str, Any]) -> list[Change]:
-    """返回从 rvgen.yaml 期望图到 node_graph.json 实际值的逐字段差异。"""
+    """返回从 slc.yaml 期望图到 node_graph.json 实际值的逐字段差异。"""
     changes: list[Change] = []
     _compare("", expected.document, actual, changes)
     return changes
@@ -264,24 +264,24 @@ def _report_diff(changes: list[Change], file_label: str, sink: DiagnosticSink) -
             "E16",
             f"语义不一致：{change.path} 期望 {_short(change.expected)}，实际 {_short(change.actual)}",
             Location(file=file_label, json_path=change.path),
-            hint="运行 rvgen check --fix 或 rvgen graph --write 重新生成",
+            hint="运行 slc check --fix 或 slc graph --write 重新生成",
         )
     if len(changes) > _MAX_DIFFS:
         sink.error(
             "E16",
             f"共 {len(changes)} 处语义差异，仅显示前 {_MAX_DIFFS} 处",
             Location(file=file_label),
-            hint="运行 rvgen check --fix 或 rvgen graph --write 重新生成",
+            hint="运行 slc check --fix 或 slc graph --write 重新生成",
         )
 
 
 def _fix_graph(root: Path, sink: DiagnosticSink) -> None:
-    rvgen_path = root / "rvgen.yaml"
-    if not rvgen_path.exists():
-        sink.error("E00", f"未找到 {rvgen_path}", hint="在项目根运行 rvgen check --fix")
+    slc_path = root / "slc.yaml"
+    if not slc_path.exists():
+        sink.error("E00", f"未找到 {slc_path}", hint="在项目根运行 slc check --fix")
         return
     plugins = discover(sink)
-    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    model, diagnostics = load(slc_path, plugins, sink=sink)
     sink.extend(diagnostics)
     if model is None or sink.has_errors():
         return
@@ -303,9 +303,9 @@ def _lint_project(root: Path, sink: DiagnosticSink) -> None:
     if schema_graph is None or schema_layout is None:
         return
 
-    rvgen_path = root / "rvgen.yaml"
+    slc_path = root / "slc.yaml"
     plugins = discover(sink)
-    model, diagnostics = load(rvgen_path, plugins, sink=sink)
+    model, diagnostics = load(slc_path, plugins, sink=sink)
     sink.extend(diagnostics)
     if model is None:
         return
@@ -320,13 +320,13 @@ def _lint_project(root: Path, sink: DiagnosticSink) -> None:
             if not build_errors:
                 _report_diff(diff_graphs(expected_graph, graph), _relative(graph_path, root), sink)
             generated_by = graph.get("generated_by")
-            expected = f"rvgen {__version__}"
+            expected = f"slc {__version__}"
             if generated_by != expected:
                 sink.warning(
                     "W10",
                     f"node_graph.json 的 generated_by={generated_by!r} 与当前 CLI {expected!r} 不一致",
                     Location(file=_relative(graph_path, root), json_path="generated_by"),
-                    hint="运行 rvgen graph --write 重新生成；--strict 会把该 warning 当失败",
+                    hint="运行 slc graph --write 重新生成；--strict 会把该 warning 当失败",
                 )
 
     layout_path = root / "layout.json"
@@ -354,17 +354,17 @@ def run_check(
             _render(sink, output_format, quiet=quiet)
             return sink.exit_code(strict=strict)
 
-    rvgen_path = root / "rvgen.yaml"
-    if rvgen_path.exists():
+    slc_path = root / "slc.yaml"
+    if slc_path.exists():
         _lint_project(root, sink)
-    elif (root / "schema" / "rvgen.schema.json").exists():
+    elif (root / "schema" / "slc.schema.json").exists():
         _lint_contracts(sink)
     else:
         sink.error(
             "E00",
-            f"未找到 {rvgen_path}，且当前目录不是 rvgen 仓库根",
-            Location(file=str(rvgen_path)),
-            hint="在项目根运行，或先执行 rvgen init",
+            f"未找到 {slc_path}，且当前目录不是 slc 仓库根",
+            Location(file=str(slc_path)),
+            hint="在项目根运行，或先执行 slc init",
         )
 
     _render(sink, output_format, quiet=quiet)

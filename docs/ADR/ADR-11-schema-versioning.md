@@ -1,22 +1,22 @@
 # ADR-11 版本与迁移
 
 > 状态：已采纳；日期：2026-11-25；适用阶段：P1/P6。
-> 依据：`rvgen完整方案.md` §4.1、§4.5；决策记录 D1/D28。
+> 依据：`slc完整方案.md` §4.1、§4.5；决策记录 D1/D28。
 
 ## 决策
 
 | 版本 | 值 | 说明 |
 |---|---|---|
 | 工具 | `1.0.1` | 与 tag `v1.0.1` 对齐 |
-| `rvgen.yaml` schema | `1.1.0` | 核心四类 kind；领域字段 `x-*` |
+| `slc.yaml` schema | `1.1.0` | 核心四类 kind；领域字段 `x-*` |
 | `node_graph.json` | `1.0.0` | 纯静态图契约 |
 | `layout.json` / `trace_summary.json` | `1.0.0` | 旁路文件 |
 
 - 加载时 major 必须为 1；任何非 `1.1.0` 的 1.x 按 1.1.0 校验并报 `I02`，保留原版本。
 - 删除/重命名字段、删除枚举值 → major，必须提供迁移 step。
 - 新增可选字段/枚举值 → minor；旧文件不受影响，新文件在旧 CLI 上被 schema 拒绝。
-- 迁移在 `py/rvgen/migrate.py`：纯函数 step 链，每步后用目标 schema 校验。
-- `migrate_file` 写前快照 `.rvgen/snapshots/<UTC>/rvgen.yaml`；`--dry-run` 只输出 JSON Patch。
+- 迁移在 `py/slc/migrate.py`：纯函数 step 链，每步后用目标 schema 校验。
+- `migrate_file` 写前快照 `.slc/snapshots/<UTC>/slc.yaml`；`--dry-run` 只输出 JSON Patch。
 - 首个迁移：`1.0.0 → 1.1.0`（去 `profiles`、`stage → x-cpu-stage`、`axi → handshake`）。
 
 ## 理由

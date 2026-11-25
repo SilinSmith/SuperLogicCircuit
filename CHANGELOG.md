@@ -2,9 +2,15 @@
 
 格式参考 Keep a Changelog；版本号遵循 SemVer。工具版本与 schema 版本独立演进。
 
+## [Unreleased]
+
+### Changed
+
+- 项目由 `rvgen` 更名为 **SuperLogicCircuit**，代码标识统一为 `slc`：CLI 命令 `slc`、Python 包 `slc`、配置 `slc.yaml`、协议 `slc://`、环境变量 `SLC_*`、schema 与生成物 `generated_by` 全部同步；不提供旧名兼容别名。工具版本号与既有 tag 不变。
+
 ## [1.0.1] - 2026-11-25
 
-工具自身版本升级；schema 不变（`rvgen.yaml` 1.1.0 / `node_graph.json` 1.0.0）。
+工具自身版本升级；schema 不变（`slc.yaml` 1.1.0 / `node_graph.json` 1.0.0）。
 
 ### Added
 
@@ -38,8 +44,8 @@
 - **emitter**：模块/top/CDC 模板、USER 块合并、`orphaned/` 落盘（I04）、frozen 保护（E10）、契约提示（W01）、`sync --check` 生成物比对（E15）。
 - **trace**：6 列 TSV 解析（E11）、`normalize` JSONL、`summary`（W05/W15）、`stats`。
 - **serve**：`GET /api/graph|trace-summary|layout|health|events`，`POST /api/layout|reload`，SSE 环形缓冲/重放/`resync`，200 ms 轮询 + 400 ms 去抖，git 状态事件。
-- **web**：React Flow 12 + dagre 数据流、时钟树、统计、plugin 视图（流水线/Cache）、详情抽屉、`rvgen://` 跳转、布局 localStorage + 服务端合并、失效徽标与手动重载。
-- **rvopen/gitw**：`rvgen://open` URI、三平台注册脚本、`post-commit`/`post-checkout` hook。
+- **web**：React Flow 12 + dagre 数据流、时钟树、统计、plugin 视图（流水线/Cache）、详情抽屉、`slc://` 跳转、布局 localStorage + 服务端合并、失效徽标与手动重载。
+- **rvopen/gitw**：`slc://open` URI、三平台注册脚本、`post-commit`/`post-checkout` hook。
 - **migrate**：`1.0.0 → 1.1.0`（去 `profiles`、`stage → x-cpu-stage`、`axi → handshake`），写前快照、`--dry-run` JSON Patch。
 - **CI**：Python 覆盖率门禁、lint-imports、前端 typecheck/unit/build/e2e、pre-commit；nightly 变异测试（门槛 80%）。
 - **examples/uart**：uart + fifo + baud_gen，零 CPU，iverilog 编译通过。
@@ -50,7 +56,7 @@
 - **命名收紧（破坏性）**：YAML 中模块名、端口名、实例名、时钟名、`domain_id` 一律 `^[a-z][a-z0-9_]*$`；非小写在**加载/校验阶段**报 `E09`，不再等到建图。
 - `node_graph.json` 的 node id / node_port 契约**不变**。
 - `sync` 不写 `node_graph.json`；`sync --update-graph` 才写。
-- `serve` 的 `rvgen_protocol` doctor 检查改为 `manual`（注册脚本需用户执行）。
+- `serve` 的 `slc_protocol` doctor 检查改为 `manual`（注册脚本需用户执行）。
 
 ### Fixed
 
@@ -72,7 +78,7 @@
 
 | schema | 变更 |
 |---|---|
-| `rvgen.yaml` 1.1.0 | 核心 kind 四类；`stage` 移入 `x-cpu-stage`；新增 `interfaces[]`、`cdc[]` 枚举、`top.tieoffs[]` |
+| `slc.yaml` 1.1.0 | 核心 kind 四类；`stage` 移入 `x-cpu-stage`；新增 `interfaces[]`、`cdc[]` 枚举、`top.tieoffs[]` |
 | `node_graph.json` 1.0.0 | 首版；核心四类节点，plugin 必须 `p_` 前缀 |
 | `layout.json` 1.0.0 | 节点/边/视图/偏好；默认不进 git |
 | `trace_summary.json` 1.0.0 | 静态列 + 派生指标；不进 git |

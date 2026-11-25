@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://rvgen.local/schema/layout.schema.json",
+  "$id": "https://slc.local/schema/layout.schema.json",
   "title": "layout.json",
   "description": "只存坐标、折叠与视图偏好；默认不进 git。不得包含结构信息。",
   "type": "object",

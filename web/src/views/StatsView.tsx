@@ -75,7 +75,7 @@ export function StatsView({ graph, summary, summaryError }: StatsViewProps) {
           ? `trace_summary：${summary.cycles} cycles，warnings=${summary.warnings.join(",") || "无"}`
           : summaryError
             ? `trace_summary 读取失败：${summaryError}`
-            : "未提供 trace_summary.json，节点图表退化为静态分布；运行 rvgen trace summary 后刷新。"}
+            : "未提供 trace_summary.json，节点图表退化为静态分布；运行 slc trace summary 后刷新。"}
       </p>
     </div>
   );

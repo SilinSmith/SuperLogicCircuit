@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from rvgen.importer import import_verilog
+from slc.importer import import_verilog
 
 
 def codes(diagnostics) -> list[str]:

@@ -6,10 +6,10 @@ import json
 
 from hypothesis import HealthCheck, given, settings, strategies as st
 
-from rvgen.diag import DiagnosticSink
-from rvgen.digest import canonicalize_model, fingerprint_model, fingerprint_payload
-from rvgen.graph import build, normalize, topsort
-from rvgen.loader import load_data
+from slc.diag import DiagnosticSink
+from slc.digest import canonicalize_model, fingerprint_model, fingerprint_payload
+from slc.graph import build, normalize, topsort
+from slc.loader import load_data
 
 _PORT_NAME = st.from_regex(r"[a-z][a-z0-9_]{1,7}", fullmatch=True)
 _MODULE_NAME = st.from_regex(r"[a-z][a-z0-9_]{2,7}", fullmatch=True)

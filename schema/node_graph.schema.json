@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://rvgen.local/schema/node_graph.schema.json",
+  "$id": "https://slc.local/schema/node_graph.schema.json",
   "title": "node_graph.json",
   "description": "纯静态图契约。由操作者显式 graph --write 生成；不得包含布局、trace 指标或时间戳。",
   "type": "object",
@@ -15,7 +15,7 @@
     },
     "generated_by": {
       "type": "string",
-      "pattern": "^rvgen \\d+\\.\\d+\\.\\d+$"
+      "pattern": "^slc \\d+\\.\\d+\\.\\d+$"
     },
     "source_digest": {
       "type": "string",

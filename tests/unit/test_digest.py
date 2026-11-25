@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from rvgen.digest import (
+from slc.digest import (
     canonicalize,
     canonicalize_model,
     fingerprint,
@@ -12,7 +12,7 @@ from rvgen.digest import (
     fingerprint_payload,
     source_digest,
 )
-from rvgen.loader import load_data
+from slc.loader import load_data
 
 
 def _doc(ports=None, **module_extra):
@@ -74,7 +74,7 @@ def test_width_change_changes_fingerprint() -> None:
 
 
 def test_plugin_contract_extension_participates_in_fingerprint() -> None:
-    from rvgen.plugins import Plugin
+    from slc.plugins import Plugin
 
     document = _doc(**{"x-cpu-stage": "EX"})
     document["plugins"] = {"cpu": {"enabled": True}}

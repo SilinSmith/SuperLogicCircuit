@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 
-from rvgen.diag import DiagnosticSink
-from rvgen.trace import normalize, stats, summary
+from slc.diag import DiagnosticSink
+from slc.trace import normalize, stats, summary
 
-META = "#rvgen-meta\tschema=core\ttimescale=ns"
+META = "#slc-meta\tschema=core\ttimescale=ns"
 
 
 def write_tsv(tmp_path, body: str):
@@ -80,7 +80,7 @@ def test_W15_unknown_ext_key_kept(tmp_path):
 def test_cpu_flavor_namespaces_plugin_keys(tmp_path):
     src = write_tsv(
         tmp_path,
-        "#rvgen-meta\tschema=cpu\ttimescale=ns\n0\t0\t0x0\tIDLE\t-\tpipe=IF;ctrl=bubble\n",
+        "#slc-meta\tschema=cpu\ttimescale=ns\n0\t0\t0x0\tIDLE\t-\tpipe=IF;ctrl=bubble\n",
     )
     dst = tmp_path / "run.jsonl"
     sink = DiagnosticSink()

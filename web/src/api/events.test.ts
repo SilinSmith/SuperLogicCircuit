@@ -40,8 +40,8 @@ describe("SSE 事件订阅", () => {
       () => source,
     );
 
-    source.emit("yaml_changed", { path: "rvgen.yaml", sha256: "abc" });
-    expect(onStale).toHaveBeenCalledWith({ kind: "yaml_changed", path: "rvgen.yaml", sha256: "abc" });
+    source.emit("yaml_changed", { path: "slc.yaml", sha256: "abc" });
+    expect(onStale).toHaveBeenCalledWith({ kind: "yaml_changed", path: "slc.yaml", sha256: "abc" });
 
     source.emit("resync", {});
     expect(onResync).toHaveBeenCalledTimes(1);

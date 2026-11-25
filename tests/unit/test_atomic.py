@@ -4,8 +4,8 @@ import os
 
 import pytest
 
-from rvgen.atomic import AtomicWriteError, atomic_write
-from rvgen.diag import DiagnosticSink
+from slc.atomic import AtomicWriteError, atomic_write
+from slc.diag import DiagnosticSink
 
 
 def test_atomic_write_str_and_bytes(tmp_path) -> None:
@@ -34,7 +34,7 @@ def test_atomic_write_backs_up_existing(tmp_path) -> None:
 
 
 def test_atomic_write_failure_keeps_tmp(tmp_path, monkeypatch) -> None:
-    monkeypatch.setattr("rvgen.atomic.time.sleep", lambda _seconds: None)
+    monkeypatch.setattr("slc.atomic.time.sleep", lambda _seconds: None)
     target = tmp_path / "blocked.v"
     target.mkdir()
 

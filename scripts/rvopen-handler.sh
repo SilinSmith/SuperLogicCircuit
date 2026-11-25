@@ -1,8 +1,8 @@
 #!/bin/sh
-# rvgen:// 的 macOS/Linux 处理器：解析 file/line，优先用 VS Code 打开。
+# slc:// 的 macOS/Linux 处理器：解析 file/line，优先用 VS Code 打开。
 set -eu
 
-url="${1:?用法: rvopen-handler.sh 'rvgen://open?file=rvgen.yaml&line=1'}"
+url="${1:?用法: rvopen-handler.sh 'slc://open?file=slc.yaml&line=1'}"
 query="${url#*\?}"
 file=""
 line=""
@@ -21,7 +21,7 @@ done
 IFS=$old_ifs
 
 if [ -z "$file" ]; then
-  echo "rvgen:// 缺少 file 参数：$url" >&2
+  echo "slc:// 缺少 file 参数：$url" >&2
   exit 1
 fi
 

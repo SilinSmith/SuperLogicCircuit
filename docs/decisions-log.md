@@ -1,4 +1,4 @@
-# rvgen 决策与偏差记录
+# SuperLogicCircuit 决策与偏差记录
 
 按阶段追加。每条记录：决策、理由、影响范围、是否需要后续收口。
 遵守既定口径：core 分层、退出码 0/1/2/3、trace 静态列、显式更新图、命名小写。
@@ -45,7 +45,7 @@
 
 ### D7 新增 E15（生成物落后）
 
-- 决策：非 frozen 生成物在 `sync --check` 中落后时报 E15，提示运行 `rvgen sync`。
+- 决策：非 frozen 生成物在 `sync --check` 中落后时报 E15，提示运行 `slc sync`。
 - 理由：文档没有为“生成物落后”分配核心规则码；复用 E09/E00 会误导。新增码不改变 0/1/2/3 退出码。
 - 状态：已收口；如后续文档统一编号，可改名。
 
@@ -71,11 +71,11 @@
 
 ### D11 P3 数据源与样例
 
-- 决策：前端默认读 `/sample/node_graph.json`（`tests/golden/node_graph.json` 的只读拷贝），`?graph=<url>` 可覆盖；P5 接入 `rvgen serve` 后默认改为 `/api/graph`。
+- 决策：前端默认读 `/sample/node_graph.json`（`tests/golden/node_graph.json` 的只读拷贝），`?graph=<url>` 可覆盖；P5 接入 `slc serve` 后默认改为 `/api/graph`。
 - 理由：P3 尚无服务端，但 e2e 必须能加载真实契约；静态样例与 golden 同源，避免前端自造 JSON。
 - 状态：P5 收口为默认 `/api/graph`，样例保留用于离线演示。
 
-### D12 `rvgen://` 按钮在 P3 的行为
+### D12 `slc://` 按钮在 P3 的行为
 
 - 决策：P3 只生成 URI 并复制到剪贴板，附“协议注册后可直接打开”提示；不尝试 `window.location` 跳转，不做全局 URI Scheme 注册。
 - 理由：未注册的协议浏览器会静默失败；方案把协议注册放在 P5，P3 提前拉起会产生误导。
@@ -145,12 +145,12 @@
 
 - 决策：`server.py` 使用标准库 `ThreadingHTTPServer` + SSE 手写流，watcher 用 200 ms 轮询 mtime/sha256 + 400 ms 去抖；不引入 ASGI/FastAPI 运行时，也不使用 `watchdog` 事件线程。
 - 理由：P5 契约（端点、事件、补发/resync）与实现无关；stdlib 方案无线程生命周期泄漏、Windows 文件通知差异与额外测试依赖，单测可直接起本地端口验证。`fastapi/uvicorn/watchdog` 仍在 P0 依赖清单中，后续若要换实现不影响对外契约。
-- 影响：`py/rvgen/server.py`、`tests/unit/test_server_sse.py`。
+- 影响：`py/slc/server.py`、`tests/unit/test_server_sse.py`。
 - 状态：已收口（如需 ASGI 化，另开阶段）。
 
 ### D23 布局持久化键与合并口径
 
-- 决策：前端固定使用 `localStorage["rvgen:layout:v1"]`，按 node id 合并；live 模式下拖动同时 `POST /api/layout` 写入项目根 `layout.json`。重载（应用内或浏览器刷新）只按 id 覆盖坐标，不重建视图偏好。
+- 决策：前端固定使用 `localStorage["slc:layout:v1"]`，按 node id 合并；live 模式下拖动同时 `POST /api/layout` 写入项目根 `layout.json`。重载（应用内或浏览器刷新）只按 id 覆盖坐标，不重建视图偏好。
 - 理由：若按 `source_digest` 分键，YAML 任何改动都会丢坐标，违背“重载保留坐标”的验收；`layout.json` 与 localStorage 双写保证 `serve` 与静态演示一致。
 - 影响：`web/src/lib/layout.ts`、`web/src/App.tsx`、`web/src/views/DataflowView.tsx`。
 - 状态：已收口。
@@ -159,7 +159,7 @@
 
 - 决策：只发 `yaml_changed` / `graph_changed` / `summary_changed` / `git_state` / `resync`；不实现 `check_result`、`rtl_changed`（服务端不跑 check、不监听 RTL）；`POST /api/reload` 仅回读当前图，无副作用、不发事件。
 - 理由：`check_result` 需要服务端常驻 check 运行器，`rtl_changed` 在无 check 模式下会制造噪声；手动重载按 §7.2 由前端 `GET /api/graph` 完成，端点保留只用于显式回读。`node_graph.json` 的变化用 `graph_changed` 表达，避免与 YAML 语义混淆。
-- 影响：`py/rvgen/server.py`、`docs/WEBUI.md`。
+- 影响：`py/slc/server.py`、`docs/WEBUI.md`。
 - 状态：待 P6/后续若加入服务端 check 时补 `check_result`/`rtl_changed`。
 
 ### D25 collapsed / pinned 只持久化、不提供控件
@@ -169,9 +169,9 @@
 - 影响：`web/src/lib/layout.ts`。
 - 状态：待后续 UI 迭代收口。
 
-### D26 rvgen:// 拉起与兜底
+### D26 slc:// 拉起与兜底
 
-- 决策：详情抽屉新增“在编辑器中打开”，点击即尝试 `window.location.href = rvgen://…`，同时把 URI 复制到剪贴板并提示“若未响应，已复制”；保存原复制按钮。三平台注册脚本只给脚本，不自动执行。
+- 决策：详情抽屉新增“在编辑器中打开”，点击即尝试 `window.location.href = slc://…`，同时把 URI 复制到剪贴板并提示“若未响应，已复制”；保存原复制按钮。三平台注册脚本只给脚本，不自动执行。
 - 理由：浏览器无法可靠检测自定义协议是否被处理，静默失败不可接受；Windows 脚本本机可验证，macOS/Linux 脚本按平台标准做法编写但**未实机验证**。
 - 影响：`web/src/lib/rvopen.ts`、`web/src/panels/DetailDrawer.tsx`、`scripts/*`、`docs/WEBUI.md`。
 - 状态：Windows 已收口；macOS/Linux 脚本待实机验证。
@@ -190,21 +190,21 @@
 - 决策：`check` 对期望图与 `node_graph.json` 做逐字段 diff，差异报 `E16`，路径按 `nodes.<id>.ports.<port>.<field>` 生成，最多 20 条；忽略 `generated_by`（仍走 `W10`）与 `source_digest`（注释/格式变化不产生语义噪声）。
 - `--fix`：先按 loader + graph 顺序校验，全部通过后才原子重写 `node_graph.json`，再跑一次 check；schema/规则错误时**不写**。
 - 理由：AC06 要求退出 1、点号路径、hint 与 `--fix`；用户本轮明确把 AC06 纳入范围。
-- 影响：`py/rvgen/checker.py`、`tests/checker/test_check_lint.py`、`tests/fixtures/schema/valid/node_graph.json`（改为真实生成的期望图）。
+- 影响：`py/slc/checker.py`、`tests/checker/test_check_lint.py`、`tests/fixtures/schema/valid/node_graph.json`（改为真实生成的期望图）。
 - 状态：已收口；验收 AC06 = ✅。
 
 ### D37 AC02/AC09/AC11 收口：四个 CLI 接线
 
 - 决策：`init` 用内置 preset（minimal/uart/rv32i）写 YAML 后直接 `load → graph → emit → write`；`import` 调 `importer.import_verilog` 并输出 YAML；`gen cdc` 生成 `CDC_MODULES` 五个模块（WIDTH=1）；`gen fuse-soc` 生成 CAPI=2 `.core`（fileset/参数/default target）。
 - 理由：用户本轮明确要求“接线到库内已有能力”；`.core` 只做文件列表与参数，不自研构建系统。
-- 影响：`py/rvgen/cli.py`、`py/rvgen/init_presets.py`、`py/rvgen/fusesoc.py`、`tests/unit/test_cli_init_import_gen.py`。
+- 影响：`py/slc/cli.py`、`py/slc/init_presets.py`、`py/slc/fusesoc.py`、`tests/unit/test_cli_init_import_gen.py`。
 - 状态：已收口；AC02/AC09/AC11 = ✅。
 
 ### D38 `import` 保留参数化位宽
 
 - 决策：`_width_of` 对 `[WIDTH-1:0]` 返回 `"WIDTH"`，对纯数字仍返回整数；`[A-1:0]` 之外的非常量范围原样返回 `"msb:lsb"`。
-- 理由：AC09 明确要求“参数化位宽也正确”；原实现直接丢弃 → `rvgen.yaml` 缺 `width`，与声明不符。
-- 影响：`py/rvgen/importer.py`、`tests/unit/test_importer.py`。
+- 理由：AC09 明确要求“参数化位宽也正确”；原实现直接丢弃 → `slc.yaml` 缺 `width`，与声明不符。
+- 影响：`py/slc/importer.py`、`tests/unit/test_importer.py`。
 - 状态：已收口；已知边界：复杂表达式（如 `2*W-1:0`）原样输出，是否可被 loader 解析由 schema 决定，不在 import 阶段展开。
 
 ### D39 AC08/AC14 收口：rv32i 样例与 CPU flavor
@@ -212,14 +212,14 @@
 - 决策：`examples/rv32i` 由 `init --preset rv32i` 生成并提交生成物；trace 样例用 `schema=cpu`，已声明键进 `p_cpu`。
 - 同时把模块的 `x-*` 扩展字段透传到图节点：否则前端流水线视图拿不到 `x-cpu-stage`，AC08 的“流水线视图只在 rv32i 出现”不成立。
 - 理由：plugin 字段是图契约的一部分；只透传 `x-` 前缀，核心仍不解释。
-- 影响：`py/rvgen/graph.py`、`tests/unit/test_graph.py`、`examples/rv32i/*`。
+- 影响：`py/slc/graph.py`、`tests/unit/test_graph.py`、`examples/rv32i/*`。
 - 状态：已收口；AC08/AC14 = ✅。未做：真实 RTL 仿真 trace（样例为手工 TSV），`trace summary` 的 `flavor` 仍写 `core`。
 
 ### D28 迁移首例：`axi → handshake`
 
 - 决策：`1.0.0 → 1.1.0` 迁移中，模块 `x-cpu-*` 外的 `axi` 接口/端口统一映射为 `handshake`，同时删除 `profiles`、`stage/stage_index → x-cpu-stage/x-cpu-stage_index`。
 - 理由：`axi` 在 1.0.0 样例中只表示“握手通道”，不是完整 AXI 协议；映射到内置 `handshake` 是语义最小改动。完整 AXI 仍走接口库 `axi4lite`。
-- 影响：`py/rvgen/migrate.py`、`tests/migration/fixtures/v1.0.0.yaml`、AC 表未涉及。
+- 影响：`py/slc/migrate.py`、`tests/migration/fixtures/v1.0.0.yaml`、AC 表未涉及。
 - 状态：已收口；如后续出现真实 AXI 字段，另加 step 而不是改本步。
 
 ### D29 变异测试只在 Linux nightly 跑
@@ -245,14 +245,14 @@
 
 ### D32 AC12 的 grep 命中 CLI 预设名
 
-- 决策：保留 `rvgen init --preset rv32i`（方案 §7.1 明确列出），接受 AC12 的 `grep -rnE "is_cpu|rv32i|..." py/rvgen/` 命中 1 处；AC12 记为 ⚠️。
+- 决策：保留 `slc init --preset rv32i`（方案 §7.1 明确列出），接受 AC12 的 `grep -rnE "is_cpu|rv32i|..." py/slc/` 命中 1 处；AC12 记为 ⚠️。
 - 理由：该字符串是 CLI 样例域名称，不是核心逻辑分支；删掉会与方案 §7.1 冲突。schema 白名单测试（`test_core_whitelist.py`）全绿，核心边界仍成立。
 - 影响：AC12、NOT_IN_SCOPE。
 - 状态：**口径已记录**；若用户要求 grep 零命中，需把 preset 改名并同步方案。
 
 ### D33 工具版本升到 1.0.0
 
-- 决策：`py/rvgen/__init__.py` 从 `0.1.0` 升到 `1.0.0`，同步 golden/fixtures/示例生成物与 `test_cli_skeleton`；tag 打 `v1.0.0`。
+- 决策：`py/slc/__init__.py` 从 `0.1.0` 升到 `1.0.0`，同步 golden/fixtures/示例生成物与 `test_cli_skeleton`；tag 打 `v1.0.0`。
 - 理由：P6 退出标准要求工具版本 `v1.0.0`；tag 与 `--version` 不一致会让 `generated_by` 与 `W10` 失真。
 - 影响：`__init__.py`、`tests/golden/node_graph.json`、`tests/fixtures/schema/valid/node_graph.json`、`web/public/sample/*.json`、`web/src/test/fixtures.ts`、`web/e2e/perf-500.spec.ts`、`examples/uart/*`。
 - 状态：已收口（重新生成后 `graph --write`、`sync`、`sync --check`、`check --strict` 均 0，iverilog 0）。
@@ -310,7 +310,7 @@
 
 ### D46 AC12 口径收紧为 core 字段白名单
 
-- 决策：AC12 以 `tests/unit/test_core_whitelist.py` 为准，要求 core 字段白名单校验通过；“零 grep 命中”不再作为门槛。`rvgen init --preset rv32i` 属样例域名，命中可接受，preset 名不改。
+- 决策：AC12 以 `tests/unit/test_core_whitelist.py` 为准，要求 core 字段白名单校验通过；“零 grep 命中”不再作为门槛。`slc init --preset rv32i` 属样例域名，命中可接受，preset 名不改。
 - 理由：preset 名是方案 §7.1 明确列出的 CLI 名称；把它当领域知识会误伤样例入口。
 - 影响：`docs/ACCEPTANCE.md`（AC12 转 ✅）。
 - 状态：已收口。
@@ -331,7 +331,7 @@
 
 ### D49 版本升 1.0.1，保留 v1.0.0 不动
 
-- 决策：采用方案 B：`py/rvgen/__init__.py` 升到 `1.0.1`，同步重生成 `examples/uart`、`examples/rv32i` 的 `node_graph.json` 与 RTL 版本行、`tests/golden/node_graph.json`、`tests/fixtures/schema/valid/node_graph.json`、`web/public/sample/*.json`、web 测试样例；`CHANGELOG` 拆出 `[1.0.1]`；`v1.0.0` 保持指向 `5d2b3af`，新打 `v1.0.1` 附注 tag。
+- 决策：采用方案 B：`py/slc/__init__.py` 升到 `1.0.1`，同步重生成 `examples/uart`、`examples/rv32i` 的 `node_graph.json` 与 RTL 版本行、`tests/golden/node_graph.json`、`tests/fixtures/schema/valid/node_graph.json`、`web/public/sample/*.json`、web 测试样例；`CHANGELOG` 拆出 `[1.0.1]`；`v1.0.0` 保持指向 `5d2b3af`，新打 `v1.0.1` 附注 tag。
 - 理由：v1.0.0 已作为历史交付点，移动它属于改写公开引用；升补丁号并保留旧 tag 更可追溯。
 - 影响：工具版本、`generated_by`、生成物头注释、ADR-11、HANDOVER、ACCEPTANCE 基准版本。
-- 状态：已收口；schema 版本不变（`rvgen.yaml` 1.1.0 / `node_graph.json` 1.0.0）。
+- 状态：已收口；schema 版本不变（`slc.yaml` 1.1.0 / `node_graph.json` 1.0.0）。

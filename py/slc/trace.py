@@ -16,7 +16,7 @@ from typing import Any, IO, Iterator
 
 from .diag import DiagnosticSink, Location
 
-META_PREFIX = "#rvgen-meta"
+META_PREFIX = "#slc-meta"
 COLUMNS = ("Time", "Cycle", "Loc", "State", "Ids", "Ext")
 CORE_EXT_KEYS = frozenset({"arc", "cdc"})
 PLUGIN_EXT_KEYS: dict[str, frozenset[str]] = {
@@ -44,10 +44,10 @@ def _fail(sink: DiagnosticSink, message: str, path: Path, line: int, col: int | 
 
 
 def parse_meta(line: str, path: Path, sink: DiagnosticSink) -> tuple[str, float]:
-    """解析 `#rvgen-meta\tschema=core\ttimescale=ns`；缺失/非法 → E11。"""
+    """解析 `#slc-meta\tschema=core\ttimescale=ns`；缺失/非法 → E11。"""
     parts = line.split("\t")
     if not parts or parts[0].strip() != META_PREFIX:
-        _fail(sink, "VCD/trace 缺少 #rvgen-meta 元数据行", path, 1)
+        _fail(sink, "VCD/trace 缺少 #slc-meta 元数据行", path, 1)
         return "core", 1.0
     fields: dict[str, str] = {}
     for index, token in enumerate(parts[1:], start=2):
@@ -163,7 +163,7 @@ def normalize(
     warned: set[str] = set()
 
     stdout_mode = dst is None or str(dst) == "-"
-    base = Path(f".rvgen-stdout-{uuid.uuid4().hex}.jsonl") if stdout_mode else Path(dst)
+    base = Path(f".slc-stdout-{uuid.uuid4().hex}.jsonl") if stdout_mode else Path(dst)
     handle, tmp = _open_temp(base)
     try:
         with src.open("r", encoding="utf-8", newline="") as source, handle as target:

@@ -17,7 +17,7 @@ function makeGraph(count: number): NodeGraph {
       { name: "din", dir: "input" as const, width_bits: 32, kind: "data" as const },
       { name: "dout", dir: "output" as const, width_bits: 32, kind: "data" as const },
     ],
-    loc: { file: "rvgen.yaml", line: index + 1 },
+    loc: { file: "slc.yaml", line: index + 1 },
   }));
   const edges = Array.from({ length: count - 1 }, (_, index) => ({
     id: `mod:m${index}.dout->mod:m${index + 1}.din`,
@@ -31,7 +31,7 @@ function makeGraph(count: number): NodeGraph {
   }));
   return {
     schema_version: "1.0.0",
-    generated_by: "rvgen 1.0.1",
+    generated_by: "slc 1.0.1",
     source_digest: "sha256:ffffffffffffffff",
     nodes,
     edges,

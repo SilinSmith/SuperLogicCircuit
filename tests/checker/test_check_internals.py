@@ -10,8 +10,8 @@ from types import SimpleNamespace
 import pytest
 from jsonschema.exceptions import ValidationError
 
-import rvgen.checker as checker
-from rvgen.diag import DiagnosticSink
+import slc.checker as checker
+from slc.diag import DiagnosticSink
 
 
 def test_render_quiet_drops_info_lines(capsys) -> None:

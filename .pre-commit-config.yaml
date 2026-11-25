@@ -1,16 +1,16 @@
-# rvgen 的 pre-commit 门禁：YAML 与图一致性 + 生成物是否落后。
+# slc 的 pre-commit 门禁：YAML 与图一致性 + 生成物是否落后。
 # 安装：pip install pre-commit && pre-commit install
 repos:
   - repo: local
     hooks:
-      - id: rvgen-check
-        name: rvgen check（YAML 与图一致性）
-        entry: rvgen check
+      - id: slc-check
+        name: slc check（YAML 与图一致性）
+        entry: slc check
         language: system
         pass_filenames: false
-        files: '(rvgen\.yaml|node_graph\.json|py/rvgen/.*\.py|plugins/.*\.py)$'
-      - id: rvgen-sync-dry
-        name: rvgen sync --check（生成物是否落后）
-        entry: rvgen sync --check
+        files: '(slc\.yaml|node_graph\.json|py/slc/.*\.py|plugins/.*\.py)$'
+      - id: slc-sync-dry
+        name: slc sync --check（生成物是否落后）
+        entry: slc sync --check
         language: system
         pass_filenames: false

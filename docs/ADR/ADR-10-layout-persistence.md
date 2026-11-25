@@ -1,11 +1,11 @@
 # ADR-10 布局持久化：layout.json + localStorage
 
 > 状态：已采纳；日期：2026-11-25；适用阶段：P5 起。
-> 依据：`rvgen完整方案.md` A5、§7.3；决策记录 D23。
+> 依据：`slc完整方案.md` A5、§7.3；决策记录 D23。
 
 ## 决策
 
-- 浏览器键固定 `localStorage["rvgen:layout:v1"]`，按 **node id** 合并。
+- 浏览器键固定 `localStorage["slc:layout:v1"]`，按 **node id** 合并。
 - live 模式下拖动同时 `POST /api/layout`，服务端合并写项目根 `layout.json`。
 - 重载（应用内或浏览器刷新）只按 id 覆盖坐标，不重建视图偏好。
 - `layout.json` 默认不进 git；`_stale` 条目保留 30 天。

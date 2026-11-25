@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://rvgen.local/schema/rvgen.schema.json",
-  "title": "rvgen.yaml",
-  "description": "rvgen 声明源的唯一契约。核心只认识 module/bridge/memory/clock_gen 四类结构件；plugin 领域字段以 x- 前缀透传。",
+  "$id": "https://slc.local/schema/slc.schema.json",
+  "title": "slc.yaml",
+  "description": "SuperLogicCircuit（slc）声明源的唯一契约。核心只认识 module/bridge/memory/clock_gen 四类结构件；plugin 领域字段以 x- 前缀透传。",
   "type": "object",
   "required": ["schema_version", "project", "clocks", "modules", "top"],
   "additionalProperties": false,

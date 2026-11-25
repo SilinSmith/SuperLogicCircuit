@@ -1,7 +1,7 @@
 # ADR-06 前端框架与布局库选型（P3）
 
 > 状态：已采纳；日期：2026-11-25；适用阶段：P3 起。
-> 依据：`rvgen完整方案.md` 第 2 章与第 15 章。本 ADR 只记录 P3 实际落地的选择与核对结果。
+> 依据：`slc完整方案.md` 第 2 章与第 15 章。本 ADR 只记录 P3 实际落地的选择与核对结果。
 
 ## 决策
 
@@ -13,7 +13,7 @@
 | 布局候选 | `elkjs` 暂不安装；时钟树/精细布局在 P4 评估，届时按需引入并放入 Web Worker |
 | 状态 | React Flow 受控模式（`useNodesState` / `useEdgesState`），拖拽只改前端坐标 |
 | 数据源 | 只读 `node_graph.json` 契约；P3 用 `/sample/node_graph.json`，`?graph=` 可覆盖；P5 起默认 `/api/graph` |
-| 端口 | dev/preview **5174**；`/api` 代理到 `rvgen serve` 的 **8123** |
+| 端口 | dev/preview **5174**；`/api` 代理到 `slc serve` 的 **8123** |
 
 ## v11 → v12 迁移核对（按 12.12.1 类型与实际编译验证）
 
@@ -50,7 +50,7 @@
 ## P5 追加：实时提示与布局持久化
 
 - **事件流**：`EventSource` 订阅 `/api/events`；只累加“有更新（N）”徽标，点击才重新拉图，绝不自动覆写视图。断线由 EventSource 自动重连并携带 `Last-Event-ID`，服务端补发或发 `resync`。
-- **布局**：`localStorage["rvgen:layout:v1"]` 按 node id 合并坐标，重载与浏览器刷新均保留；live 时同步 `POST /api/layout` 写 `layout.json`（不进 git）。`pinned`/`collapsed` 字段已保留，UI 控件待后续（D25）。
+- **布局**：`localStorage["slc:layout:v1"]` 按 node id 合并坐标，重载与浏览器刷新均保留；live 时同步 `POST /api/layout` 写 `layout.json`（不进 git）。`pinned`/`collapsed` 字段已保留，UI 控件待后续（D25）。
 - **数据源**：serve 托管或 `?live=1` 用 `/api/graph`、`/api/trace-summary`；其余场景保持静态样例，e2e 不依赖后端。
 - **构建体积（P5）**：JS 983.58 kB（gzip 325.31 kB），CSS 22.13 kB（gzip 4.16 kB）。
 - **e2e**：新增 `offline.spec.ts`（数据源不可达→错误→恢复后重试）与 `reload-keeps-layout.spec.ts`（应用内重载 / 浏览器刷新后坐标保持）。

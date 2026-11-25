@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# 把 scripts/hooks/* 安装到当前仓库的 .git/hooks（不覆盖已存在的非 rvgen hook）。
+# 把 scripts/hooks/* 安装到当前仓库的 .git/hooks（不覆盖已存在的非 slc hook）。
 set -eu
 
 repo="$(git rev-parse --show-toplevel)"

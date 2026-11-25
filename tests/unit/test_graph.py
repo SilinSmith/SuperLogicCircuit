@@ -8,9 +8,9 @@ from pathlib import Path
 import jsonschema
 import pytest
 
-from rvgen.diag import DiagnosticSink
-from rvgen.graph import bandwidth, build, normalize, topsort, write
-from rvgen.loader import load_data
+from slc.diag import DiagnosticSink
+from slc.graph import bandwidth, build, normalize, topsort, write
+from slc.loader import load_data
 
 
 def mod(name: str, *, clock: str = "clk", ports=None, **extra):

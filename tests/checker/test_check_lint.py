@@ -6,14 +6,14 @@ from pathlib import Path
 
 import yaml
 
-from rvgen.cli import main
+from slc.cli import main
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VALID = REPO_ROOT / "tests" / "fixtures" / "schema" / "valid"
 
 
 def _valid_project(tmp_path: Path, *, graph: bool = True, layout: bool = True) -> Path:
-    shutil.copy(VALID / "rvgen.yaml", tmp_path / "rvgen.yaml")
+    shutil.copy(VALID / "slc.yaml", tmp_path / "slc.yaml")
     if graph:
         shutil.copy(VALID / "node_graph.json", tmp_path / "node_graph.json")
     if layout:
@@ -35,9 +35,9 @@ def test_check_valid_project_returns_zero(tmp_path, monkeypatch, capsys) -> None
 
 def test_check_reports_E09_with_json_path(tmp_path, monkeypatch, capsys) -> None:
     _valid_project(tmp_path, graph=False, layout=False)
-    data = yaml.safe_load((tmp_path / "rvgen.yaml").read_text(encoding="utf-8"))
+    data = yaml.safe_load((tmp_path / "slc.yaml").read_text(encoding="utf-8"))
     data["modules"][0]["stage"] = "IF"
-    _write_yaml(tmp_path / "rvgen.yaml", data)
+    _write_yaml(tmp_path / "slc.yaml", data)
     monkeypatch.chdir(tmp_path)
 
     assert main(["check"]) == 1
@@ -48,9 +48,9 @@ def test_check_reports_E09_with_json_path(tmp_path, monkeypatch, capsys) -> None
 
 def test_check_json_format_goes_to_stdout(tmp_path, monkeypatch, capsys) -> None:
     _valid_project(tmp_path, graph=False, layout=False)
-    data = yaml.safe_load((tmp_path / "rvgen.yaml").read_text(encoding="utf-8"))
+    data = yaml.safe_load((tmp_path / "slc.yaml").read_text(encoding="utf-8"))
     data["modules"][0]["stage"] = "IF"
-    _write_yaml(tmp_path / "rvgen.yaml", data)
+    _write_yaml(tmp_path / "slc.yaml", data)
     monkeypatch.chdir(tmp_path)
 
     assert main(["check", "--format", "json"]) == 1
@@ -64,7 +64,7 @@ def test_check_strict_turns_version_warning_into_exit_2(tmp_path, monkeypatch) -
     _valid_project(tmp_path)
     graph_path = tmp_path / "node_graph.json"
     graph = json.loads(graph_path.read_text(encoding="utf-8"))
-    graph["generated_by"] = "rvgen 9.9.9"
+    graph["generated_by"] = "slc 9.9.9"
     graph_path.write_text(json.dumps(graph, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
 

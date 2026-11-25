@@ -20,8 +20,8 @@ from jsonschema.exceptions import ValidationError
 from .atomic import atomic_write
 from .loader import SCHEMA_VERSION
 
-_SNAPSHOT_ROOT = Path(".rvgen") / "snapshots"
-_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schema" / "rvgen.schema.json"
+_SNAPSHOT_ROOT = Path(".slc") / "snapshots"
+_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schema" / "slc.schema.json"
 
 Transformer = Callable[[dict[str, Any]], dict[str, Any]]
 

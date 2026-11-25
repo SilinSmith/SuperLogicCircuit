@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from rvgen.server import EventBus, Watcher, _Server, make_handler, merge_layout
+from slc.server import EventBus, Watcher, _Server, make_handler, merge_layout
 
 
 @pytest.fixture
@@ -58,7 +58,7 @@ def _read_sse(response) -> tuple[str | None, dict[str, str]]:
 
 def test_event_bus_replay_returns_events_after_last_id():
     bus = EventBus()
-    first = bus.publish("yaml_changed", {"path": "rvgen.yaml"})
+    first = bus.publish("yaml_changed", {"path": "slc.yaml"})
     second = bus.publish("graph_changed", {"path": "node_graph.json"})
     assert first.id == 1 and second.id == 2
     replayed, resync = bus.replay(1)
@@ -105,10 +105,10 @@ def test_watcher_debounce_publishes_once(tmp_path: Path):
     bus = EventBus()
     now, clock = _manual_clock()
     watcher = Watcher(root=tmp_path, bus=bus, debounce=0.4, clock=clock)
-    _touch(tmp_path / "rvgen.yaml", 1.0)
+    _touch(tmp_path / "slc.yaml", 1.0)
     assert watcher.poll_once() == []
 
-    _touch(tmp_path / "rvgen.yaml", 2.0)
+    _touch(tmp_path / "slc.yaml", 2.0)
     now["value"] = 2.0
     assert watcher.poll_once() == []
 
@@ -118,7 +118,7 @@ def test_watcher_debounce_publishes_once(tmp_path: Path):
     now["value"] = 2.45
     events = watcher.poll_once()
     assert [event.kind for event in events] == ["yaml_changed"]
-    assert events[0].payload["path"] == "rvgen.yaml"
+    assert events[0].payload["path"] == "slc.yaml"
     assert events[0].payload["sha256"]
 
     now["value"] = 3.0
@@ -129,10 +129,10 @@ def test_watcher_git_event_publishes_git_state(tmp_path: Path):
     bus = EventBus()
     now, clock = _manual_clock()
     watcher = Watcher(root=tmp_path, bus=bus, debounce=0.4, clock=clock)
-    _touch(tmp_path / ".rvgen" / ".git-event", 1.0)
+    _touch(tmp_path / ".slc" / ".git-event", 1.0)
     watcher.poll_once()
 
-    _touch(tmp_path / ".rvgen" / ".git-event", 2.0)
+    _touch(tmp_path / ".slc" / ".git-event", 2.0)
     now["value"] = 2.0
     watcher.poll_once()
     now["value"] = 2.5
@@ -156,7 +156,7 @@ def test_health_and_graph_endpoints(live_server):
     assert status == 200
     payload = json.loads(body)
     assert payload["ok"] is True
-    assert payload["service"] == "rvgen"
+    assert payload["service"] == "slc"
 
     status, body, _headers = _request(port, "GET", "/api/graph")
     assert status == 200
@@ -187,7 +187,7 @@ def test_layout_post_merges_and_persists(live_server):
 
 def test_sse_replays_after_last_event_id(live_server):
     port, bus, _root = live_server
-    bus.publish("yaml_changed", {"path": "rvgen.yaml"})
+    bus.publish("yaml_changed", {"path": "slc.yaml"})
     bus.publish("graph_changed", {"path": "node_graph.json"})
 
     connection = http.client.HTTPConnection("127.0.0.1", port, timeout=5)

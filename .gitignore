@@ -20,8 +20,8 @@ web/dist/
 playwright-report/
 test-results/
 
-# rvgen 运行态与旁路数据（均不进 git）
-.rvgen/
+# slc 运行态与旁路数据（均不进 git）
+.slc/
 layout.json
 trace_summary.json
 trace/*.jsonl

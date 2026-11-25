@@ -1,18 +1,18 @@
-# rvgen Web 看板（P3–P5）
+# SuperLogicCircuit Web 看板（P3–P5）
 
-> P5 起由 `rvgen serve` 托管：静态产物 + `/api/graph` + SSE 事件流 + 布局持久化。
+> P5 起由 `slc serve` 托管：静态产物 + `/api/graph` + SSE 事件流 + 布局持久化。
 > 前端始终只读受控资产；源文件变化只提示“源已变更”，由用户手动重载（方案 §7.2）。
 
 ## 运行
 
 ```powershell
-rvgen serve                      # 默认 127.0.0.1:8123，自动打开浏览器
-rvgen serve --no-open            # CI/脚本用；不启动浏览器
-rvgen serve --project examples/rv32i --port 8124
+slc serve                      # 默认 127.0.0.1:8123，自动打开浏览器
+slc serve --no-open            # CI/脚本用；不启动浏览器
+slc serve --project examples/rv32i --port 8124
 ```
 
 - 先把前端产物放到 `web/dist`（`cd web && npm run build`）；`serve` 直接托管它。
-- `serve` 读取项目根的 `node_graph.json` / `trace_summary.json` / `layout.json`，**永不写** `node_graph.json` 或 `rvgen.yaml`。
+- `serve` 读取项目根的 `node_graph.json` / `trace_summary.json` / `layout.json`，**永不写** `node_graph.json` 或 `slc.yaml`。
 - 端口被占用时退出码 **3**（E00，IO/环境类）。
 
 开发模式：
@@ -54,10 +54,10 @@ npm run build
 
 | event | data | 触发 |
 |---|---|---|
-| `yaml_changed` | `{path, sha256, at, mtime}` | `rvgen.yaml` 内容变化 |
+| `yaml_changed` | `{path, sha256, at, mtime}` | `slc.yaml` 内容变化 |
 | `graph_changed` | 同上 | `node_graph.json` 被显式改写（`graph --write`） |
 | `summary_changed` | 同上 | `trace_summary.json` 变化 |
-| `git_state` | `{branch, head, dirty, counts, at}` | `.rvgen/.git-event` 被 hook 触碰 |
+| `git_state` | `{branch, head, dirty, counts, at}` | `.slc/.git-event` 被 hook 触碰 |
 | `resync` | `{}` | `Last-Event-ID` 已滑出 64 条环形缓冲，或客户端队列积压被丢弃 |
 
 - watcher 轮询 200 ms，内容稳定 400 ms 后才发一条；同一内容不重复发。
@@ -66,11 +66,11 @@ npm run build
 
 ## 布局与坐标
 
-- 拖动节点写入 `localStorage["rvgen:layout:v1"]`，按 **node id** 合并；浏览器刷新后坐标恢复。
+- 拖动节点写入 `localStorage["slc:layout:v1"]`，按 **node id** 合并；浏览器刷新后坐标恢复。
 - live 模式下同时 `POST /api/layout` 持久化到项目根 `layout.json`（不进 git）。
 - 图中消失的节点移入 `_stale` 保留 30 天；`pinned` / `collapsed` / `control_points` 字段随条目原样保留（UI 暂未提供折叠/钉住控件，见 decisions-log D25）。
 
-## `rvgen://` 与 git hooks
+## `slc://` 与 git hooks
 
 ```powershell
 # Windows（当前用户，无需管理员）
@@ -83,8 +83,8 @@ sh scripts/install-hooks.sh        # 安装 post-commit / post-checkout
 ```
 
 - 处理器 `scripts/rvopen-handler.{ps1,sh}` 优先 `code --goto file:line`，其余用系统默认程序；失败时打印手动命令。
-- hook 在 commit / 分支 checkout 后跑 `rvgen check --quiet` 并触碰 `.rvgen/.git-event`，`serve` 随即推送 `git_state`；**绝不自动改写工作区**。
-- `pre-commit` 门禁示例见仓库根 `.pre-commit-config.yaml`（`rvgen check` + `rvgen sync --check`）。
+- hook 在 commit / 分支 checkout 后跑 `slc check --quiet` 并触碰 `.slc/.git-event`，`serve` 随即推送 `git_state`；**绝不自动改写工作区**。
+- `pre-commit` 门禁示例见仓库根 `.pre-commit-config.yaml`（`slc check` + `slc sync --check`）。
 
 ## 视图与交互
 
@@ -95,7 +95,7 @@ sh scripts/install-hooks.sh        # 安装 post-commit / post-checkout
 | 统计视图 | ECharts 柱状图：边带宽 bit/cycle、节点利用率（有 summary 时）或类型分布 |
 | plugin 视图 | `plugins/cpu` 注册流水线时空图与 Cache；仅当图含 `x-cpu-stage` 或 `p_cpu:*` 节点时出现 |
 | 节点/边 | 端口表 + 带宽徽标；critical 边标红，时钟/复位/CDC 虚线 |
-| 详情抽屉 | 端口表、`file:line`；`rvgen://` 尝试拉起编辑器并始终复制 URI 兜底 |
+| 详情抽屉 | 端口表、`file:line`；`slc://` 尝试拉起编辑器并始终复制 URI 兜底 |
 | live 徽标 | 连接成功显示“实时”；断线显示“连接中”，EventSource 自动重连 |
 
 ## 当前边界（与方案一致的未收口项）

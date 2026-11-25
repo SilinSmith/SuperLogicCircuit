@@ -8,7 +8,7 @@
 第一行必须是元数据，数据行固定 6 列，制表符分隔，无换行/引号/花括号：
 
 ```text
-#rvgen-meta	schema=core	timescale=ns
+#slc-meta	schema=core	timescale=ns
 10	0	0x00000000	IDLE	fifo_cnt=0	-
 20	1	0x00000004	RX	fifo_cnt=1	arc=uart.tx>fifo.push:1
 ```
@@ -71,7 +71,7 @@ $fwrite(f, "%0t\t%0d\t%s\t%s\t%s\t%s\n", $realtime, cyc, loc, state, ids, ext);
 
 ## 4. `trace_summary.json`（旁路指标）
 
-由 `rvgen trace summary <run.jsonl> --graph node_graph.json` 生成；**不进 git，`check` 不读**。
+由 `slc trace summary <run.jsonl> --graph node_graph.json` 生成；**不进 git，`check` 不读**。
 
 ```json
 {
@@ -107,9 +107,9 @@ $fwrite(f, "%0t\t%0d\t%s\t%s\t%s\t%s\n", $realtime, cyc, loc, state, ids, ext);
 ## 5. 命令与退出码
 
 ```powershell
-rvgen trace normalize tb/out.tsv -o trace/run.jsonl --flavor core
-rvgen trace summary trace/run.jsonl --graph node_graph.json -o trace_summary.json
-rvgen trace stats trace/run.jsonl
+slc trace normalize tb/out.tsv -o trace/run.jsonl --flavor core
+slc trace summary trace/run.jsonl --graph node_graph.json -o trace_summary.json
+slc trace stats trace/run.jsonl
 ```
 
 | 情况 | 退出码 |
@@ -122,5 +122,5 @@ rvgen trace stats trace/run.jsonl
 ## 6. 已知边界
 
 - `trace_summary` 的 `flavor` 只用于展示；plugin 专属聚合未实现，CPU 字段以 `p_cpu` 原样保留。
-- 1 000 000 行归一化性能校准用 `RVGEN_PERF=1 pytest tests/perf/test_trace_perf.py`，阈值 25 s。
+- 1 000 000 行归一化性能校准用 `SLC_PERF=1 pytest tests/perf/test_trace_perf.py`，阈值 25 s。
 - 官方 cv32e40p tracer 的真实列序仍**未核实**；`--flavor cpu` 目前只按核心 6 列 + `p_cpu` 透传，不做旧列序映射。

@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from rvgen.diag import DiagnosticSink
-from rvgen.loader import load, load_data, load_text
+from slc.diag import DiagnosticSink
+from slc.loader import load, load_data, load_text
 
 
 def _yaml(version: str = "1.1.0", module_name: str = "uart") -> str:
@@ -41,7 +41,7 @@ def test_load_text_returns_model_and_line_numbers() -> None:
     assert model is not None
     assert model.modules[0].line is not None
     assert model.clocks[0].line is not None
-    assert model.source_name == "rvgen.yaml"
+    assert model.source_name == "slc.yaml"
 
 
 def test_missing_file_sets_io_failure(tmp_path: Path) -> None:

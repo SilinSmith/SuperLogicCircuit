@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from rvgen.cli import main
+from slc.cli import main
 
 
 def _iverilog() -> str | None:
@@ -19,7 +19,7 @@ def test_init_minimal_generates_compilable_project(tmp_path, monkeypatch, capsys
     project = tmp_path / "demo"
     assert main(["init", str(project), "--preset", "minimal"]) == 0
     assert "initialized" in capsys.readouterr().out
-    assert (project / "rvgen.yaml").exists()
+    assert (project / "slc.yaml").exists()
     assert (project / "node_graph.json").exists()
     assert (project / "rtl" / "core.v").exists()
     assert (project / "rtl" / "top.v").exists()
@@ -61,7 +61,7 @@ def test_import_writes_skeleton(tmp_path, monkeypatch, capsys) -> None:
         "endmodule\n",
         encoding="utf-8",
     )
-    out = tmp_path / "rvgen.yaml"
+    out = tmp_path / "slc.yaml"
     assert main(["import", str(verilog), "-o", str(out)]) == 0
     assert "W14" in capsys.readouterr().err
     document = yaml.safe_load(out.read_text(encoding="utf-8"))
@@ -88,7 +88,7 @@ def test_gen_fuse_soc_writes_core(tmp_path, monkeypatch, capsys) -> None:
     core = project / "build" / "uart_example.core"
     document = yaml.safe_load(core.read_text(encoding="utf-8"))
     assert document["CAPI=2"] == 2
-    assert document["name"] == "rvgen:ip:uart_example:1.0.0"
+    assert document["name"] == "slc:ip:uart_example:1.0.0"
     assert "rtl/uart.v" in document["filesets"]["rtl"]["files"]
     assert document["parameters"]["WIDTH"]["default"] == 8
     assert document["targets"]["default"] == {"filesets": ["rtl"]}

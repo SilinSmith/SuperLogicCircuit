@@ -66,7 +66,7 @@
 | Node v24.22.1 | 已装 | `node --version` | P3 起必需 |
 | npm 11.19.1 | 已装 | `npm --version` | P3 起必需 |
 | Chromium（Playwright） | 已装 | `npx playwright install chromium` | 仅 e2e/性能校准需要 |
-| Icarus Verilog 14.0 | 已装 | `iverilog -V` | 必需；`rvgen doctor` 报缺失 |
+| Icarus Verilog 14.0 | 已装 | `iverilog -V` | 必需；`slc doctor` 报缺失 |
 | Yosys 0.56 | 已装 | `yosys -V` | 可选；缺失时用 `iverilog -g2005` |
 | Verilator | 未装 | `verilator --version` 命令不存在 | 可选；`doctor` 只提示，不自动安装 |
 | FuseSoC | 未装 | `fusesoc --version` 命令不存在 | 可选；AC11 用 jsonschema 校验 `.core` 结构 |

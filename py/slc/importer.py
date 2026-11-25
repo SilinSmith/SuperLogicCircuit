@@ -1,4 +1,4 @@
-"""从 Verilog 模块头反向生成 rvgen.yaml 骨架（§1.2 假设：只解析模块头/端口/参数）。"""
+"""从 Verilog 模块头反向生成 slc.yaml 骨架（§1.2 假设：只解析模块头/端口/参数）。"""
 
 from __future__ import annotations
 

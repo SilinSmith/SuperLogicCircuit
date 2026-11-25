@@ -38,7 +38,7 @@ coverage[toml]==7.17.5
 distlib==0.4.4
     # via virtualenv
 fastapi==0.165.0
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 filelock==4.3.1
     # via
     #   python-discovery
@@ -50,19 +50,19 @@ h11==0.16.0
 httptools==0.9.0
     # via uvicorn
 hypothesis==6.170.17
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 identify==2.6.20
     # via pre-commit
 idna==3.20
     # via anyio
 import-linter==2.17
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 iniconfig==2.3.1
     # via pytest
 jinja2==3.1.6
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 jsonschema==4.26.0
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 jsonschema-specifications==2025.9.1
     # via jsonschema
 libcst==1.9.0
@@ -81,7 +81,7 @@ mdit-py-plugins==0.7.0
 mdurl==0.1.2
     # via markdown-it-py
 mutmut==3.8.1
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 nodeenv==1.12.0
     # via pre-commit
 opentelemetry-api==1.45.2
@@ -93,7 +93,7 @@ packaging==26.4
     #   virtualenv
     #   wheel
 pip-tools==7.7.0
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 platformdirs==4.14.8
     # via
     #   textual
@@ -103,7 +103,7 @@ pluggy==1.7.0
     #   pytest
     #   pytest-cov
 pre-commit==4.7.0
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 py-cpuinfo2==10.1.1
     # via pytest-benchmark
 pydantic==2.14.4
@@ -124,11 +124,11 @@ pytest==9.2.0
     #   mutmut
     #   pytest-benchmark
     #   pytest-cov
-    #   rvgen (pyproject.toml)
+    #   slc (pyproject.toml)
 pytest-benchmark==5.3.1
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 pytest-cov==7.1.0
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 python-discovery==1.9.7
     # via virtualenv
 python-dotenv==1.2.4
@@ -137,7 +137,7 @@ pyyaml==6.0.4
     # via
     #   libcst
     #   pre-commit
-    #   rvgen (pyproject.toml)
+    #   slc (pyproject.toml)
     #   uvicorn
 referencing==0.37.0
     # via
@@ -175,11 +175,11 @@ typing-inspection==0.4.5
     #   fastapi
     #   pydantic
 uvicorn[standard]==0.54.0
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 virtualenv==21.15.13
     # via pre-commit
 watchdog==7.1.1
-    # via rvgen (pyproject.toml)
+    # via slc (pyproject.toml)
 watchfiles==1.3.0
     # via uvicorn
 websockets==17.4

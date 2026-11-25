@@ -1,4 +1,4 @@
-// 只读图加载：P5 起由 rvgen serve 提供 /api/graph；静态样例仅用于离线演示。
+// 只读图加载：P5 起由 slc serve 提供 /api/graph；静态样例仅用于离线演示。
 import type { GraphEdge, GraphNode, NodeGraph } from "../../contracts/node_graph";
 
 export const SAMPLE_GRAPH_URL = "/sample/node_graph.json";

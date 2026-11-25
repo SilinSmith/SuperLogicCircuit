@@ -17,9 +17,9 @@
 ### 2.1 trace 归一化
 
 ```powershell
-$env:RVGEN_PERF="1"
+$env:SLC_PERF="1"
 .venv\Scripts\python.exe -m pytest tests/perf -q -s
-Remove-Item Env:\RVGEN_PERF
+Remove-Item Env:\SLC_PERF
 ```
 
 输出样例：

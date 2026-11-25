@@ -11,7 +11,7 @@ def load_schema(name: str) -> dict:
     return json.loads((SCHEMA_DIR / f"{name}.schema.json").read_text(encoding="utf-8"))
 
 
-RVGEN = load_schema("rvgen")
+SLC = load_schema("slc")
 NODE_GRAPH = load_schema("node_graph")
 LAYOUT = load_schema("layout")
 TRACE = load_schema("trace")
@@ -23,7 +23,7 @@ def _has_x_escape(obj: dict) -> bool:
 
 
 def test_core_kind_enum_exactly_four() -> None:
-    assert RVGEN["$defs"]["core_kind"]["enum"] == [
+    assert SLC["$defs"]["core_kind"]["enum"] == [
         "module",
         "bridge",
         "memory",
@@ -32,17 +32,17 @@ def test_core_kind_enum_exactly_four() -> None:
 
 
 def test_module_kind_is_open_string_not_domain_enum() -> None:
-    kind = RVGEN["$defs"]["module"]["properties"]["kind"]
+    kind = SLC["$defs"]["module"]["properties"]["kind"]
     assert kind["type"] == "string"
 
 
 def test_module_schema_has_no_domain_field_names() -> None:
-    props = RVGEN["$defs"]["module"]["properties"]
+    props = SLC["$defs"]["module"]["properties"]
     assert not ({"stage", "stage_index", "cache"} & set(props))
 
 
 def test_module_schema_allows_x_cpu_extension() -> None:
-    assert _has_x_escape(RVGEN["$defs"]["module"])
+    assert _has_x_escape(SLC["$defs"]["module"])
 
 
 def test_node_graph_core_types_exactly_four() -> None:
@@ -66,20 +66,20 @@ def test_node_graph_has_no_bare_plugin_types_in_core_enum() -> None:
 
 def test_structural_objects_allow_x_extensions() -> None:
     objects = [
-        RVGEN,
-        RVGEN["$defs"]["project"],
-        RVGEN["$defs"]["reset"],
-        RVGEN["$defs"]["clock"],
-        RVGEN["$defs"]["cdc"],
-        RVGEN["$defs"]["interface_signal"],
-        RVGEN["$defs"]["interface_lib"],
-        RVGEN["$defs"]["top"],
-        RVGEN["$defs"]["top_port"],
-        RVGEN["$defs"]["tieoff"],
-        RVGEN["$defs"]["module"],
-        RVGEN["$defs"]["param"],
-        RVGEN["$defs"]["port"],
-        RVGEN["$defs"]["module_interface"],
+        SLC,
+        SLC["$defs"]["project"],
+        SLC["$defs"]["reset"],
+        SLC["$defs"]["clock"],
+        SLC["$defs"]["cdc"],
+        SLC["$defs"]["interface_signal"],
+        SLC["$defs"]["interface_lib"],
+        SLC["$defs"]["top"],
+        SLC["$defs"]["top_port"],
+        SLC["$defs"]["tieoff"],
+        SLC["$defs"]["module"],
+        SLC["$defs"]["param"],
+        SLC["$defs"]["port"],
+        SLC["$defs"]["module_interface"],
         NODE_GRAPH["$defs"]["loc"],
         NODE_GRAPH["$defs"]["node_port"],
         NODE_GRAPH["$defs"]["node"],

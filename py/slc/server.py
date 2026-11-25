@@ -1,6 +1,6 @@
 """P5 本地看板服务：只读图/摘要、SSE 事件流、轮询去抖 watcher。
 
-纪律：serve 永不改写 node_graph.json / rvgen.yaml；只有 POST /api/layout 允许写 layout.json。
+纪律：serve 永不改写 node_graph.json / slc.yaml；只有 POST /api/layout 允许写 layout.json。
 事件只表达“受控资产变了”，由前端显示徽标并等待用户手动重载。
 """
 
@@ -33,11 +33,11 @@ KEEPALIVE_SECONDS = 15
 
 # 受控资产 → SSE 事件名；layout.json 由本服务写入，不监听（避免自触发）。
 WATCHED: dict[str, str] = {
-    "rvgen.yaml": "yaml_changed",
+    "slc.yaml": "yaml_changed",
     "node_graph.json": "graph_changed",
     "trace_summary.json": "summary_changed",
 }
-GIT_EVENT = ".rvgen/.git-event"
+GIT_EVENT = ".slc/.git-event"
 
 
 @dataclass
@@ -116,7 +116,7 @@ class Watcher(threading.Thread):
     _stop: threading.Event = field(default_factory=threading.Event)
 
     def __post_init__(self) -> None:
-        super().__init__(daemon=True, name="rvgen-watcher")
+        super().__init__(daemon=True, name="slc-watcher")
 
     def _state(self, key: str) -> tuple[float | None, str | None]:
         path = self.root / key
@@ -209,7 +209,7 @@ def make_handler(root: Path, bus: EventBus) -> type[BaseHTTPRequestHandler]:
     web_dist = root / "web" / "dist"
 
     class Handler(BaseHTTPRequestHandler):
-        server_version = "rvgen/0.1"
+        server_version = "slc/0.1"
 
         def log_message(self, fmt: str, *args: Any) -> None:
             pass
@@ -255,7 +255,7 @@ def make_handler(root: Path, bus: EventBus) -> type[BaseHTTPRequestHandler]:
                     HTTPStatus.OK,
                     {
                         "ok": True,
-                        "service": "rvgen",
+                        "service": "slc",
                         "version": __version__,
                         "project": str(root),
                         "subscribers": bus.subscriber_count(),
@@ -283,7 +283,7 @@ def make_handler(root: Path, bus: EventBus) -> type[BaseHTTPRequestHandler]:
                 self._json(
                     HTTPStatus.OK,
                     {
-                        "service": "rvgen serve",
+                        "service": "slc serve",
                         "hint": "web/dist 不存在：先 cd web && npm run build，或使用 vite dev 5174",
                     },
                 )
@@ -376,7 +376,7 @@ def serve(root: Path, host: str = "127.0.0.1", port: int = 8123, *, open_browser
     watcher = Watcher(root=root, bus=bus)
     watcher.start()
     url = f"http://{host}:{port}/"
-    print(f"rvgen serve: {url}（项目根 {root}）", flush=True)
+    print(f"slc serve: {url}（项目根 {root}）", flush=True)
     if open_browser:
         import webbrowser
 

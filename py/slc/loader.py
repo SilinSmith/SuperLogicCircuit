@@ -41,7 +41,7 @@ SUPPORTED_MAJOR = 1
 MAX_ANCHOR_DEPTH = 10
 
 _SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
-_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schema" / "rvgen.schema.json"
+_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schema" / "slc.schema.json"
 
 _LINE_KEYS: tuple[tuple[str, str], ...] = (
     ("modules", "name"),
@@ -426,7 +426,7 @@ def _from_document(
                 severity="E",
                 message=f"schema_version 主版本不兼容：{version}（当前 {SCHEMA_VERSION}）",
                 where=Location(file=source_name, json_path="schema_version"),
-                hint="先运行 rvgen migrate",
+                hint="先运行 slc migrate",
             )
         )
         return None, diagnostics
@@ -501,7 +501,7 @@ def load_text(
             Diagnostic(
                 code="E09",
                 severity="E",
-                message="rvgen.yaml 顶层必须是 mapping",
+                message="slc.yaml 顶层必须是 mapping",
                 where=Location(file=source_name),
             )
         ]

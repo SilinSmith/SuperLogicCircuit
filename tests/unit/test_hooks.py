@@ -33,7 +33,7 @@ def _install(tmp_path: Path, hook: str) -> None:
 def _init_repo(tmp_path: Path) -> None:
     _git(tmp_path, "init", "-q")
     _git(tmp_path, "config", "user.email", "test@example.invalid")
-    _git(tmp_path, "config", "user.name", "rvgen test")
+    _git(tmp_path, "config", "user.name", "slc test")
     (tmp_path / "a.txt").write_text("1", encoding="utf-8")
     _git(tmp_path, "add", ".")
     _git(tmp_path, "commit", "-qm", "init")
@@ -47,7 +47,7 @@ def test_post_commit_creates_git_event(tmp_path: Path):
     (tmp_path / "a.txt").write_text("2", encoding="utf-8")
     _git(tmp_path, "commit", "-qam", "second")
 
-    assert (tmp_path / ".rvgen" / ".git-event").exists()
+    assert (tmp_path / ".slc" / ".git-event").exists()
 
 
 def test_post_checkout_creates_git_event_only_on_branch_switch(tmp_path: Path):
@@ -56,7 +56,7 @@ def test_post_checkout_creates_git_event_only_on_branch_switch(tmp_path: Path):
     _install(tmp_path, "post-checkout")
 
     _git(tmp_path, "checkout", "-q", "-b", "feature")
-    event = tmp_path / ".rvgen" / ".git-event"
+    event = tmp_path / ".slc" / ".git-event"
     assert event.exists()
 
     event.unlink()

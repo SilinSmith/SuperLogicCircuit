@@ -1,7 +1,7 @@
 # ADR-12 测试策略与质量门禁
 
 > 状态：已采纳；日期：2026-11-25；适用阶段：P0 起。
-> 依据：`rvgen完整方案.md` §8、§9；[TESTING.md](../TESTING.md)。
+> 依据：`slc完整方案.md` §8、§9；[TESTING.md](../TESTING.md)。
 
 ## 决策
 

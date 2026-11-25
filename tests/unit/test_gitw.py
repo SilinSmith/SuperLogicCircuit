@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from rvgen.gitw import count_statuses, parse_porcelain_z, read_git_state
+from slc.gitw import count_statuses, parse_porcelain_z, read_git_state
 
 
 def test_parse_porcelain_z_rename_skips_original_path():
@@ -29,7 +29,7 @@ def _git(cwd: Path, *args: str) -> None:
 def test_read_git_state_tracks_branch_and_counts(tmp_path: Path):
     _git(tmp_path, "init", "-q")
     _git(tmp_path, "config", "user.email", "test@example.invalid")
-    _git(tmp_path, "config", "user.name", "rvgen test")
+    _git(tmp_path, "config", "user.name", "slc test")
     (tmp_path / "a.txt").write_text("1", encoding="utf-8")
     _git(tmp_path, "add", ".")
     _git(tmp_path, "commit", "-qm", "init")

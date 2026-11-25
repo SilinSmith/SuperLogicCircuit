@@ -84,7 +84,7 @@ class _Build:
         self._check_topology()
         document = {
             "schema_version": NODE_GRAPH_VERSION,
-            "generated_by": f"rvgen {__version__}",
+            "generated_by": f"slc {__version__}",
             "source_digest": source_digest(self.model.source_text),
             "nodes": self.nodes,
             "edges": list(self.edges.values()),
@@ -101,7 +101,7 @@ class _Build:
                     f"module 名 {module.name!r} 不能生成 node id（要求 {NODE_ID_RE.pattern}）",
                     module.line,
                     f"modules.{module.name}.name",
-                    hint="命名口径已收紧：rvgen 标识符必须小写；node_graph 的 mod:<name> 只接受小写",
+                    hint="命名口径已收紧：slc 标识符必须小写；node_graph 的 mod:<name> 只接受小写",
                 )
             for port in module.ports:
                 if not NODE_ID_RE.fullmatch(port.name):

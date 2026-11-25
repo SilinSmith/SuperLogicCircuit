@@ -1,9 +1,9 @@
-# rvgen:// 的 Windows 处理器：解析 file/line，优先用 VS Code 打开。
+# slc:// 的 Windows 处理器：解析 file/line，优先用 VS Code 打开。
 param([Parameter(Mandatory = $true)][string]$Uri)
 
 $file = $null
 $line = $null
-if ($Uri -match '^rvgen://open\?(.*)$') {
+if ($Uri -match '^slc://open\?(.*)$') {
   foreach ($pair in $matches[1].Split('&')) {
     if (-not $pair) { continue }
     $kv = $pair.Split('=', 2)
@@ -15,7 +15,7 @@ if ($Uri -match '^rvgen://open\?(.*)$') {
 }
 
 if (-not $file) {
-  Write-Error "rvgen:// 缺少 file 参数：$Uri"
+  Write-Error "slc:// 缺少 file 参数：$Uri"
   exit 1
 }
 

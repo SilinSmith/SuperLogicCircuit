@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from rvgen.cli import main
-from rvgen.migrate import MigrationError, migrate_document, migrate_file
+from slc.cli import main
+from slc.migrate import MigrationError, migrate_document, migrate_file
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "v1.0.0.yaml"
 
@@ -43,7 +43,7 @@ def test_migrate_document_rejects_unknown_start():
 
 def test_dry_run_writes_nothing(tmp_path: Path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    target = tmp_path / "rvgen.yaml"
+    target = tmp_path / "slc.yaml"
     shutil.copy2(FIXTURE, target)
     original = target.read_text(encoding="utf-8")
 
@@ -52,7 +52,7 @@ def test_dry_run_writes_nothing(tmp_path: Path, monkeypatch):
     assert result.written is False
     assert result.snapshot is None
     assert target.read_text(encoding="utf-8") == original
-    assert not (tmp_path / ".rvgen").exists()
+    assert not (tmp_path / ".slc").exists()
     assert {"op": "remove", "path": "/profiles"} in result.patch
     module_ops = [op for op in result.patch if op["path"] == "/modules"]
     assert module_ops and module_ops[0]["value"][0]["x-cpu-stage"] == "EX"
@@ -61,7 +61,7 @@ def test_dry_run_writes_nothing(tmp_path: Path, monkeypatch):
 
 
 def test_migrate_file_snapshots_then_writes(tmp_path: Path):
-    target = tmp_path / "rvgen.yaml"
+    target = tmp_path / "slc.yaml"
     shutil.copy2(FIXTURE, target)
     original = target.read_text(encoding="utf-8")
 
@@ -77,7 +77,7 @@ def test_migrate_file_snapshots_then_writes(tmp_path: Path):
 
 def test_cli_migrate_writes_and_reports(tmp_path: Path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
-    shutil.copy2(FIXTURE, tmp_path / "rvgen.yaml")
+    shutil.copy2(FIXTURE, tmp_path / "slc.yaml")
     assert main(["migrate"]) == 0
     output = capsys.readouterr().out
     assert "1.0.0 → 1.1.0" in output

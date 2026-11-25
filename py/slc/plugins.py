@@ -1,7 +1,7 @@
 """plugin 契约与发现。
 
-核心不认识任何领域概念；plugin 只通过 entry_points(group="rvgen.plugins")
-或 rvgen.yaml 的 plugins: 局部注册进入。P0 只实现发现与 W11 跳过。
+核心不认识任何领域概念；plugin 只通过 entry_points(group="slc.plugins")
+或 slc.yaml 的 plugins: 局部注册进入。P0 只实现发现与 W11 跳过。
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from .diag import DiagnosticSink
 PLUGIN_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 FLAVOR_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 KIND_RE = re.compile(r"^[a-z][a-z0-9_]*$")
-ENTRY_POINT_GROUP = "rvgen.plugins"
+ENTRY_POINT_GROUP = "slc.plugins"
 
 
 @dataclass(frozen=True)
@@ -64,7 +64,7 @@ def _coerce_plugin(candidate: Any) -> Plugin:
         produced = candidate()
         if isinstance(produced, Plugin):
             return produced
-    raise TypeError(f"entry point 必须返回 rvgen.plugins.Plugin，实际为 {type(candidate).__name__}")
+    raise TypeError(f"entry point 必须返回 slc.plugins.Plugin，实际为 {type(candidate).__name__}")
 
 
 def discover(

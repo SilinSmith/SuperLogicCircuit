@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 import shutil
 
-from rvgen.cli import main
+from slc.cli import main
 
 
 def test_version_exits_zero(capsys) -> None:
     assert main(["--version"]) == 0
-    assert "rvgen 1.0.1" in capsys.readouterr().out
+    assert "slc 1.0.1" in capsys.readouterr().out
 
 
 def test_help_exits_zero(capsys) -> None:
@@ -62,7 +62,7 @@ def test_serve_is_wired_to_server(monkeypatch, tmp_path, capsys) -> None:
         calls.update(root=root, host=host, port=port, open_browser=open_browser)
         return 0
 
-    import rvgen.server as server_module
+    import slc.server as server_module
 
     monkeypatch.setattr(server_module, "serve", fake_serve)
     assert main(["serve", "--project", str(tmp_path), "--port", "9000", "--no-open"]) == 0

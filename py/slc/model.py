@@ -15,7 +15,7 @@ from typing import Any, Iterable, Mapping, Sequence
 from .diag import Diagnostic, Location
 from .plugins import Plugin
 
-YAML_FILE = "rvgen.yaml"
+YAML_FILE = "slc.yaml"
 CORE_KINDS: tuple[str, ...] = ("module", "bridge", "memory", "clock_gen")
 BUILTIN_INTERFACE_TYPES: tuple[str, ...] = ("ready_valid", "axi4lite", "axi4stream", "apb", "uart")
 _IMPLICIT_WIDTH_KINDS = ("valid", "ready", "clock", "reset")
@@ -580,7 +580,7 @@ class DesignModel:
                 out.append(
                     self._warning(
                         "W11",
-                        f"rvgen.yaml 配置了 plugin {plugin_id!r}，但未发现对应实现，已忽略",
+                        f"slc.yaml 配置了 plugin {plugin_id!r}，但未发现对应实现，已忽略",
                         None,
                         f"plugins.{plugin_id}",
                     )

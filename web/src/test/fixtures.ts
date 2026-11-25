@@ -13,7 +13,7 @@ export const uartNode: GraphNode = {
     { name: "rxd", dir: "input", width_bits: 1, kind: "data" },
     { name: "tx", dir: "output", width_bits: 1, kind: "data" },
   ],
-  loc: { file: "rvgen.yaml", line: 23, end_line: 33 },
+  loc: { file: "slc.yaml", line: 23, end_line: 33 },
 };
 
 export const fifoNode: GraphNode = {
@@ -28,7 +28,7 @@ export const fifoNode: GraphNode = {
     { name: "push", dir: "input", width_bits: 8, kind: "data" },
     { name: "pop", dir: "output", width_bits: 8, kind: "data" },
   ],
-  loc: { file: "rvgen.yaml", line: 33, end_line: 40 },
+  loc: { file: "slc.yaml", line: 33, end_line: 40 },
 };
 
 export const clockNode: GraphNode = {
@@ -37,7 +37,7 @@ export const clockNode: GraphNode = {
   label: "clk",
   clock: "clk",
   domain: "sys",
-  loc: { file: "rvgen.yaml", line: 8, end_line: 12 },
+  loc: { file: "slc.yaml", line: 8, end_line: 12 },
 };
 
 export const dataEdge: GraphEdge = {
@@ -61,7 +61,7 @@ export const clockEdge: GraphEdge = {
 
 export const sampleGraph: NodeGraph = {
   schema_version: "1.0.0",
-  generated_by: "rvgen 1.0.1",
+  generated_by: "slc 1.0.1",
   source_digest: "sha256:0123456789abcdef",
   nodes: [clockNode, fifoNode, uartNode],
   edges: [clockEdge, dataEdge],

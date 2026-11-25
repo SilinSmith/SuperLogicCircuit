@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "generated_by": "rvgen 1.0.1",
+  "generated_by": "slc 1.0.1",
   "source_digest": "sha256:8feae0ae59e95d61",
   "nodes": [
     {
@@ -10,7 +10,7 @@
       "clock": "clk",
       "domain": "sys",
       "loc": {
-        "file": "rvgen.yaml",
+        "file": "slc.yaml",
         "line": 13,
         "end_line": 17
       }
@@ -52,7 +52,7 @@
         }
       ],
       "loc": {
-        "file": "rvgen.yaml",
+        "file": "slc.yaml",
         "line": 45,
         "end_line": 59
       }
@@ -112,7 +112,7 @@
         }
       ],
       "loc": {
-        "file": "rvgen.yaml",
+        "file": "slc.yaml",
         "line": 18,
         "end_line": 45
       },
