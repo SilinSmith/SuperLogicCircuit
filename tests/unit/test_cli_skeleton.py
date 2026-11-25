@@ -8,7 +8,7 @@ from rvgen.cli import main
 
 def test_version_exits_zero(capsys) -> None:
     assert main(["--version"]) == 0
-    assert "rvgen 1.0.0" in capsys.readouterr().out
+    assert "rvgen 1.0.1" in capsys.readouterr().out
 
 
 def test_help_exits_zero(capsys) -> None:

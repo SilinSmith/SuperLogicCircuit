@@ -4,7 +4,7 @@
 
 ## 1. 一句话现状
 
-`rvgen` v1.0.0 已实现 **YAML 声明 → 校验/建图 → RTL 骨架生成 → 静态看板 → 本地服务 + 失效提示 → trace 指标 → 迁移首例** 的主链路；核心零领域知识，CPU 只是 `plugins/cpu` 示例。
+`rvgen` v1.0.1 已实现 **YAML 声明 → 校验/建图 → RTL 骨架生成 → 静态看板 → 本地服务 + 失效提示 → trace 指标 → 迁移首例** 的主链路；核心零领域知识，CPU 只是 `plugins/cpu` 示例。
 **未实现**：视图切换内存增长实测、离线 npm 缓存内置、macOS/Linux 协议实机验证；elkjs/Worker 已由 dagre 等效替代。详见第 7 节与 AC 表。
 
 ## 2. 上手五分钟
@@ -73,7 +73,7 @@ npm run test:e2e
 | P3 看板 | `7ca2186`、`28637d5` |
 | P4 trace 与插件视图 | `f3729a0`、`0f3ec72` |
 | P5 serve/SSE/布局 | `b72eae3` |
-| P6 硬化与交付 | 本阶段提交 + tag `v1.0.0` |
+| P6 硬化与交付 | 本阶段提交 + tag `v1.0.1` |
 
 分支 `master`，未推送远端；tag 为本地轻量/附注 tag，具体以 `git tag -n` 为准。
 

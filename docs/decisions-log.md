@@ -328,3 +328,10 @@
 - 理由：dagre 已覆盖目标规模且性能有余量，新增 elkjs 依赖与 Worker 改造收益不足；避免为“实现某工具”而非“达成目标”增加维护面。
 - 影响：`docs/ACCEPTANCE.md`（AC29 转 ✅）、`docs/NOT_IN_SCOPE.md`、`docs/HANDOVER.md`。
 - 状态：已收口（无代码改动）。
+
+### D49 版本升 1.0.1，保留 v1.0.0 不动
+
+- 决策：采用方案 B：`py/rvgen/__init__.py` 升到 `1.0.1`，同步重生成 `examples/uart`、`examples/rv32i` 的 `node_graph.json` 与 RTL 版本行、`tests/golden/node_graph.json`、`tests/fixtures/schema/valid/node_graph.json`、`web/public/sample/*.json`、web 测试样例；`CHANGELOG` 拆出 `[1.0.1]`；`v1.0.0` 保持指向 `5d2b3af`，新打 `v1.0.1` 附注 tag。
+- 理由：v1.0.0 已作为历史交付点，移动它属于改写公开引用；升补丁号并保留旧 tag 更可追溯。
+- 影响：工具版本、`generated_by`、生成物头注释、ADR-11、HANDOVER、ACCEPTANCE 基准版本。
+- 状态：已收口；schema 版本不变（`rvgen.yaml` 1.1.0 / `node_graph.json` 1.0.0）。

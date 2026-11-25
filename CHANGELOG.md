@@ -2,6 +2,30 @@
 
 格式参考 Keep a Changelog；版本号遵循 SemVer。工具版本与 schema 版本独立演进。
 
+## [1.0.1] - 2026-11-25
+
+工具自身版本升级；schema 不变（`rvgen.yaml` 1.1.0 / `node_graph.json` 1.0.0）。
+
+### Added
+
+- **CLI**：`init`（minimal/uart/rv32i）、`import`、`gen cdc`、`gen fuse-soc` 接线；`.core` 含 fileset/参数/target。
+- **examples/rv32i**：5 级流水 + I/D cache，cpu 插件字段进图；`trace/example.tsv` 覆盖 `--flavor cpu`。
+- **graph**：模块 `x-*` 扩展字段透传到 node，供 plugin 视图使用。
+
+### Changed
+
+- 数据流边标签用 `E`/`D`/`T` 区分 explicit/derived/trace_summary，trace 边显示实测利用率。
+- 工具版本由 `1.0.0` 升到 `1.0.1`；`generated_by` 与生成物版本行同步。
+
+### Fixed
+
+- `check` 增加与 `node_graph.json` 的逐字段语义 diff（`E16`，点号路径 + hint）与 `check --fix`。
+- `import` 保留 `[WIDTH-1:0]` 参数化位宽（`WIDTH`），不再丢弃。
+
+### Known limitations
+
+见 [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) 与 [docs/HANDOVER.md](docs/HANDOVER.md) 第 7 节。
+
 ## [1.0.0] - 2026-11-25
 
 首个可交付版本：YAML → 校验/建图 → RTL 骨架 → 看板 → 本地服务 → trace → 迁移首例。
@@ -17,10 +41,8 @@
 - **web**：React Flow 12 + dagre 数据流、时钟树、统计、plugin 视图（流水线/Cache）、详情抽屉、`rvgen://` 跳转、布局 localStorage + 服务端合并、失效徽标与手动重载。
 - **rvopen/gitw**：`rvgen://open` URI、三平台注册脚本、`post-commit`/`post-checkout` hook。
 - **migrate**：`1.0.0 → 1.1.0`（去 `profiles`、`stage → x-cpu-stage`、`axi → handshake`），写前快照、`--dry-run` JSON Patch。
-- **CLI**：`init`（minimal/uart/rv32i）、`import`、`gen cdc`、`gen fuse-soc` 接线；`.core` 含 fileset/参数/target。
 - **CI**：Python 覆盖率门禁、lint-imports、前端 typecheck/unit/build/e2e、pre-commit；nightly 变异测试（门槛 80%）。
 - **examples/uart**：uart + fifo + baud_gen，零 CPU，iverilog 编译通过。
-- **examples/rv32i**：5 级流水 + I/D cache，cpu 插件字段进图；`trace/example.tsv` 覆盖 `--flavor cpu`。
 - **docs**：README、ARCHITECTURE、YAML/NODE_GRAPH/TRACE 参考、EXTENDING、TESTING、HANDOVER、NOT_IN_SCOPE、PERF、ACCEPTANCE、12 篇 ADR、决策与偏差记录。
 
 ### Changed
@@ -29,11 +51,9 @@
 - `node_graph.json` 的 node id / node_port 契约**不变**。
 - `sync` 不写 `node_graph.json`；`sync --update-graph` 才写。
 - `serve` 的 `rvgen_protocol` doctor 检查改为 `manual`（注册脚本需用户执行）。
-- 数据流边标签用 `E`/`D`/`T` 区分 explicit/derived/trace_summary，trace 边显示实测利用率。
 
 ### Fixed
 
-- `check` 增加与 `node_graph.json` 的逐字段语义 diff（`E16`，点号路径 + hint）与 `check --fix`。
 - Windows 上 `allow_reuse_address=False`，端口冲突正确退出 3。
 - `sync` 后 `sync --check` 把 W01 一次性提示误判为生成物落后；现比较时忽略 `// [W01]` 行。
 - `merge_layout` 改为两层深合并，节点坐标不再丢失。
@@ -42,7 +62,7 @@
 
 ### Known limitations
 
-见 [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) 与 [docs/HANDOVER.md](docs/HANDOVER.md) 第 7 节：`init/import/gen` CLI、`check --fix`/语义 diff、rv32i 样例、elkjs、离线 npm 缓存、macOS 协议实测。
+见 [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) 与 [docs/HANDOVER.md](docs/HANDOVER.md) 第 7 节。
 
 ## [0.x] - 2026-11-24 及之前
 

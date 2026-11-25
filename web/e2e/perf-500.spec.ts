@@ -31,7 +31,7 @@ function makeGraph(count: number): NodeGraph {
   }));
   return {
     schema_version: "1.0.0",
-    generated_by: "rvgen 1.0.0",
+    generated_by: "rvgen 1.0.1",
     source_digest: "sha256:ffffffffffffffff",
     nodes,
     edges,
