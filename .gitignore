@@ -23,6 +23,7 @@ test-results/
 # slc 运行态与旁路数据（均不进 git）
 .slc/
 layout.json
+!tests/fixtures/schema/valid/layout.json
 trace_summary.json
 trace/*.jsonl
 *.tmp

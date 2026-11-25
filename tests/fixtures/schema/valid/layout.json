@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "views": {
+    "dataflow": {
+      "nodes": {
+        "mod:uart": {
+          "x": 0,
+          "y": 0,
+          "collapsed": false,
+          "pinned": true,
+          "group": null
+        },
+        "mod:fifo": {
+          "x": 320,
+          "y": 0,
+          "collapsed": false,
+          "pinned": false,
+          "group": "mem"
+        }
+      },
+      "edges": {
+        "uart.tx->fifo.push": {
+          "control_points": [
+            [120, 80],
+            [240, 80]
+          ],
+          "label_offset": [0, -12]
+        }
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "zoom": 1
+      },
+      "prefs": {
+        "layout_algo": "dagre",
+        "direction": "LR",
+        "show_trace": false,
+        "filter_domain": ["sys"]
+      }
+    }
+  },
+  "_stale": {}
+}
