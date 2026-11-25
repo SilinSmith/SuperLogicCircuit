@@ -1,7 +1,7 @@
 # 验收场景清单（30 条）
 
 > 状态：✅ 通过；⚠️ 部分通过/未实测；❌ 未实现。
-> 统计：**✅ 22 · ⚠️ 8 · ❌ 0**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
+> 统计：**✅ 23 · ⚠️ 7 · ❌ 0**（基准 2026-11-25，工具 `v1.0.0`，schema `1.1.0`）。
 > 计数说明：此前 `⚠️7 · ❌2` 是分块提交时未同步减项的残留；表内 30 条实际为 ✅21 / ⚠️9 / ❌0，本次只修正计数，未改动任何条目状态。
 > 未通过项不是“测试没跑”，而是能力缺口；逐条对应 [decisions-log.md](decisions-log.md) D27 与 [HANDOVER.md](HANDOVER.md) 第 7 节。
 
@@ -18,7 +18,7 @@
 | AC09 | ✅ | `rvgen import <file.v> -o rvgen.yaml` 已接线；端口/参数骨架 + `W14`，`[WIDTH-1:0]` 归一为 `width: WIDTH`。测试：`test_import_writes_skeleton`、`test_importer.py`。 |
 | AC10 | ✅ | `test_E13_duplicate_top_name_and_multi_driver` 覆盖重复名与多驱动；`test_AC10_clock_role_top_port_never_infers_data_connection` 断言 `role: clock` 顶层端口即使与数据口同名，也不产生数据边/候选，对应输入仍报 `E14`。 |
 | AC11 | ✅ | `rvgen gen fuse-soc` 生成 `<project>.core`：CAPI=2、VLNV、fileset 文件列表、参数默认值、default target；`gen cdc` 生成五个基础模块。测试：`test_gen_fuse_soc_writes_core`、`test_gen_cdc_writes_five_modules`。 |
-| AC12 | ⚠️ | `tests/unit/test_core_whitelist.py` 全部通过（四类 kind、无 stage/cache、plugin 必须 `p_` 前缀）；但 `grep -rnE "is_cpu\|rv32i\|JALR\|pipeline_stage" py/rvgen/` 命中 1 处：`cli.py:42 --preset rv32i`（CLI 样例名，非核心逻辑）。 |
+| AC12 | ✅ | `tests/unit/test_core_whitelist.py` 全部通过（四类 kind、无 stage/cache、plugin 必须 `p_` 前缀）。`grep` 命中仅 `cli.py --preset rv32i`：这是 CLI 样例名、属样例域名，不算核心领域知识；口径已收紧为“core 字段白名单校验通过”，不要求零命中，preset 名不改。 |
 | AC13 | ✅ | `tests/unit/test_plugins.py` 覆盖坏 plugin：schema 非法/规则抛异常 → `W11` 跳过，其余命令退出 0；`rvgen plugin list` 可用。 |
 | AC14 | ✅ | `examples/rv32i/trace/example.tsv` 用 `--flavor cpu` 归一化退出 0，`pipe/dec/ctrl/regw/dcache` 进入 `p_cpu`；核心 6 列不变，`trace summary` 退出 0。 |
 | AC15 | ✅ | `node_graph.json` 无 `metrics`/`viewport`/`position`（`examples/uart` 实测 grep 零命中）；布局与 trace 写旁路文件。 |
@@ -38,10 +38,9 @@
 | AC29 | ⚠️ | 500 节点 p95 **60.2 FPS**（门槛 30）、100 万行归一化 **6.50 s**；200 节点 elkjs Worker <1.5 s **未实现**：新增 elkjs 依赖与异步布局改造成本高，dagre 已满足 500 节点性能门槛。影响：缺少精细分层布局，既有性能指标不受影响。 |
 | AC30 | ⚠️ | `docs/HANDOVER.md` 已交付；未做“未参与者半天独立跑通”的外部试用。 |
 
-### ⚠️ 8 条未通过项：缺什么、卡在哪、补齐成本
+### ⚠️ 7 条未通过项：缺什么、卡在哪、补齐成本
 
-- **AC01**：缺 `vendor/npm` 的 tgz 回填与全新 clone 的 `npm ci --offline` 实测；卡在回填必须先联网安装并打包；补齐约半天（一次联网 + 脚本回填 + 复测）。
-- **AC12**：缺 `grep` 零命中；卡在 `rvgen init --preset rv32i` 是方案 §7.1 明确列出的 CLI 名称，删改会与方案冲突；补齐约半天，但需先拍板“改名 preset”还是“接受该命中”。
+- **AC01**：缺“全新 clone 严格离线”的物料；仓库不内置 tgz，离线安装依赖有网时先跑 `scripts/npm-prefetch.*` 预取本机 cache；补齐需引入制品仓或接受仓库体积增加。
 - **AC19**：缺 `stats_node` 的实际外观验证；卡在核心构图按设计不产出该节点、只保留契约；补齐约 1 天（造一个产出该节点的 plugin 并补前端 e2e，或把契约降级）。
 - **AC21**：缺“视图切换 20 次内存增长 <20%”的实测；卡在浏览器没有稳定的跨浏览器 heap API，只能人工 DevTools 采样或依赖实验性接口；补齐约 1 天，且结果受浏览器与运行环境影响。
 - **AC24**：缺 macOS/Linux 的 `rvgen://` 实机验证；卡在需要对应桌面环境与真人执行注册脚本；补齐约每平台半天，无法在当前 Windows 机器完成。

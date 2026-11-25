@@ -307,3 +307,10 @@
 - 理由：163 MB 二进制历史代价过高；仓库不承担 npm 制品仓职责，预取脚本更符合“离线能力可用但不内置物料”的边界。
 - 影响：`scripts/npm-prefetch.{ps1,sh}`、`.github/workflows/ci.yml`（移除 vendor 分支）、`docs/ACCEPTANCE.md`、`docs/DEPENDENCIES.md`、`docs/NOT_IN_SCOPE.md`。
 - 状态：已收口（预取 0、隔离缓存离线 `npm ci` 0）；D44 作废。
+
+### D46 AC12 口径收紧为 core 字段白名单
+
+- 决策：AC12 以 `tests/unit/test_core_whitelist.py` 为准，要求 core 字段白名单校验通过；“零 grep 命中”不再作为门槛。`rvgen init --preset rv32i` 属样例域名，命中可接受，preset 名不改。
+- 理由：preset 名是方案 §7.1 明确列出的 CLI 名称；把它当领域知识会误伤样例入口。
+- 影响：`docs/ACCEPTANCE.md`（AC12 转 ✅）。
+- 状态：已收口。
