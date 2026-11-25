@@ -321,3 +321,10 @@
 - 理由：核心不产出该节点，要求外观验证等于验证不存在的东西；保留 schema/前端类型只为插件扩展与向后兼容。
 - 影响：`docs/ACCEPTANCE.md`（AC19 转 ✅）、`docs/NODE_GRAPH_REFERENCE.md`、`docs/HANDOVER.md`。
 - 状态：已收口（无代码改动）。
+
+### D48 AC29 不引入 elkjs/Worker，以 dagre 达标
+
+- 决策：AC29 不再要求 200 节点 elkjs/Worker <1.5 s；以 dagre 实测的 500 节点 p95 60.2 FPS（门槛 30）与 100 万行归一化 6.50 s 作为达成证据，标记 ✅。
+- 理由：dagre 已覆盖目标规模且性能有余量，新增 elkjs 依赖与 Worker 改造收益不足；避免为“实现某工具”而非“达成目标”增加维护面。
+- 影响：`docs/ACCEPTANCE.md`（AC29 转 ✅）、`docs/NOT_IN_SCOPE.md`、`docs/HANDOVER.md`。
+- 状态：已收口（无代码改动）。

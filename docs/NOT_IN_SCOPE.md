@@ -28,7 +28,7 @@
 
 | 项 | 状态 |
 |---|---|
-| elkjs / Web Worker 精细布局 | 未实现 |
+| elkjs / Web Worker 精细布局 | 不实现；dagre 已达成 500 节点 p95 60 FPS 的同等目标 |
 | 视图切换内存增长 <20% 实测 | 未测（无稳定跨浏览器 heap API） |
 | 仓库内置离线 npm tgz | 不内置；改为有网时用 `scripts/npm-prefetch.*` 预取到本机 cache |
 | macOS `rvgen://` 实机验证 | 未验证 |
