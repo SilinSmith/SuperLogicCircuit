@@ -7,7 +7,7 @@
 
 | # | 状态 | 结论与证据 |
 |---|---|---|
-| AC01 | ⚠️ | `vendor/wheels/` 有离线 wheel；`vendor/npm/` 为空（只有 `.gitkeep`），`npm ci --offline` 无法从仓库内缓存复原。`scripts/npm-offline.{sh,ps1}` 存在，未做全新 clone 实测。**本轮跳过**：回填 npm 缓存必须联网执行 `npm ci` 并打包，按“需联网就先跳过”处理。影响：全新 clone 的离线 `npm ci --offline` 仍不可用，需联网一次。 |
+| AC01 | ⚠️ | 离线安装能力可用：`scripts/npm-prefetch.*` 预取后，`npm ci --offline` 在隔离缓存下退出 0（192 包，实测）。但仓库不内置 tgz，**依赖有网时先预取**，因此“全新 clone 严格离线一次成功”不成立；`vendor/wheels/` 的 Python 离线安装不受影响。 |
 | AC02 | ✅ | `rvgen init demo` 生成 `rvgen.yaml` + `rtl/` + `node_graph.json`；`check --strict`、`sync --check` 退出 0；有 iverilog 时编译通过。minimal/uart/rv32i 三个 preset 均可生成。测试：`test_cli_init_import_gen.py::test_init_minimal_generates_compilable_project`。 |
 | AC03 | ✅ | `tests/unit/test_emitter.py::test_emit_preserves_user_logic_across_runs`：USER 块原样保留；生成区更新；W01 只在块外。 |
 | AC04 | ✅ | `test_emitter.py::test_merge_reports_duplicate_and_orphan_block`：`orphaned/` 落 `.v.bak`，`I04`，退出 0。 |

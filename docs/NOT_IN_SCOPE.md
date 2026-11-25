@@ -30,7 +30,7 @@
 |---|---|
 | elkjs / Web Worker 精细布局 | 未实现 |
 | 视图切换内存增长 <20% 实测 | 未测（无稳定跨浏览器 heap API） |
-| 离线 npm 缓存回填 | 未回填（需联网一次） |
+| 仓库内置离线 npm tgz | 不内置；改为有网时用 `scripts/npm-prefetch.*` 预取到本机 cache |
 | macOS `rvgen://` 实机验证 | 未验证 |
 | Windows 变异测试 | 依赖 fork，不可用 |
 

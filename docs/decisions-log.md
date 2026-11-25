@@ -300,3 +300,10 @@
 - 理由：AC10 的第二半此前只有文字结论，没有回归保护；现有实现本就不做同名推断，测试应锁住这一行为。
 - 影响：`tests/unit/test_graph.py`、`docs/ACCEPTANCE.md`（AC10 转 ✅）。
 - 状态：已收口（目标测试 2 passed）。
+
+### D45 撤销 vendor/npm tgz，改为有网预取本机缓存
+
+- 决策：回滚 D44 的 tgz 提交（本地未推送，重写历史），`vendor/npm/` 恢复为空；`scripts/npm-offline.*` 更名为 `scripts/npm-prefetch.*`，有网时执行 `npm ci` 把依赖写入本机 npm cache，之后可 `npm ci --offline`。AC01 退回 ⚠️，写明“离线安装能力可用、依赖外部预取”。
+- 理由：163 MB 二进制历史代价过高；仓库不承担 npm 制品仓职责，预取脚本更符合“离线能力可用但不内置物料”的边界。
+- 影响：`scripts/npm-prefetch.{ps1,sh}`、`.github/workflows/ci.yml`（移除 vendor 分支）、`docs/ACCEPTANCE.md`、`docs/DEPENDENCIES.md`、`docs/NOT_IN_SCOPE.md`。
+- 状态：已收口（预取 0、隔离缓存离线 `npm ci` 0）；D44 作废。

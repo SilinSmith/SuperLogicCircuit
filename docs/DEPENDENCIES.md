@@ -77,8 +77,7 @@
 
 - Python：`vendor/wheels/` 存 `pip download -r requirements.lock` 的产物；离线安装命令
   `pip install --no-index --find-links vendor/wheels -r requirements.lock`。
-- npm：`scripts/npm-offline.sh` 与 `scripts/npm-offline.ps1` 只做 `npm cache add vendor/npm/*.tgz`，不联网。
-- P3 已引入 `web/package.json` 与 `web/package-lock.json`，但 `vendor/npm/` 仍为空：未把数百个传递依赖的 tgz（数十 MB）提交进 git。
-  - 本机验证路径：先 `npm install` 预热 npm cache，再在 `web/` 执行 `npm ci --offline` 可通过。
-  - CI 路径：`vendor/npm` 有 tgz 时走 `npm ci --offline`，否则回退为 `npm ci`（联网），见 `.github/workflows/ci.yml` 与 D14。
+- npm：仓库**不内置** `vendor/npm/*.tgz`。有网时运行 `scripts/npm-prefetch.ps1`（Windows）或 `scripts/npm-prefetch.sh`（Linux/macOS），把 `web/` 依赖预取到本机 npm cache；之后可断网执行 `npm ci --offline`。
+  - 验证路径：`npm-prefetch.ps1 -Cache <dir>` 退出 0；临时目录仅含 `package.json`+`package-lock.json` 时 `npm ci --offline --cache <dir>` 退出 0（192 包）。
+  - 限制：离线安装依赖“这台机器事先预取过”，不是全新 clone 即可离线；CI 走联网 `npm ci`，见 `.github/workflows/ci.yml` 与 D45。
 - P0 的 Python 离线包按当前 Windows / CPython 3.11 平台生成；CI 的 Linux job 若要走离线安装，需要另行提供对应平台的 wheel。

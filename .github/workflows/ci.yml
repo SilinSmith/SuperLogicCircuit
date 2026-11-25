@@ -20,8 +20,6 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: web/package-lock.json
-      - name: npm cache（vendor 为空时只告警）
-        run: sh scripts/npm-offline.sh
       - name: install
         run: python -m pip install -e '.[dev]'
       - name: lint-imports（分层契约）
@@ -47,7 +45,7 @@ jobs:
         if: ${{ hashFiles('web/package.json') != '' }}
         working-directory: web
         run: |
-          if ls ../vendor/npm/*.tgz >/dev/null 2>&1; then npm ci --offline; else npm ci; fi
+          npm ci
           npm run typecheck
           npm run test:unit
           npm run build
