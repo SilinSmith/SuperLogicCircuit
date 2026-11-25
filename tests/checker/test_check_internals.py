@@ -138,3 +138,104 @@ def test_lint_project_stops_when_graph_schema_missing(tmp_path: Path, monkeypatc
     sink = DiagnosticSink()
     checker._lint_project(tmp_path, sink)
     assert sink.items == []
+
+
+def test_validate_falls_back_to_first_error(monkeypatch) -> None:
+    monkeypatch.setattr(checker, "best_match", lambda errors: None)
+    sink = DiagnosticSink()
+    assert checker._validate({}, {"type": "object", "required": ["name"]}, "slc.yaml", sink) is False
+    assert sink.items[0].code == "E09"
+    assert "name" in sink.items[0].message
+
+
+def test_keyed_rejects_non_mapping_and_non_string_key() -> None:
+    assert checker._keyed([{"id": 1}], "id") is None
+    assert checker._keyed([1], "id") is None
+
+
+def test_compare_reports_missing_dict_keys_both_directions() -> None:
+    changes: list[checker.Change] = []
+    checker._compare("", {"a": 1}, {"b": 2}, changes)
+    assert {change.path for change in changes} == {"a", "b"}
+    assert next(change for change in changes if change.path == "a").actual == "<missing>"
+    assert next(change for change in changes if change.path == "b").expected == "<missing>"
+
+
+def test_compare_positional_lists_handles_length_mismatch_both_directions() -> None:
+    changes: list[checker.Change] = []
+    checker._compare("params", [1, 2], [1], changes)
+    assert changes == [checker.Change("params[1]", 2, "<missing>")]
+
+    changes = []
+    checker._compare("params", [1], [1, 2], changes)
+    assert changes == [checker.Change("params[1]", "<missing>", 2)]
+
+
+def test_compare_keyed_lists_report_missing_entries() -> None:
+    changes: list[checker.Change] = []
+    checker._compare("nodes", [{"id": "a"}], [{"id": "b"}], changes)
+    assert {change.path for change in changes} == {"nodes.a", "nodes.b"}
+
+
+def test_report_diff_caps_details_and_summarizes() -> None:
+    changes = [checker.Change(f"x[{index}]", index, -index) for index in range(checker._MAX_DIFFS + 1)]
+    sink = DiagnosticSink()
+    checker._report_diff(changes, "node_graph.json", sink)
+    assert len(sink.items) == checker._MAX_DIFFS + 1
+    assert "仅显示前" in sink.items[-1].message
+
+
+def test_fix_graph_requires_config(tmp_path: Path) -> None:
+    sink = DiagnosticSink()
+    checker._fix_graph(tmp_path, sink)
+    assert [item.code for item in sink.items] == ["E00"]
+
+
+def test_fix_graph_stops_on_load_error(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "slc.yaml").write_text("{}", encoding="utf-8")
+
+    def fake_load(path, plugins, sink):
+        sink.error("E01", "load failed")
+        return object(), []
+
+    monkeypatch.setattr(checker, "load", fake_load)
+    sink = DiagnosticSink()
+    checker._fix_graph(tmp_path, sink)
+    assert [item.code for item in sink.items] == ["E01"]
+
+
+def test_fix_graph_stops_when_build_fails(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "slc.yaml").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(checker, "load", lambda path, plugins, sink: (object(), []))
+
+    def fake_build(model, sink):
+        sink.error("E01", "build failed")
+        return None
+
+    monkeypatch.setattr(checker, "build_graph", fake_build)
+    sink = DiagnosticSink()
+    checker._fix_graph(tmp_path, sink)
+    assert [item.code for item in sink.items] == ["E01"]
+
+
+def test_fix_graph_reports_atomic_write_failure(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / "slc.yaml").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(checker, "load", lambda path, plugins, sink: (object(), []))
+    monkeypatch.setattr(checker, "build_graph", lambda model, sink: object())
+
+    from slc.atomic import AtomicWriteError
+
+    def fake_write(graph, path, sink):
+        raise AtomicWriteError(Path(path), Path(path), "disk full")
+
+    monkeypatch.setattr(checker, "write_graph", fake_write)
+    sink = DiagnosticSink()
+    checker._fix_graph(tmp_path, sink)
+    assert sink.io_failure is True
+    assert sink.items[-1].code == "E12"
+
+
+def test_run_check_fix_propagates_failure(tmp_path: Path) -> None:
+    sink = DiagnosticSink()
+    assert checker.run_check(tmp_path, sink, fix=True, output_format="text") == 1
+    assert [item.code for item in sink.items] == ["E00"]
