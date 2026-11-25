@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "trace": "runs/uart_20000.jsonl",
+  "flavor": "core",
+  "cycles": 20000,
+  "timescale_ns": 20.0,
+  "nodes": [
+    { "id": "mod:uart", "active_cycles": 8400, "util": 0.42 },
+    { "id": "mod:fifo", "active_cycles": 18200, "util": 0.91 },
+    { "id": "mod:bridge", "active_cycles": 6600, "util": 0.33 },
+    { "id": "mod:fast_sink", "active_cycles": 2400, "util": 0.12 }
+  ],
+  "edges": [
+    {
+      "id": "mod:fifo.pop->mod:bridge.din",
+      "bytes": 160000,
+      "bits_per_cycle": 8.0,
+      "gbps": 0.2,
+      "toggles": 160000,
+      "toggle_rate": 1.0,
+      "utilization": 1.0
+    },
+    {
+      "id": "mod:uart.tx->mod:fast_sink.din",
+      "bytes": 10000,
+      "bits_per_cycle": 1.0,
+      "gbps": 0.025,
+      "toggles": 10000,
+      "toggle_rate": 0.5,
+      "utilization": 1.0
+    }
+  ],
+  "warnings": []
+}

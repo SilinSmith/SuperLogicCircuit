@@ -25,6 +25,7 @@ test-results/
 layout.json
 !tests/fixtures/schema/valid/layout.json
 trace_summary.json
+!web/public/sample/trace_summary.json
 trace/*.jsonl
 *.tmp
 
