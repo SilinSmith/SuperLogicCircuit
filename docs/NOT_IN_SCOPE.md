@@ -29,9 +29,10 @@
 | 项 | 状态 |
 |---|---|
 | elkjs / Web Worker 精细布局 | 不实现；dagre 已达成 500 节点 p95 60 FPS 的同等目标 |
-| 视图切换内存增长 <20% 实测 | 未测（无稳定跨浏览器 heap API） |
-| 仓库内置离线 npm tgz | 不内置；改为有网时用 `scripts/npm-prefetch.*` 预取到本机 cache |
-| macOS `slc://` 实机验证 | 未验证 |
+| 视图切换内存相对基线实测 | 不做绝对值断言；改为相对基线（同机同浏览器切 20 次，记录 JSHeapUsedSize p95 与基线倍数），尚未测量（AC21） |
+| 仓库内置离线 npm tgz | 不内置；改为有网时用 `scripts/npm-prefetch.*` 预取到本机 cache；Python 依赖的 `vendor/wheels` 离线安装已由 CI 验证（AC01 ✅） |
+| macOS `slc://` 实机验证 | 非验收范围（待环境）；协议验收限定 Windows 本机 + CI `ubuntu-22.04`（AC24） |
+| 未参与者半天五步人工试用 | 非阻塞；需未参与项目的工程师按清单执行（AC30） |
 | Windows 变异测试 | 依赖 fork，不可用 |
 
 ## 3. 判定方法

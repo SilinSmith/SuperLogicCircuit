@@ -5,7 +5,7 @@
 ## 1. 一句话现状
 
 `slc` v1.0.1 已实现 **YAML 声明 → 校验/建图 → RTL 骨架生成 → 静态看板 → 本地服务 + 失效提示 → trace 指标 → 迁移首例** 的主链路；核心零领域知识，CPU 只是 `plugins/cpu` 示例。
-**未实现**：视图切换内存增长实测、离线 npm 缓存内置、macOS/Linux 协议实机验证；elkjs/Worker 已由 dagre 等效替代。详见第 7 节与 AC 表。
+**未完成**：视图切换内存相对基线（AC21）、CI Ubuntu 协议注册实测（AC24，macOS 已移出验收范围）、未参与者的五步人工试用（AC30，非阻塞）；elkjs/Worker 已由 dagre 等效替代。离线安装（AC01）已由 CI 的 `vendor/wheels` 作业验证通过。详见第 7 节与 AC 表。
 
 ## 2. 上手五分钟
 
@@ -92,11 +92,12 @@ npm run test:e2e
 ## 7. 已知缺口（接手第一优先级）
 
 1. 不引入 elkjs/Worker；dagre 已达成 500 节点 p95 60 FPS 的同等性能目标。
-2. 视图切换 20 次内存增长 <20% 未测量；无稳定跨浏览器 heap API。
-3. macOS `slc://` 注册脚本未实机验证；Windows 脚本已验证。
+2. 视图切换内存只做相对基线：同机同浏览器切 20 次，记录 JSHeapUsedSize p95 与基线倍数，不做绝对值断言；尚未测量（AC21）。
+3. 协议验收范围限定 Windows 本机 + CI `ubuntu-22.04`；Windows 已验证，缺 CI Ubuntu 上 `register-rvopen-linux.sh` 实测；macOS 不在验收范围（AC24）。
 4. mutmut 在 Windows 不可用，变异分数只在 nightly Linux 产出。
 5. `trace_summary` 无 plugin 专属聚合；CPU 字段原样保留。
 6. `stats_node` 仅保留给 plugin，核心构图不产出，因此不做外观验收。
+7. 未参与者的半天五步人工试用未执行（AC30，非阻塞）。
 
 ## 8. 修改前自检
 
