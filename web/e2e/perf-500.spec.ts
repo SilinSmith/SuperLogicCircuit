@@ -31,7 +31,7 @@ function makeGraph(count: number): NodeGraph {
   }));
   return {
     schema_version: "1.0.0",
-    generated_by: "slc 1.0.1",
+    generated_by: "slc 1.0.2",
     source_digest: "sha256:ffffffffffffffff",
     nodes,
     edges,

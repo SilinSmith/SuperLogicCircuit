@@ -1,4 +1,4 @@
-// 本文件由 slc 1.0.1 生成；生成区每次整体重写，请勿手改。
+// 本文件由 slc 1.0.2 生成；生成区每次整体重写，请勿手改。
 // slc:fingerprint 22457d238a9a31a6cfae8f7da99c9e8af2159f95ff2e2dc141feb0ed93df60ac
 `timescale 1ns/1ps
 module baud_gen (

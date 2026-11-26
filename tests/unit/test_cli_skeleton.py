@@ -3,12 +3,13 @@ from __future__ import annotations
 import json
 import shutil
 
+from slc import __version__
 from slc.cli import main
 
 
 def test_version_exits_zero(capsys) -> None:
     assert main(["--version"]) == 0
-    assert "slc 1.0.1" in capsys.readouterr().out
+    assert f"slc {__version__}" in capsys.readouterr().out
 
 
 def test_help_exits_zero(capsys) -> None:

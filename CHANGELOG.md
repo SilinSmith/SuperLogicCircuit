@@ -2,11 +2,20 @@
 
 格式参考 Keep a Changelog；版本号遵循 SemVer。工具版本与 schema 版本独立演进。
 
-## [Unreleased]
+## [1.0.2] - 2026-11-26
+
+工具自身补丁版本；schema 不变（`slc.yaml` 1.1.0 / `node_graph.json` 1.0.0）。
+
+### Fixed
+
+- CI：将 `tests/fixtures/schema/valid/layout.json` 纳入版本库，修复干净检出时 11 个测试的 `FileNotFoundError`。
+- CI：将 `web/public/sample/trace_summary.json` 纳入版本库，修复 e2e 统计视图断言失败；新增 `test_sample_files_are_tracked` 回归检查，防止样例再被 `.gitignore` 忽略。
+- CI：补齐 `checker` 覆盖分支（`_compare` 字典/列表差异、`_MAX_DIFFS` 汇总、`check --fix` 异常路径），`checker`/`digest` 覆盖率 100%，95% 门禁通过。
 
 ### Changed
 
-- 项目由 `rvgen` 更名为 **SuperLogicCircuit**，代码标识统一为 `slc`：CLI 命令 `slc`、Python 包 `slc`、配置 `slc.yaml`、协议 `slc://`、环境变量 `SLC_*`、schema 与生成物 `generated_by` 全部同步；不提供旧名兼容别名。工具版本号与既有 tag 不变。
+- 验收口径收敛：AC01 按 CI 可验证的 `vendor/wheels` 离线安装判为通过；AC21 改为相对基线趋势；AC24 收窄为 Windows 本机 + CI `ubuntu-22.04`（macOS 移出）；AC30 定性为非阻塞人工试用；AC27 依据 CI run `45661473395` 转为通过。统计 27✅ / 3⚠️ / 0❌。
+- 工具版本由 `1.0.1` 升到 `1.0.2`；`generated_by` 与生成物版本行同步。
 
 ## [1.0.1] - 2026-11-25
 
@@ -22,6 +31,7 @@
 
 - 数据流边标签用 `E`/`D`/`T` 区分 explicit/derived/trace_summary，trace 边显示实测利用率。
 - 工具版本由 `1.0.0` 升到 `1.0.1`；`generated_by` 与生成物版本行同步。
+- 项目由 `rvgen` 更名为 **SuperLogicCircuit**，代码标识统一为 `slc`：CLI 命令 `slc`、Python 包 `slc`、配置 `slc.yaml`、协议 `slc://`、环境变量 `SLC_*`、schema 与生成物 `generated_by` 全部同步；不提供旧名兼容别名。既有 tag 不变。
 
 ### Fixed
 
