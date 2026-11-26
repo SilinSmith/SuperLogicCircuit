@@ -1,7 +1,7 @@
 # 验收场景清单（30 条）
 
 > 状态：✅ 通过；⚠️ 部分通过/未实测；❌ 未实现。
-> 统计：**✅ 25 · ⚠️ 5 · ❌ 0**（基准 2026-11-25，工具 `v1.0.1`，schema `1.1.0`）。
+> 统计：**✅ 26 · ⚠️ 4 · ❌ 0**（基准 2026-11-26，工具 `v1.0.1`，schema `1.1.0`）。
 > 计数说明：此前 `⚠️7 · ❌2` 是分块提交时未同步减项的残留；表内 30 条实际为 ✅21 / ⚠️9 / ❌0，本次只修正计数，未改动任何条目状态。
 > 未通过项不是“测试没跑”，而是能力缺口；逐条对应 [decisions-log.md](decisions-log.md) D27 与 [HANDOVER.md](HANDOVER.md) 第 7 节。
 
@@ -33,17 +33,16 @@
 | AC24 | ⚠️ | Windows 注册脚本与 `slc://` fallback 已验证；macOS 脚本未实机验证；Linux 脚本按 desktop/xdg-mime 编写未实测三平台全覆盖。 |
 | AC25 | ✅ | `tests/unit/test_trace_*.py`：core 行含 `loc/state/ids/arc/cdc`；cpu 键进 `p_cpu`。 |
 | AC26 | ✅ | `tests/unit/test_trace_E11.py`：换行/列数错误报 E11 带行号，且不写半截 JSONL。 |
-| AC27 | ⚠️ | `tests/unit/test_hooks.py` 验证 commit 阻断与 post-checkout 单次检查；CI 配置含 Playwright，但仓库未推送，`ubuntu-22.04` 实跑未执行。 |
+| AC27 | ✅ | `tests/unit/test_hooks.py` 验证 commit 阻断与 post-checkout 单次检查；CI run [45661473395](https://github.com/SilinSmith/SuperLogicCircuit/actions/runs/45661473395)（head `b65ac2a`）在 GitHub 托管 `ubuntu-22.04` 上 `gate` 全绿：pytest、90%/95% 覆盖率门禁、前端 typecheck/单测/build、Playwright e2e 均通过；同轮 `windows-smoke`、`offline-windows` 也通过。 |
 | AC28 | ✅ | `test_server_sse.py`：缓冲补发、溢出 `resync`、慢客户端丢弃不阻塞。 |
 | AC29 | ✅ | dagre 已达成同等目标：500 节点 p95 **60.2 FPS**（门槛 30）、100 万行归一化 **6.50 s**。不引入 elkjs/Worker；“200 节点 <1.5 s”不再单列为验收项，避免为已达标能力新增依赖。 |
 | AC30 | ⚠️ | `docs/HANDOVER.md` 已交付；未做“未参与者半天独立跑通”的外部试用。 |
 
-### ⚠️ 5 条未通过项：缺什么、卡在哪、补齐成本
+### ⚠️ 4 条未通过项：缺什么、卡在哪、补齐成本
 
 - **AC01**：缺“全新 clone 严格离线”的物料；仓库不内置 tgz，离线安装依赖有网时先跑 `scripts/npm-prefetch.*` 预取本机 cache；补齐需引入制品仓或接受仓库体积增加。
 - **AC21**：缺“视图切换 20 次内存增长 <20%”的实测；卡在浏览器没有稳定的跨浏览器 heap API，只能人工 DevTools 采样或依赖实验性接口；补齐约 1 天，且结果受浏览器与运行环境影响。
 - **AC24**：缺 macOS/Linux 的 `slc://` 实机验证；卡在需要对应桌面环境与真人执行注册脚本；补齐约每平台半天，无法在当前 Windows 机器完成。
-- **AC27**：缺 `ubuntu-22.04` 的 CI 实跑；卡在仓库未推送、没有远程 runner；补齐约半天（推送并触发一次 CI），但涉及外部平台与推送授权。
 - **AC30**：缺“未参与者半天独立跑通”的外部试用；卡在需要真实第三方接手者与半天档期；补齐约半天组织与记录，但依赖他人。
 
 ## 交付判定
