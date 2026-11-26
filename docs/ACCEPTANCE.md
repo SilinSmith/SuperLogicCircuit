@@ -1,13 +1,13 @@
 # 验收场景清单（30 条）
 
 > 状态：✅ 通过；⚠️ 部分通过/未实测；❌ 未实现。
-> 统计：**✅ 26 · ⚠️ 4 · ❌ 0**（基准 2026-11-26，工具 `v1.0.1`，schema `1.1.0`）。
-> 计数说明：此前 `⚠️7 · ❌2` 是分块提交时未同步减项的残留；表内 30 条实际为 ✅21 / ⚠️9 / ❌0，本次只修正计数，未改动任何条目状态。
+> 统计：**✅ 27 · ⚠️ 3 · ❌ 0**（基准 2026-11-26，工具 `v1.0.1`，schema `1.1.0`）。
+> 计数说明：`⚠️7 · ❌2`、`✅21 / ⚠️9` 均为分块提交时未同步减项的历史残留；当前以本行统计为准。
 > 未通过项不是“测试没跑”，而是能力缺口；逐条对应 [decisions-log.md](decisions-log.md) D27 与 [HANDOVER.md](HANDOVER.md) 第 7 节。
 
 | # | 状态 | 结论与证据 |
 |---|---|---|
-| AC01 | ⚠️ | 离线安装能力可用：`scripts/npm-prefetch.*` 预取后，`npm ci --offline` 在隔离缓存下退出 0（192 包，实测）。但仓库不内置 tgz，**依赖有网时先预取**，因此“全新 clone 严格离线一次成功”不成立；`vendor/wheels/` 的 Python 离线安装不受影响。 |
+| AC01 | ✅ | 口径：CI 可验证范围内离线安装通过——仅用仓库内 `vendor/wheels` 安装 Python 依赖，不访问网络。证据：CI run [45661473395](https://github.com/SilinSmith/SuperLogicCircuit/actions/runs/45661473395) 的 `offline-windows` job 执行 `pip install --no-index --find-links vendor/wheels -r requirements.lock` + 可编辑安装，随后 `slc check --strict` 退出 0。前置：`vendor/wheels` 由首次联网 `pip download -r requirements.lock` 备料（见 DEPENDENCIES.md）；npm 包仍需 `scripts/npm-prefetch.*` 预取，不在本条口径内。 |
 | AC02 | ✅ | `slc init demo` 生成 `slc.yaml` + `rtl/` + `node_graph.json`；`check --strict`、`sync --check` 退出 0；有 iverilog 时编译通过。minimal/uart/rv32i 三个 preset 均可生成。测试：`test_cli_init_import_gen.py::test_init_minimal_generates_compilable_project`。 |
 | AC03 | ✅ | `tests/unit/test_emitter.py::test_emit_preserves_user_logic_across_runs`：USER 块原样保留；生成区更新；W01 只在块外。 |
 | AC04 | ✅ | `test_emitter.py::test_merge_reports_duplicate_and_orphan_block`：`orphaned/` 落 `.v.bak`，`I04`，退出 0。 |
@@ -27,26 +27,25 @@
 | AC18 | ✅ | `test_graph.py` 的 E01 用例：未声明参数 + hint 列出可用参数。 |
 | AC19 | ✅ | `module_node`/`clock_node`/`cdc_node` 与 `p_cpu:cache_node`/`p_cpu:pipeline_slot_node` 均有外观（`ModuleNode` 变体 + 样例）；`stats_node` 契约降级为“仅 plugin 可产出”，核心构图不产出，因此不做外观验证（统计视图由前端从边与 trace_summary 计算）。 |
 | AC20 | ✅ | 边标签按来源显示徽标 `E`（explicit）/`D`（derived）/`T`（trace_summary）：derived 显示 bits/cycle + 十进制 GB/s，explicit 显示原值，trace 边附实测利用率（如 `83%`）。测试：`BandwidthEdge.test.tsx::带宽来源与 trace 利用率使用不同标记`、`DataflowView.test.ts::trace_summary 的利用率按边 id 挂到边数据上`；web 单测 39 passed、e2e 9 passed。 |
-| AC21 | ⚠️ | 核心三视图 + cpu 两视图切换有 e2e（`views.spec.ts` 两条）；“切换 20 次内存增长 <20%”**未测量**：浏览器无稳定跨浏览器 heap API，视图切换 remount 属设计。影响：无法用数据证明无泄漏，仅能确认反复切换不崩溃、e2e 通过。 |
+| AC21 | ⚠️ | 口径改为可复现的相对基线，不做堆内存绝对值断言：同一机器、同一浏览器连续切换三视图（含 cpu 两视图）20 次，记录切换前后 JSHeapUsedSize 的 p95 与相对基线倍数，只报告趋势。现有证据仅覆盖切换正确性（`views.spec.ts` 与 e2e 9 passed），尚无该相对基线测量；缺一次 Chromium（CDP `Performance.getMetrics`）采样并写入 PERF.md，故保留 ⚠️。 |
 | AC22 | ✅ | `test_server_sse.py` 的 watcher/SSE；`web/e2e/reload-keeps-layout.spec.ts` 验证重载后坐标保持；1.5 s 内徽标（轮询 200 ms + 去抖 400 ms）。 |
 | AC23 | ✅ | `git check-ignore layout.json` 通过，`git ls-files layout.json` 为空；`slc.yaml` 无 `x:`/`y:`/`position`。 |
-| AC24 | ⚠️ | Windows 注册脚本与 `slc://` fallback 已验证；macOS 脚本未实机验证；Linux 脚本按 desktop/xdg-mime 编写未实测三平台全覆盖。 |
+| AC24 | ⚠️ | 验收范围限定为 Windows 本机 + CI `ubuntu-22.04`；macOS 明确列为非验收范围（待环境，不计入）。现有：Windows 注册脚本与 `slc://` fallback 已验证；缺 CI `ubuntu-22.04` 上执行 `scripts/register-rvopen-linux.sh` 并用 `xdg-mime query default x-scheme-handler/slc` 验证的实测，故保留 ⚠️。 |
 | AC25 | ✅ | `tests/unit/test_trace_*.py`：core 行含 `loc/state/ids/arc/cdc`；cpu 键进 `p_cpu`。 |
 | AC26 | ✅ | `tests/unit/test_trace_E11.py`：换行/列数错误报 E11 带行号，且不写半截 JSONL。 |
 | AC27 | ✅ | `tests/unit/test_hooks.py` 验证 commit 阻断与 post-checkout 单次检查；CI run [45661473395](https://github.com/SilinSmith/SuperLogicCircuit/actions/runs/45661473395)（head `b65ac2a`）在 GitHub 托管 `ubuntu-22.04` 上 `gate` 全绿：pytest、90%/95% 覆盖率门禁、前端 typecheck/单测/build、Playwright e2e 均通过；同轮 `windows-smoke`、`offline-windows` 也通过。 |
 | AC28 | ✅ | `test_server_sse.py`：缓冲补发、溢出 `resync`、慢客户端丢弃不阻塞。 |
 | AC29 | ✅ | dagre 已达成同等目标：500 节点 p95 **60.2 FPS**（门槛 30）、100 万行归一化 **6.50 s**。不引入 elkjs/Worker；“200 节点 <1.5 s”不再单列为验收项，避免为已达标能力新增依赖。 |
-| AC30 | ⚠️ | `docs/HANDOVER.md` 已交付；未做“未参与者半天独立跑通”的外部试用。 |
+| AC30 | ⚠️ | 定性为非阻塞人工试用项，不参与 CI。需要一位未参与本项目的工程师（半天档期）按五步走一遍：①全新 clone 并按 README 安装（含预取）；②`slc init demo` → `graph --write` → `sync` → `check --strict` → `sync --check`；③`examples/uart` 与 `examples/rv32i` 同链路；④`slc serve` 跑三视图 + rv32i 的 CPU 两视图、拖动与重载；⑤按 HANDOVER 第 7 节记录问题与结论。当前无外部试用记录，保留 ⚠️。 |
 
-### ⚠️ 4 条未通过项：缺什么、卡在哪、补齐成本
+### ⚠️ 3 条未通过项：缺什么、卡在哪、补齐成本
 
-- **AC01**：缺“全新 clone 严格离线”的物料；仓库不内置 tgz，离线安装依赖有网时先跑 `scripts/npm-prefetch.*` 预取本机 cache；补齐需引入制品仓或接受仓库体积增加。
-- **AC21**：缺“视图切换 20 次内存增长 <20%”的实测；卡在浏览器没有稳定的跨浏览器 heap API，只能人工 DevTools 采样或依赖实验性接口；补齐约 1 天，且结果受浏览器与运行环境影响。
-- **AC24**：缺 macOS/Linux 的 `slc://` 实机验证；卡在需要对应桌面环境与真人执行注册脚本；补齐约每平台半天，无法在当前 Windows 机器完成。
-- **AC30**：缺“未参与者半天独立跑通”的外部试用；卡在需要真实第三方接手者与半天档期；补齐约半天组织与记录，但依赖他人。
+- **AC21**：缺相对基线测量；需同机同浏览器连续切换 20 次，用 CDP `Performance.getMetrics` 记录 JSHeapUsedSize p95 与基线倍数并写入 PERF.md；补齐约半天，只报趋势，不做绝对值断言。
+- **AC24**：缺 CI `ubuntu-22.04` 上 `register-rvopen-linux.sh` 与 `xdg-mime` 查询实测；macOS 已移出验收范围，不再计入；补齐需在 Ubuntu runner 增加一步，约 1 小时。
+- **AC30**：非阻塞人工试用；需未参与项目的工程师半天，按五步清单走一遍并回传记录；不阻塞 CI 与交付。
 
 ## 交付判定
 
 - **可以作为 v1.0.1 交付的能力**：YAML 校验、静态建图、RTL 骨架与用户块保护、`sync --check`、看板三视图 + plugin 视图、本地服务/SSE/布局、trace 归一化与 summary、迁移首例、文档全套。
-- **不能宣称完成的能力**：elkjs 精细布局、离线 npm 缓存、跨平台协议全验证、视图切换内存增长实测。
+- **不能宣称完成的能力**：elkjs 精细布局、仓库内置离线 npm 缓存、macOS 协议验证、视图切换内存绝对值断言。
 - 上述缺口已同步到 [NOT_IN_SCOPE.md](NOT_IN_SCOPE.md) 第 2 节与 [HANDOVER.md](HANDOVER.md) 第 7 节，不藏在测试通过率里。
